@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { PagePlaceholder } from "@/components/PagePlaceholder";
 import PortalPage from "./pages/Portal.tsx";
+import CustomersAdminPage from "./pages/admin/Customers.tsx";
+import { ExpiryGate } from "@/components/auth/ExpiryGate";
 
 const queryClient = new QueryClient();
 
@@ -52,21 +54,24 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route element={<ProtectedRoute />}>
-                <Route element={<AppLayout />}>
-                  <Route path="/dashboard" element={<Index />} />
-                  <Route path="/income" element={<IncomePage />} />
-                  <Route path="/expense" element={<ExpensePage />} />
-                  <Route path="/capital" element={<CapitalPage />} />
-                  <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
-                  <Route path="/clients" element={<ClientsPage />} />
-                  <Route path="/products" element={<ProductsPage />} />
-                  <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/receivables" element={<ReceivablesPage />} />
-                  <Route path="/payables" element={<PayablesPage />} />
-                  <Route path="/notes" element={<NotesPage />} />
-                  <Route path="/reminders" element={<RemindersPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
+                <Route element={<ExpiryGate />}>
+                  <Route element={<AppLayout />}>
+                    <Route path="/dashboard" element={<Index />} />
+                    <Route path="/income" element={<IncomePage />} />
+                    <Route path="/expense" element={<ExpensePage />} />
+                    <Route path="/capital" element={<CapitalPage />} />
+                    <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
+                    <Route path="/clients" element={<ClientsPage />} />
+                    <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/receivables" element={<ReceivablesPage />} />
+                    <Route path="/payables" element={<PayablesPage />} />
+                    <Route path="/notes" element={<NotesPage />} />
+                    <Route path="/reminders" element={<RemindersPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/admin/customers" element={<CustomersAdminPage />} />
+                  </Route>
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
