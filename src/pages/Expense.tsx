@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TrendingDown, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +35,8 @@ import { ExpenseFormDialog } from "@/components/expense/ExpenseFormDialog";
 import { exportExpensesCSV, exportExpensesPDF } from "@/lib/export";
 import { deleteExpenseAttachment } from "@/lib/storage";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 
 type RangeKey = "Today" | "This Week" | "This Month" | "This Year" | "All";
 const RANGE_TABS: RangeKey[] = ["Today", "This Week", "This Month", "This Year", "All"];
@@ -60,7 +62,15 @@ function inRange(dateISO: string, range: RangeKey) {
 }
 
 export default function ExpensePage() {
-  const { expenses, add, update, remove } = useExpenseStore();
+  const { expenses, add, update, remove, fetch, loadedOrgId } = useExpenseStore();
+  const { user } = useAuth();
+  const { currentOrgId } = useOrg();
+
+  useEffect(() => {
+    if (currentOrgId && currentOrgId !== loadedOrgId) {
+      void fetch(currentOrgId).catch((e) => toast.error(e.message ?? "Failed to load expenses"));
+    }
+  }, [currentOrgId, loadedOrgId, fetch]);
 
   const [range, setRange] = useState<RangeKey>("All");
   const [search, setSearch] = useState("");
@@ -282,9 +292,13 @@ export default function ExpensePage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         initial={editing}
-        onSubmit={(values) => {
-          if (editing) update(editing.id, values);
-          else add(values);
+        onSubmit={async (values) => {
+          try {
+            if (editing) await update(editing.id, values);
+            else if (currentOrgId && user) await add(currentOrgId, user.id, values);
+          } catch (e: any) {
+            toast.error(e.message ?? "Failed to save");
+          }
         }}
       />
 
@@ -300,14 +314,17 @@ export default function ExpensePage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-expense text-expense-foreground hover:bg-expense/90"
-              onClick={() => {
-                if (pendingDelete) {
+              onClick={async () => {
+                if (!pendingDelete) return;
+                try {
                   if (pendingDelete.documentPath) {
                     void deleteExpenseAttachment(pendingDelete.documentPath).catch(() => {});
                   }
-                  remove(pendingDelete.id);
+                  await remove(pendingDelete.id);
                   toast.success("Expense deleted");
                   setPendingDelete(null);
+                } catch (e: any) {
+                  toast.error(e.message ?? "Failed to delete");
                 }
               }}
             >
