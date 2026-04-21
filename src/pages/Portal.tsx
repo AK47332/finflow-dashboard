@@ -44,7 +44,7 @@ export default function PortalPage() {
             </Button>
             <Button asChild size="lg" variant="outline" className="flex-1">
               <a href={SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer">
-                Get a subscription
+                Renew Your Package
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

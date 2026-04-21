@@ -89,7 +89,7 @@ export default function AuthPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
             >
-              Get a subscription
+              Renew Your Package
               <ExternalLink className="h-3 w-3" />
             </a>
           </p>
