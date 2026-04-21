@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const INCOME_BUCKET = "income-attachments";
+export const EXPENSE_BUCKET = "expense-attachments";
 
 export type UploadedAttachment = {
   path: string;
@@ -9,13 +10,13 @@ export type UploadedAttachment = {
   type: string;
 };
 
-export async function uploadIncomeAttachment(file: File): Promise<UploadedAttachment> {
+async function uploadAttachment(bucket: string, file: File): Promise<UploadedAttachment> {
   const ext = file.name.includes(".") ? file.name.split(".").pop() : "";
   const safeName = file.name.replace(/[^\w.\-]+/g, "_");
   const path = `${crypto.randomUUID()}${ext ? "." + ext : ""}`;
 
   const { error } = await supabase.storage
-    .from(INCOME_BUCKET)
+    .from(bucket)
     .upload(path, file, {
       cacheControl: "3600",
       upsert: false,
@@ -24,7 +25,7 @@ export async function uploadIncomeAttachment(file: File): Promise<UploadedAttach
 
   if (error) throw error;
 
-  const { data } = supabase.storage.from(INCOME_BUCKET).getPublicUrl(path);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
 
   return {
     path,
@@ -34,7 +35,12 @@ export async function uploadIncomeAttachment(file: File): Promise<UploadedAttach
   };
 }
 
-export async function deleteIncomeAttachment(path: string): Promise<void> {
-  const { error } = await supabase.storage.from(INCOME_BUCKET).remove([path]);
+async function deleteAttachment(bucket: string, path: string): Promise<void> {
+  const { error } = await supabase.storage.from(bucket).remove([path]);
   if (error) throw error;
 }
+
+export const uploadIncomeAttachment = (file: File) => uploadAttachment(INCOME_BUCKET, file);
+export const deleteIncomeAttachment = (path: string) => deleteAttachment(INCOME_BUCKET, path);
+export const uploadExpenseAttachment = (file: File) => uploadAttachment(EXPENSE_BUCKET, file);
+export const deleteExpenseAttachment = (path: string) => deleteAttachment(EXPENSE_BUCKET, path);
