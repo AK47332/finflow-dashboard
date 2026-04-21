@@ -9,6 +9,12 @@ import IncomePage from "./pages/Income.tsx";
 import ExpensePage from "./pages/Expense.tsx";
 import AuthPage from "./pages/Auth.tsx";
 import OnboardingPage from "./pages/Onboarding.tsx";
+import ClientsPage from "./pages/Clients.tsx";
+import ProductsPage from "./pages/Products.tsx";
+import ServicesPage from "./pages/Services.tsx";
+import ReceivablesPage from "./pages/Receivables.tsx";
+import PayablesPage from "./pages/Payables.tsx";
+import CapitalPage from "./pages/Capital.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
@@ -48,13 +54,13 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/income" element={<IncomePage />} />
                   <Route path="/expense" element={<ExpensePage />} />
-                  <Route path="/capital" element={<PagePlaceholder title="Capital" description="Manage your starting capital and adjustments." icon={Wallet} />} />
+                  <Route path="/capital" element={<CapitalPage />} />
                   <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
-                  <Route path="/clients" element={<PagePlaceholder title="Clients" description="Your customer book and revenue per client." icon={Users} />} />
-                  <Route path="/products" element={<PagePlaceholder title="Products" description="Catalog of items you sell." icon={Package} />} />
-                  <Route path="/services" element={<PagePlaceholder title="Services" description="Service offerings and pricing." icon={Briefcase} />} />
-                  <Route path="/receivables" element={<PagePlaceholder title="Receivables" description="Money owed to you." icon={ArrowDownLeft} />} />
-                  <Route path="/payables" element={<PagePlaceholder title="Payables" description="Money you owe." icon={ArrowUpRight} />} />
+                  <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/receivables" element={<ReceivablesPage />} />
+                  <Route path="/payables" element={<PayablesPage />} />
                   <Route path="/notes" element={<PagePlaceholder title="Notes" description="Quick notes, Google Keep style." icon={StickyNote} />} />
                   <Route path="/reminders" element={<PagePlaceholder title="Reminders" description="Never miss a deadline again." icon={Bell} />} />
                   <Route path="/reports" element={<PagePlaceholder title="Reports" description="P&L, income, expense and category reports." icon={BarChart3} />} />
