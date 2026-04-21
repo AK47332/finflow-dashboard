@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import IncomePage from "./pages/Income.tsx";
+import ExpensePage from "./pages/Expense.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   TrendingUp,
@@ -36,7 +37,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
             <Route path="/income" element={<IncomePage />} />
-            <Route path="/expense" element={<PagePlaceholder title="Expense" description="Keep an eye on your outgoings." icon={TrendingDown} />} />
+            <Route path="/expense" element={<ExpensePage />} />
             <Route path="/capital" element={<PagePlaceholder title="Capital" description="Manage your starting capital and adjustments." icon={Wallet} />} />
             <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
             <Route path="/clients" element={<PagePlaceholder title="Clients" description="Your customer book and revenue per client." icon={Users} />} />
