@@ -41,7 +41,7 @@ export function AppLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader onMenu={() => setMobileOpen(true)} />
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main className="flex-1 px-3 pt-5 pb-24 sm:px-4 sm:py-6 md:px-8 md:py-8">
           <Outlet />
         </main>
       </div>
