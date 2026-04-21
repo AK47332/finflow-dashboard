@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import IncomePage from "./pages/Income.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   TrendingUp,
@@ -34,7 +35,7 @@ const App = () => (
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
-            <Route path="/income" element={<PagePlaceholder title="Income" description="Track every dollar coming in." icon={TrendingUp} />} />
+            <Route path="/income" element={<IncomePage />} />
             <Route path="/expense" element={<PagePlaceholder title="Expense" description="Keep an eye on your outgoings." icon={TrendingDown} />} />
             <Route path="/capital" element={<PagePlaceholder title="Capital" description="Manage your starting capital and adjustments." icon={Wallet} />} />
             <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
