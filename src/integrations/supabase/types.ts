@@ -14,6 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
+      capital_movements: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          date: string
+          description: string | null
+          id: string
+          organization_id: string
+          payment_method: string | null
+          type: Database["public"]["Enums"]["capital_type"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by: string
+          date: string
+          description?: string | null
+          id?: string
+          organization_id: string
+          payment_method?: string | null
+          type: Database["public"]["Enums"]["capital_type"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          date?: string
+          description?: string | null
+          id?: string
+          organization_id?: string
+          payment_method?: string | null
+          type?: Database["public"]["Enums"]["capital_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_movements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          address: string | null
+          company: string | null
+          created_at: string
+          created_by: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          organization_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          company?: string | null
+          created_at?: string
+          created_by: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -233,6 +330,119 @@ export type Database = {
         }
         Relationships: []
       }
+      payables: {
+        Row: {
+          amount: number
+          amount_paid: number
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          expense_id: string | null
+          id: string
+          organization_id: string
+          status: Database["public"]["Enums"]["ledger_status"]
+          updated_at: string
+          vendor_name: string
+        }
+        Insert: {
+          amount: number
+          amount_paid?: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          expense_id?: string | null
+          id?: string
+          organization_id: string
+          status?: Database["public"]["Enums"]["ledger_status"]
+          updated_at?: string
+          vendor_name: string
+        }
+        Update: {
+          amount?: number
+          amount_paid?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          expense_id?: string | null
+          id?: string
+          organization_id?: string
+          status?: Database["public"]["Enums"]["ledger_status"]
+          updated_at?: string
+          vendor_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payables_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payables_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          cost: number
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          price: number
+          sku: string | null
+          stock: number
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          price?: number
+          sku?: string | null
+          stock?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          price?: number
+          sku?: string | null
+          stock?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -266,6 +476,120 @@ export type Database = {
         }
         Relationships: []
       }
+      receivables: {
+        Row: {
+          amount: number
+          amount_paid: number
+          client_id: string | null
+          client_name: string
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          income_id: string | null
+          organization_id: string
+          status: Database["public"]["Enums"]["ledger_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          amount_paid?: number
+          client_id?: string | null
+          client_name: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          income_id?: string | null
+          organization_id: string
+          status?: Database["public"]["Enums"]["ledger_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          amount_paid?: number
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          income_id?: string | null
+          organization_id?: string
+          status?: Database["public"]["Enums"]["ledger_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receivables_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_income_id_fkey"
+            columns: ["income_id"]
+            isOneToOne: false
+            referencedRelation: "incomes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          price: number
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          price?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          price?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -287,6 +611,8 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "member"
+      capital_type: "contribution" | "withdrawal"
+      ledger_status: "pending" | "partial" | "paid" | "overdue"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -415,6 +741,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "member"],
+      capital_type: ["contribution", "withdrawal"],
+      ledger_status: ["pending", "partial", "paid", "overdue"],
     },
   },
 } as const
