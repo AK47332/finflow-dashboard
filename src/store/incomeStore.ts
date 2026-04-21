@@ -92,7 +92,7 @@ type IncomeState = {
   reset: () => void;
 };
 
-export const useIncomeStore = create<IncomeState>((set, get) => ({
+export const useIncomeStore = create<IncomeState>((set) => ({
   incomes: [],
   loading: false,
   loadedOrgId: null,

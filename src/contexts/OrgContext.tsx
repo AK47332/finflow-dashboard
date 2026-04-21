@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthContext";
+import { useIncomeStore } from "@/store/incomeStore";
+import { useExpenseStore } from "@/store/expenseStore";
 
 export type Organization = {
   id: string;
@@ -38,6 +40,8 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       setCurrentOrgId(null);
       setRole(null);
       setLoading(false);
+      useIncomeStore.getState().reset();
+      useExpenseStore.getState().reset();
       return;
     }
     setLoading(true);
@@ -84,6 +88,12 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!authLoading) void refresh();
   }, [authLoading, refresh]);
+
+  // Reset stores when org changes so they refetch fresh data
+  useEffect(() => {
+    useIncomeStore.getState().reset();
+    useExpenseStore.getState().reset();
+  }, [currentOrgId]);
 
   const switchOrg = async (orgId: string) => {
     if (!user) return;
