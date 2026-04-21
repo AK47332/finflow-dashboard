@@ -285,23 +285,29 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
 
           <div className="space-y-1.5">
             <Label>Attachment</Label>
-            {documentDataUrl ? (
+            {uploading ? (
+              <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                Uploading…
+              </div>
+            ) : documentUrl ? (
               <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <FileText className="h-4 w-4 shrink-0 text-primary" />
-                  <span className="truncate text-sm font-medium text-foreground">
+                  <a
+                    href={documentUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="truncate text-sm font-medium text-foreground hover:text-primary"
+                  >
                     {documentName}
-                  </span>
+                  </a>
                 </div>
                 <Button
                   type="button"
                   size="icon"
                   variant="ghost"
-                  onClick={() => {
-                    setDocumentName(undefined);
-                    setDocumentDataUrl(undefined);
-                    setDocumentType(undefined);
-                  }}
+                  onClick={() => void handleRemoveAttachment()}
                   aria-label="Remove attachment"
                 >
                   <X className="h-4 w-4" />
@@ -317,25 +323,13 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                      toast.error("File too large (max 5 MB)");
-                      e.target.value = "";
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      setDocumentDataUrl(reader.result as string);
-                      setDocumentName(file.name);
-                      setDocumentType(file.type);
-                    };
-                    reader.onerror = () => toast.error("Failed to read file");
-                    reader.readAsDataURL(file);
+                    if (file) void handleFilePick(file);
+                    e.target.value = "";
                   }}
                 />
               </label>
             )}
-            <p className="text-xs text-muted-foreground">Image or PDF, up to 5 MB.</p>
+            <p className="text-xs text-muted-foreground">Image or PDF, up to 5 MB. Saved to Lovable Cloud storage.</p>
           </div>
 
           <DialogFooter className="gap-2">

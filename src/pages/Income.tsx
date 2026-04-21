@@ -246,9 +246,9 @@ export default function IncomePage() {
                   <TableCell className="text-sm text-muted-foreground">{i.paymentMethod}</TableCell>
                   <TableCell className="text-right font-semibold text-income">+{currency(i.amount)}</TableCell>
                   <TableCell>
-                    {i.documentDataUrl ? (
+                    {i.documentUrl ? (
                       <a
-                        href={i.documentDataUrl}
+                        href={i.documentUrl}
                         download={i.documentName}
                         target="_blank"
                         rel="noreferrer"
