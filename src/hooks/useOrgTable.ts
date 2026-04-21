@@ -30,7 +30,7 @@ export function useOrgTable<T extends { id: string }>(
       return;
     }
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from(table)
       .select("*")
       .eq("organization_id", currentOrgId)
@@ -49,7 +49,7 @@ export function useOrgTable<T extends { id: string }>(
 
   const create = async (values: Record<string, any>) => {
     if (!currentOrgId || !user) return;
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from(table)
       .insert({ ...values, organization_id: currentOrgId, created_by: user.id })
       .select()
@@ -60,7 +60,7 @@ export function useOrgTable<T extends { id: string }>(
   };
 
   const update = async (id: string, patch: Record<string, any>) => {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from(table)
       .update(patch)
       .eq("id", id)
@@ -72,7 +72,7 @@ export function useOrgTable<T extends { id: string }>(
   };
 
   const remove = async (id: string) => {
-    const { error } = await supabase.from(table).delete().eq("id", id);
+    const { error } = await (supabase as any).from(table).delete().eq("id", id);
     if (error) throw error;
     setRows((s) => s.filter((r) => r.id !== id));
   };
