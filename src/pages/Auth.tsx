@@ -85,6 +85,7 @@ export default function AuthPage() {
             Need an account?{" "}
             <a
               href="https://businessdeskpro.brownfoxit.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
             >
