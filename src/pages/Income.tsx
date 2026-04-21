@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -215,13 +215,14 @@ export default function IncomePage() {
               <TableHead className="text-foreground">Client</TableHead>
               <TableHead className="text-foreground">Method</TableHead>
               <TableHead className="text-right text-foreground">Amount</TableHead>
+              <TableHead className="text-foreground">Doc</TableHead>
               <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-12 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={9} className="py-12 text-center text-sm text-muted-foreground">
                   No income entries match your filters.
                 </TableCell>
               </TableRow>
@@ -244,6 +245,23 @@ export default function IncomePage() {
                   <TableCell className="text-sm text-muted-foreground">{i.client ?? "—"}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{i.paymentMethod}</TableCell>
                   <TableCell className="text-right font-semibold text-income">+{currency(i.amount)}</TableCell>
+                  <TableCell>
+                    {i.documentDataUrl ? (
+                      <a
+                        href={i.documentDataUrl}
+                        download={i.documentName}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={i.documentName}
+                        className="inline-flex max-w-[140px] items-center gap-1.5 rounded-lg border border-border/60 bg-muted/40 px-2 py-1 text-xs font-medium text-primary transition-smooth hover:bg-primary-soft"
+                      >
+                        <Paperclip className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{i.documentName ?? "Attachment"}</span>
+                      </a>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="inline-flex gap-1">
                       <Button size="icon" variant="ghost" onClick={() => openEdit(i)} aria-label="Edit">

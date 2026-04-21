@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Paperclip, X, FileText } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -43,6 +44,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
   const [isPartial, setIsPartial] = useState(false);
   const [remainingDue, setRemainingDue] = useState("");
   const [tags, setTags] = useState("");
+  const [documentName, setDocumentName] = useState<string | undefined>(undefined);
+  const [documentDataUrl, setDocumentDataUrl] = useState<string | undefined>(undefined);
+  const [documentType, setDocumentType] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (open) {
@@ -57,6 +61,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
       setIsPartial(initial?.isPartial ?? false);
       setRemainingDue(initial?.remainingDue?.toString() ?? "");
       setTags(initial?.tags?.join(", ") ?? "");
+      setDocumentName(initial?.documentName);
+      setDocumentDataUrl(initial?.documentDataUrl);
+      setDocumentType(initial?.documentType);
     }
   }, [open, initial]);
 
@@ -82,6 +89,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
+      documentName,
+      documentDataUrl,
+      documentType,
     });
     onOpenChange(false);
     toast.success(initial ? "Income updated" : "Income added");
@@ -203,6 +213,61 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
               placeholder="retainer, q2, priority"
             />
             <p className="text-xs text-muted-foreground">Comma-separated</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Attachment</Label>
+            {documentDataUrl ? (
+              <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <FileText className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {documentName}
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setDocumentName(undefined);
+                    setDocumentDataUrl(undefined);
+                    setDocumentType(undefined);
+                  }}
+                  aria-label="Remove attachment"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 px-3 py-3 text-sm text-muted-foreground transition-smooth hover:border-primary/50 hover:bg-primary-soft/40 hover:text-foreground">
+                <Paperclip className="h-4 w-4" />
+                <span>Click to attach receipt or document</span>
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast.error("File too large (max 5 MB)");
+                      e.target.value = "";
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      setDocumentDataUrl(reader.result as string);
+                      setDocumentName(file.name);
+                      setDocumentType(file.type);
+                    };
+                    reader.onerror = () => toast.error("Failed to read file");
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </label>
+            )}
+            <p className="text-xs text-muted-foreground">Image or PDF, up to 5 MB.</p>
           </div>
 
           <DialogFooter className="gap-2">

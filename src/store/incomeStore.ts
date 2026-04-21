@@ -18,6 +18,8 @@ export type Income = {
   remainingDue?: number;
   tags?: string[];
   documentName?: string;
+  documentDataUrl?: string;
+  documentType?: string;
 };
 
 export const INCOME_CATEGORIES = [
