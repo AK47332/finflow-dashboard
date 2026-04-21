@@ -34,7 +34,7 @@ export function ExpiryBanner() {
 
   const days = sub.daysRemaining;
   return (
-    <div className="border-b border-amber-300/50 bg-amber-50 px-4 py-2.5 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-100">
+    <div className="border-b border-warning/40 bg-warning/10 px-4 py-2.5 text-warning-foreground">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-sm">
           <AlertTriangle className="h-4 w-4 shrink-0" />
