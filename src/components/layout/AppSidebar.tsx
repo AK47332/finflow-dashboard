@@ -7,6 +7,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Package,
+  ShoppingCart,
   Briefcase,
   Users,
   StickyNote,
@@ -38,6 +39,7 @@ const groups = [
     items: [
       { title: "Clients", url: "/clients", icon: Users },
       { title: "Products", url: "/products", icon: Package },
+      { title: "POS", url: "/pos", icon: ShoppingCart },
       { title: "Services", url: "/services", icon: Briefcase },
     ],
   },
