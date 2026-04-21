@@ -35,7 +35,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { PagePlaceholder } from "@/components/PagePlaceholder";
-import LandingPage from "./pages/marketing/Landing.tsx";
+import PortalPage from "./pages/Portal.tsx";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +48,7 @@ const App = () => (
         <AuthProvider>
           <OrgProvider>
             <Routes>
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element={<PortalPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route element={<ProtectedRoute />}>
