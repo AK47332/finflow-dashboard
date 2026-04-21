@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, Loader2, LogOut } from "lucide-react";
+import { Building2, Loader2, LogOut, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
@@ -26,6 +26,48 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [busy, setBusy] = useState(false);
+  const [invites, setInvites] = useState<any[]>([]);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.email) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("invitations")
+        .select("id, organization_id, role, status, expires_at, organization:organizations(name, logo_url)")
+        .eq("status", "pending")
+        .ilike("email", user.email);
+      if (!cancel) setInvites(data ?? []);
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [user?.email]);
+
+  const acceptInvite = async (inv: any) => {
+    if (!user) return;
+    setAcceptingId(inv.id);
+    // Add the user as a member with the invited role
+    const { error: memErr } = await supabase.from("organization_members").insert({
+      organization_id: inv.organization_id,
+      user_id: user.id,
+      role: inv.role,
+    });
+    if (memErr && !memErr.message.includes("duplicate")) {
+      setAcceptingId(null);
+      return toast.error(memErr.message);
+    }
+    await (supabase as any)
+      .from("invitations")
+      .update({ status: "accepted", accepted_by: user.id, accepted_at: new Date().toISOString() })
+      .eq("id", inv.id);
+    await supabase.from("profiles").update({ current_org_id: inv.organization_id }).eq("user_id", user.id);
+    await refresh();
+    setAcceptingId(null);
+    toast.success(`Joined ${inv.organization?.name ?? "workspace"}!`);
+    navigate("/", { replace: true });
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +108,28 @@ export default function OnboardingPage() {
             Each workspace has its own private books, clients and team.
           </p>
         </div>
+
+        {invites.length > 0 && (
+          <div className="ft-card mb-4 space-y-3 p-5">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Mail className="h-4 w-4 text-primary" /> Invitations for you
+            </div>
+            {invites.map((inv) => (
+              <div key={inv.id} className="flex items-center justify-between gap-3 rounded-lg bg-primary-soft/50 p-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {inv.organization?.name ?? "Workspace"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Invited as {inv.role}</p>
+                </div>
+                <Button size="sm" onClick={() => acceptInvite(inv)} disabled={acceptingId === inv.id}>
+                  {acceptingId === inv.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Accept"}
+                </Button>
+              </div>
+            ))}
+            <p className="text-center text-xs text-muted-foreground">— or create your own —</p>
+          </div>
+        )}
 
         <form onSubmit={handleCreate} className="ft-card space-y-4 p-6">
           <div className="space-y-1.5">

@@ -17,6 +17,8 @@ import PayablesPage from "./pages/Payables.tsx";
 import CapitalPage from "./pages/Capital.tsx";
 import NotesPage from "./pages/Notes.tsx";
 import RemindersPage from "./pages/Reminders.tsx";
+import ReportsPage from "./pages/Reports.tsx";
+import SettingsPage from "./pages/Settings.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
@@ -31,8 +33,6 @@ import {
   Briefcase,
   ArrowDownLeft,
   ArrowUpRight,
-  BarChart3,
-  Settings,
 } from "lucide-react";
 import { PagePlaceholder } from "@/components/PagePlaceholder";
 
@@ -63,8 +63,8 @@ const App = () => (
                   <Route path="/payables" element={<PayablesPage />} />
                   <Route path="/notes" element={<NotesPage />} />
                   <Route path="/reminders" element={<RemindersPage />} />
-                  <Route path="/reports" element={<PagePlaceholder title="Reports" description="P&L, income, expense and category reports." icon={BarChart3} />} />
-                  <Route path="/settings" element={<PagePlaceholder title="Settings" description="Business profile, users and categories." icon={Settings} />} />
+                  <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
