@@ -1,4 +1,5 @@
-import { Bell, Menu, Search, ChevronDown, LogOut, Building2, Check } from "lucide-react";
+import { useState } from "react";
+import { Menu, Search, ChevronDown, LogOut, Building2, Check, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +13,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
+import { NotificationsBell } from "./NotificationsBell";
 
 function initials(name?: string | null, email?: string | null) {
   const src = name || email || "";
@@ -21,17 +23,45 @@ function initials(name?: string | null, email?: string | null) {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
+const SEARCH_TARGETS: { keywords: string[]; path: string; label: string }[] = [
+  { keywords: ["income", "sale", "revenue"], path: "/income", label: "Income" },
+  { keywords: ["expense", "cost", "spend"], path: "/expense", label: "Expense" },
+  { keywords: ["client", "customer"], path: "/clients", label: "Clients" },
+  { keywords: ["product", "inventory", "stock"], path: "/products", label: "Products" },
+  { keywords: ["service"], path: "/services", label: "Services" },
+  { keywords: ["receivable", "owed"], path: "/receivables", label: "Receivables" },
+  { keywords: ["payable", "bill"], path: "/payables", label: "Payables" },
+  { keywords: ["capital", "owner"], path: "/capital", label: "Capital" },
+  { keywords: ["note"], path: "/notes", label: "Notes" },
+  { keywords: ["reminder", "todo"], path: "/reminders", label: "Reminders" },
+  { keywords: ["report", "p&l", "profit"], path: "/reports", label: "Reports" },
+  { keywords: ["setting", "team", "category", "currency"], path: "/settings", label: "Settings" },
+];
+
 export function AppHeader({ onMenu }: { onMenu: () => void }) {
   const { user, signOut } = useAuth();
   const { orgs, currentOrg, switchOrg } = useOrg();
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||
     "Account";
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = search.trim().toLowerCase();
+    if (!q) return;
+    const match = SEARCH_TARGETS.find((t) => t.keywords.some((k) => k.includes(q) || q.includes(k)));
+    if (match) {
+      navigate(match.path);
+      setSearch("");
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border/50 bg-card/80 px-4 backdrop-blur-md md:px-8">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-2 border-b border-border/50 bg-card/80 px-3 backdrop-blur-md sm:gap-3 sm:px-4 md:px-8">
       <Button
         variant="ghost"
         size="icon"
@@ -45,9 +75,9 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
       {/* Org switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-10 gap-2 rounded-xl px-3">
+          <Button variant="ghost" className="h-10 gap-2 rounded-xl px-2 sm:px-3">
             <Building2 className="h-4 w-4 text-primary" />
-            <span className="max-w-[140px] truncate text-sm font-semibold">
+            <span className="hidden max-w-[120px] truncate text-sm font-semibold sm:inline lg:max-w-[200px]">
               {currentOrg?.name ?? "Workspace"}
             </span>
             <ChevronDown className="h-3 w-3 opacity-60" />
@@ -73,26 +103,25 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="relative hidden flex-1 max-w-md md:block">
+      <form onSubmit={handleSearch} className="relative hidden flex-1 max-w-md md:block">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search transactions, clients, notes…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Jump to: income, expense, clients, reports…"
           className="h-10 rounded-xl border-border/60 bg-background/60 pl-10 focus-visible:ring-primary/40"
         />
-      </div>
+      </form>
 
-      <div className="ml-auto flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative rounded-xl">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 flex h-2 w-2 rounded-full bg-expense ring-2 ring-card" />
-        </Button>
+      <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <NotificationsBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 rounded-xl bg-secondary/70 px-2 py-1.5 pl-3 outline-none transition-smooth hover:bg-secondary">
+            <button className="flex items-center gap-2 rounded-xl bg-secondary/70 p-1 pl-2 outline-none transition-smooth hover:bg-secondary sm:gap-3 sm:px-2 sm:py-1.5 sm:pl-3">
               <div className="hidden text-right leading-tight sm:block">
                 <div className="text-[13px] font-semibold text-foreground">{displayName}</div>
-                <div className="text-[11px] text-muted-foreground">{user?.email}</div>
+                <div className="max-w-[160px] truncate text-[11px] text-muted-foreground">{user?.email}</div>
               </div>
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary text-sm font-semibold text-primary-foreground">
                 {initials(displayName, user?.email)}
@@ -102,7 +131,9 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuLabel className="truncate">{user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/settings")}>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings")}>
+              <SettingsIcon className="mr-2 h-4 w-4" /> Settings
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={async () => {
                 await signOut();
