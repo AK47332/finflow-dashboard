@@ -66,7 +66,7 @@ export default function OnboardingPage() {
     await refresh();
     setAcceptingId(null);
     toast.success(`Joined ${inv.organization?.name ?? "workspace"}!`);
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -93,7 +93,7 @@ export default function OnboardingPage() {
     await refresh();
     setBusy(false);
     toast.success("Workspace created!");
-    navigate("/", { replace: true });
+    navigate("/dashboard", { replace: true });
   };
 
   return (
