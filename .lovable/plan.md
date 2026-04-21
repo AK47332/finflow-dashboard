@@ -1,100 +1,64 @@
 
 
-## Where your cPanel upload files live
+## Landing/Auth flow: Login + Get a subscription
 
-Short answer: **they don't exist yet**. You have to build them locally once. After that, you upload the contents of the generated `dist/` folder to cPanel.
-
----
-
-### Step-by-step — get the files to upload
-
-**1. Get the source code from Lovable**
-
-Two options:
-
-- **GitHub (recommended, easy updates later)**
-  - In Lovable, top-right → **GitHub** → **Connect to GitHub**
-  - After connecting, clone it on your computer:
-    ```bash
-    git clone https://github.com/<your-username>/<your-repo>.git
-    cd <your-repo>
-    ```
-
-- **One-time ZIP download**
-  - In Lovable, top-right → **Share** → **Download code**
-  - Unzip it on your computer, then open a terminal inside the unzipped folder
-
-**2. Install Node.js 18+ on your computer** (if you don't have it)
-  - Download from https://nodejs.org (LTS version)
-
-**3. Build the app**
-  ```bash
-  npm install
-  npm run build
-  ```
-
-**4. Your upload files are now here:**
-  ```
-  <your-repo>/dist/
-  ├── index.html          ← upload this
-  ├── assets/             ← upload this whole folder
-  │   ├── index-[hash].js
-  │   ├── index-[hash].css
-  │   └── ...
-  └── favicon.ico         ← upload this
-  ```
-
-**Upload the CONTENTS of `dist/`** (not the `dist/` folder itself) into your cPanel `public_html/` directory.
-
-**5. Add the `.htaccess` file** next to `index.html` in `public_html/` — the exact content is already in your project at `DEPLOY_CPANEL.md` (Step 4).
+Replace the public root with a clean two-action portal. No public registration. New customers are redirected to your sales site.
 
 ---
 
-### Final cPanel layout
+### What changes
+
+**1. Root URL (`/`)**
+Replace the current marketing landing with a minimal portal that shows exactly two actions:
 
 ```text
-public_html/
-├── index.html
-├── assets/
-│   ├── index-[hash].js
-│   ├── index-[hash].css
-│   └── ...
-├── favicon.ico
-└── .htaccess
+┌─────────────────────────────────────────┐
+│            FinTrack Pro logo            │
+│                                         │
+│      Welcome to FinTrack Pro            │
+│   Manage your business finances         │
+│                                         │
+│   ┌───────────────┐ ┌─────────────────┐ │
+│   │     Login     │ │ Get a subscription │
+│   └───────────────┘ └─────────────────┘ │
+│                                         │
+│   Powered by BrownFoxIT                 │
+└─────────────────────────────────────────┘
 ```
 
----
+- **Login** → navigates to `/auth` (existing login page)
+- **Get a subscription** → external redirect to `https://businessdeskpro.brownfoxit.com`
 
-### Every time you publish new changes in Lovable
+**2. `/auth` page**
+- Remove the "Create account" tab entirely
+- Show only the Login form (email + password + "Forgot password?")
+- Replace any "Don't have an account? Sign up" link with: **"Need an account? Get a subscription →"** linking to `https://businessdeskpro.brownfoxit.com`
+- Keep Google sign-in only if you want it; otherwise remove (confirm later)
 
-```bash
-git pull           # pull latest from GitHub
-npm install        # only if dependencies changed
-npm run build      # regenerates dist/
-```
+**3. Old marketing landing**
+- The existing `LandingPage` (hero, features, pricing, FAQ, footer) is removed from the `/` route
+- Files stay in the codebase for now (in case you want them back), just unwired from the router
 
-Then re-upload `dist/` contents to cPanel, overwriting the existing files. Delete the old `assets/` folder first so stale chunks don't pile up.
-
----
-
-### Why Lovable can't just hand you a ready `dist.zip`
-
-The build has to run after every code change, and it uses your `.env` values (Supabase URL + anon key) baked into the JS bundle at build time. Running `npm run build` locally is the step that produces your final, deployable files. It takes about 30–60 seconds.
-
----
-
-### Easier alternative — skip cPanel entirely
-
-If the `npm install` + build + FTP loop feels like too much overhead, Lovable's built-in **Publish** button (top-right of the editor) gives you:
-- A live `.lovable.app` URL in one click
-- Option to connect your custom domain (`app.yourdomain.com`) with automatic SSL
-- Auto-redeploys every time you hit Publish — no local build needed
-
-Your backend stays on Lovable Cloud either way, so Publish vs cPanel is purely a choice about where the static frontend files are served from.
+**4. Block direct signup attempts**
+- Even if someone hits the old signup endpoint, the UI no longer exposes it
+- Server-side public signup will be locked down later when we add the admin-managed user creation system (next phase)
 
 ---
 
-### Reference
+### Files touched
 
-The full cPanel guide already exists in your project: open `DEPLOY_CPANEL.md` in the file tree — it has the `.htaccess` content, SSL setup, optional auto-deploy via `.cpanel.yml`, and troubleshooting.
+- `src/App.tsx` — point `/` at the new portal page instead of `LandingPage`
+- `src/pages/Portal.tsx` — **new** minimal portal page (Login + Get a subscription buttons)
+- `src/pages/Auth.tsx` — remove signup tab, add "Get a subscription" link to BusinessDeskPro
+- `src/components/marketing/*` — left untouched (unused for now)
+
+---
+
+### Technical details
+
+- "Get a subscription" uses a plain `<a href="https://businessdeskpro.brownfoxit.com" target="_blank" rel="noopener noreferrer">` so it opens the sales site cleanly (new tab). If you'd rather replace the current tab, swap to `target="_self"` — tell me your preference, otherwise I'll default to **same tab** since it's a customer journey, not a reference link.
+- Portal page reuses your existing dark theme + button styles for visual consistency with the app.
+- Mobile responsive: buttons stack vertically below 480px.
+- SEO meta on the portal: title "FinTrack Pro — Login or Get a subscription", description mirrors the value prop.
+- No backend changes in this step. The full admin-managed account system + expiry hard-block will follow in the next plan once this portal is in place.
 
