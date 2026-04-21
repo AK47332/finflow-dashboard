@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LandingNav } from "@/components/marketing/LandingNav";
 import { LandingHero } from "@/components/marketing/LandingHero";
