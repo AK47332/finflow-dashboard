@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,9 @@ import { IncomeFormDialog } from "@/components/income/IncomeFormDialog";
 import { exportIncomesCSV, exportIncomesPDF } from "@/lib/export";
 import { deleteIncomeAttachment } from "@/lib/storage";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
+import { Loader2 } from "lucide-react";
 
 type RangeKey = "Today" | "This Week" | "This Month" | "This Year" | "All";
 const RANGE_TABS: RangeKey[] = ["Today", "This Week", "This Month", "This Year", "All"];
@@ -64,7 +67,15 @@ function inRange(dateISO: string, range: RangeKey) {
 }
 
 export default function IncomePage() {
-  const { incomes, add, update, remove } = useIncomeStore();
+  const { incomes, add, update, remove, fetch, loading, loadedOrgId } = useIncomeStore();
+  const { user } = useAuth();
+  const { currentOrgId } = useOrg();
+
+  useEffect(() => {
+    if (currentOrgId && currentOrgId !== loadedOrgId) {
+      void fetch(currentOrgId).catch((e) => toast.error(e.message ?? "Failed to load incomes"));
+    }
+  }, [currentOrgId, loadedOrgId, fetch]);
 
   const [range, setRange] = useState<RangeKey>("All");
   const [search, setSearch] = useState("");
@@ -290,9 +301,13 @@ export default function IncomePage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         initial={editing}
-        onSubmit={(values) => {
-          if (editing) update(editing.id, values);
-          else add(values);
+        onSubmit={async (values) => {
+          try {
+            if (editing) await update(editing.id, values);
+            else if (currentOrgId && user) await add(currentOrgId, user.id, values);
+          } catch (e: any) {
+            toast.error(e.message ?? "Failed to save");
+          }
         }}
       />
 
@@ -308,14 +323,17 @@ export default function IncomePage() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-expense text-expense-foreground hover:bg-expense/90"
-              onClick={() => {
-                if (pendingDelete) {
+              onClick={async () => {
+                if (!pendingDelete) return;
+                try {
                   if (pendingDelete.documentPath) {
                     void deleteIncomeAttachment(pendingDelete.documentPath).catch(() => {});
                   }
-                  remove(pendingDelete.id);
+                  await remove(pendingDelete.id);
                   toast.success("Income deleted");
                   setPendingDelete(null);
+                } catch (e: any) {
+                  toast.error(e.message ?? "Failed to delete");
                 }
               }}
             >

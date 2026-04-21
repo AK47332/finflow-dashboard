@@ -7,7 +7,12 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import IncomePage from "./pages/Income.tsx";
 import ExpensePage from "./pages/Expense.tsx";
+import AuthPage from "./pages/Auth.tsx";
+import OnboardingPage from "./pages/Onboarding.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { OrgProvider } from "@/contexts/OrgContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import {
   TrendingUp,
   TrendingDown,
@@ -33,25 +38,33 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/income" element={<IncomePage />} />
-            <Route path="/expense" element={<ExpensePage />} />
-            <Route path="/capital" element={<PagePlaceholder title="Capital" description="Manage your starting capital and adjustments." icon={Wallet} />} />
-            <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
-            <Route path="/clients" element={<PagePlaceholder title="Clients" description="Your customer book and revenue per client." icon={Users} />} />
-            <Route path="/products" element={<PagePlaceholder title="Products" description="Catalog of items you sell." icon={Package} />} />
-            <Route path="/services" element={<PagePlaceholder title="Services" description="Service offerings and pricing." icon={Briefcase} />} />
-            <Route path="/receivables" element={<PagePlaceholder title="Receivables" description="Money owed to you." icon={ArrowDownLeft} />} />
-            <Route path="/payables" element={<PagePlaceholder title="Payables" description="Money you owe." icon={ArrowUpRight} />} />
-            <Route path="/notes" element={<PagePlaceholder title="Notes" description="Quick notes, Google Keep style." icon={StickyNote} />} />
-            <Route path="/reminders" element={<PagePlaceholder title="Reminders" description="Never miss a deadline again." icon={Bell} />} />
-            <Route path="/reports" element={<PagePlaceholder title="Reports" description="P&L, income, expense and category reports." icon={BarChart3} />} />
-            <Route path="/settings" element={<PagePlaceholder title="Settings" description="Business profile, users and categories." icon={Settings} />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <OrgProvider>
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/income" element={<IncomePage />} />
+                  <Route path="/expense" element={<ExpensePage />} />
+                  <Route path="/capital" element={<PagePlaceholder title="Capital" description="Manage your starting capital and adjustments." icon={Wallet} />} />
+                  <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
+                  <Route path="/clients" element={<PagePlaceholder title="Clients" description="Your customer book and revenue per client." icon={Users} />} />
+                  <Route path="/products" element={<PagePlaceholder title="Products" description="Catalog of items you sell." icon={Package} />} />
+                  <Route path="/services" element={<PagePlaceholder title="Services" description="Service offerings and pricing." icon={Briefcase} />} />
+                  <Route path="/receivables" element={<PagePlaceholder title="Receivables" description="Money owed to you." icon={ArrowDownLeft} />} />
+                  <Route path="/payables" element={<PagePlaceholder title="Payables" description="Money you owe." icon={ArrowUpRight} />} />
+                  <Route path="/notes" element={<PagePlaceholder title="Notes" description="Quick notes, Google Keep style." icon={StickyNote} />} />
+                  <Route path="/reminders" element={<PagePlaceholder title="Reminders" description="Never miss a deadline again." icon={Bell} />} />
+                  <Route path="/reports" element={<PagePlaceholder title="Reports" description="P&L, income, expense and category reports." icon={BarChart3} />} />
+                  <Route path="/settings" element={<PagePlaceholder title="Settings" description="Business profile, users and categories." icon={Settings} />} />
+                </Route>
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </OrgProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
