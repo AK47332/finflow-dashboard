@@ -1,64 +1,41 @@
 
 
-## Landing/Auth flow: Login + Get a subscription
+## Fix: Reset super-admin password to `JustDemo121!!!`
 
-Replace the public root with a clean two-action portal. No public registration. New customers are redirected to your sales site.
+### What's happening
 
----
+The auth account `brownfoxit.net@gmail.com` already exists in the database (created earlier, email-confirmed), but its current password is not `JustDemo121!!!` — that's why login returns "Invalid login credentials". Public signup is disabled, so you can't re-register from the UI.
 
-### What changes
+### The fix (one-time admin action)
 
-**1. Root URL (`/`)**
-Replace the current marketing landing with a minimal portal that shows exactly two actions:
+Run a small one-shot script using the **service role key** (server-side only) to set the password on the existing user:
 
-```text
-┌─────────────────────────────────────────┐
-│            FinTrack Pro logo            │
-│                                         │
-│      Welcome to FinTrack Pro            │
-│   Manage your business finances         │
-│                                         │
-│   ┌───────────────┐ ┌─────────────────┐ │
-│   │     Login     │ │ Get a subscription │
-│   └───────────────┘ └─────────────────┘ │
-│                                         │
-│   Powered by BrownFoxIT                 │
-└─────────────────────────────────────────┘
+```ts
+// supabase/functions/admin-bootstrap-password/index.ts (temporary, one-shot)
+await admin.auth.admin.updateUserById(
+  "4d757a75-a753-44cc-98ad-b67257a05554",
+  { password: "JustDemo121!!!", email_confirm: true }
+);
 ```
 
-- **Login** → navigates to `/auth` (existing login page)
-- **Get a subscription** → external redirect to `https://businessdeskpro.brownfoxit.com`
+Then I'll:
+1. Deploy this temporary edge function.
+2. Invoke it once via curl to apply the password.
+3. Also confirm a `super_admins` row exists for this user (insert it if not — bypasses needing to log in first to trigger the bootstrap function).
+4. Confirm there's no `customer_subscriptions` row needed for super-admin (super-admins bypass the expiry gate).
+5. Delete the temporary `admin-bootstrap-password` function so it can't be re-used.
 
-**2. `/auth` page**
-- Remove the "Create account" tab entirely
-- Show only the Login form (email + password + "Forgot password?")
-- Replace any "Don't have an account? Sign up" link with: **"Need an account? Get a subscription →"** linking to `https://businessdeskpro.brownfoxit.com`
-- Keep Google sign-in only if you want it; otherwise remove (confirm later)
+### After the fix
 
-**3. Old marketing landing**
-- The existing `LandingPage` (hero, features, pricing, FAQ, footer) is removed from the `/` route
-- Files stay in the codebase for now (in case you want them back), just unwired from the router
+You'll be able to log in at `/auth` with:
+- Email: `brownfoxit.net@gmail.com`
+- Password: `JustDemo121!!!`
 
-**4. Block direct signup attempts**
-- Even if someone hits the old signup endpoint, the UI no longer exposes it
-- Server-side public signup will be locked down later when we add the admin-managed user creation system (next phase)
-
----
+You'll land on the dashboard, see the **Admin → Customers** sidebar item (super-admin only), and start creating customer accounts from there.
 
 ### Files touched
 
-- `src/App.tsx` — point `/` at the new portal page instead of `LandingPage`
-- `src/pages/Portal.tsx` — **new** minimal portal page (Login + Get a subscription buttons)
-- `src/pages/Auth.tsx` — remove signup tab, add "Get a subscription" link to BusinessDeskPro
-- `src/components/marketing/*` — left untouched (unused for now)
-
----
-
-### Technical details
-
-- "Get a subscription" uses a plain `<a href="https://businessdeskpro.brownfoxit.com" target="_blank" rel="noopener noreferrer">` so it opens the sales site cleanly (new tab). If you'd rather replace the current tab, swap to `target="_self"` — tell me your preference, otherwise I'll default to **same tab** since it's a customer journey, not a reference link.
-- Portal page reuses your existing dark theme + button styles for visual consistency with the app.
-- Mobile responsive: buttons stack vertically below 480px.
-- SEO meta on the portal: title "FinTrack Pro — Login or Get a subscription", description mirrors the value prop.
-- No backend changes in this step. The full admin-managed account system + expiry hard-block will follow in the next plan once this portal is in place.
+- **Created (temporary)**: `supabase/functions/admin-bootstrap-password/index.ts`
+- **Deleted after use**: same file
+- No frontend changes; no schema changes.
 
