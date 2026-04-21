@@ -15,7 +15,9 @@ export function useOrgTable<T extends { id: string }>(
     | "services"
     | "receivables"
     | "payables"
-    | "capital_movements",
+    | "capital_movements"
+    | "notes"
+    | "reminders",
   orderBy: { column: string; ascending?: boolean } = { column: "created_at", ascending: false },
 ) {
   const { user } = useAuth();
