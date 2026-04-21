@@ -126,6 +126,18 @@ export default function AuthPage() {
             </svg>
             Continue with Google
           </Button>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Need an account?{" "}
+            <a
+              href="https://businessdeskpro.brownfoxit.com"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+            >
+              Get a subscription
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </p>
         </div>
       </div>
     </div>
