@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Paperclip, X, FileText } from "lucide-react";
+import { Paperclip, X, FileText, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import {
   type PaymentMethod,
 } from "@/store/incomeStore";
 import { toast } from "sonner";
+import { uploadIncomeAttachment, deleteIncomeAttachment } from "@/lib/storage";
 
 type Props = {
   open: boolean;
@@ -45,8 +46,13 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
   const [remainingDue, setRemainingDue] = useState("");
   const [tags, setTags] = useState("");
   const [documentName, setDocumentName] = useState<string | undefined>(undefined);
-  const [documentDataUrl, setDocumentDataUrl] = useState<string | undefined>(undefined);
   const [documentType, setDocumentType] = useState<string | undefined>(undefined);
+  const [documentPath, setDocumentPath] = useState<string | undefined>(undefined);
+  const [documentUrl, setDocumentUrl] = useState<string | undefined>(undefined);
+  const [uploading, setUploading] = useState(false);
+  // Track newly uploaded paths within this session so we can clean up if user cancels
+  const newlyUploadedRef = useRef<string[]>([]);
+  const initialPathRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (open) {
@@ -62,13 +68,17 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
       setRemainingDue(initial?.remainingDue?.toString() ?? "");
       setTags(initial?.tags?.join(", ") ?? "");
       setDocumentName(initial?.documentName);
-      setDocumentDataUrl(initial?.documentDataUrl);
       setDocumentType(initial?.documentType);
+      setDocumentPath(initial?.documentPath);
+      setDocumentUrl(initial?.documentUrl);
+      newlyUploadedRef.current = [];
+      initialPathRef.current = initial?.documentPath;
     }
   }, [open, initial]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) return toast.error("Please wait for the upload to finish");
     const amt = parseFloat(amount);
     if (!title.trim()) return toast.error("Title is required");
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
@@ -90,15 +100,73 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
         .map((t) => t.trim())
         .filter(Boolean),
       documentName,
-      documentDataUrl,
       documentType,
+      documentPath,
+      documentUrl,
     });
+    // If we replaced an existing attachment, clean up the previous one in storage
+    if (initialPathRef.current && initialPathRef.current !== documentPath) {
+      void deleteIncomeAttachment(initialPathRef.current).catch(() => {});
+    }
+    // Don't delete uploads we are keeping
+    newlyUploadedRef.current = [];
     onOpenChange(false);
     toast.success(initial ? "Income updated" : "Income added");
   };
 
+  const handleClose = (next: boolean) => {
+    if (!next && !uploading) {
+      // User cancelled — remove any uploads they made this session that aren't being saved
+      const orphans = newlyUploadedRef.current.filter((p) => p !== initialPathRef.current);
+      orphans.forEach((p) => void deleteIncomeAttachment(p).catch(() => {}));
+      newlyUploadedRef.current = [];
+    }
+    onOpenChange(next);
+  };
+
+  const handleFilePick = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large (max 5 MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      // If we just uploaded another file in this session, remove it first to avoid orphans
+      if (documentPath && documentPath !== initialPathRef.current) {
+        await deleteIncomeAttachment(documentPath).catch(() => {});
+        newlyUploadedRef.current = newlyUploadedRef.current.filter((p) => p !== documentPath);
+      }
+      const uploaded = await uploadIncomeAttachment(file);
+      setDocumentPath(uploaded.path);
+      setDocumentUrl(uploaded.url);
+      setDocumentName(uploaded.name);
+      setDocumentType(uploaded.type);
+      newlyUploadedRef.current.push(uploaded.path);
+      toast.success("Attachment uploaded");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveAttachment = async () => {
+    if (!documentPath) return;
+    // Only delete from storage immediately if it's a brand-new upload from this session.
+    // For existing attachments, defer deletion until the form is saved.
+    if (documentPath !== initialPathRef.current) {
+      await deleteIncomeAttachment(documentPath).catch(() => {});
+      newlyUploadedRef.current = newlyUploadedRef.current.filter((p) => p !== documentPath);
+    }
+    setDocumentPath(undefined);
+    setDocumentUrl(undefined);
+    setDocumentName(undefined);
+    setDocumentType(undefined);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Income" : "Add Income"}</DialogTitle>
