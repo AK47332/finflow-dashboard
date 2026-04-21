@@ -11,6 +11,7 @@ import AuthPage from "./pages/Auth.tsx";
 import OnboardingPage from "./pages/Onboarding.tsx";
 import ClientsPage from "./pages/Clients.tsx";
 import ProductsPage from "./pages/Products.tsx";
+import PosPage from "./pages/Pos.tsx";
 import ServicesPage from "./pages/Services.tsx";
 import ReceivablesPage from "./pages/Receivables.tsx";
 import PayablesPage from "./pages/Payables.tsx";
@@ -63,6 +64,7 @@ const App = () => (
                     <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
                     <Route path="/clients" element={<ClientsPage />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/pos" element={<PosPage />} />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/receivables" element={<ReceivablesPage />} />
                     <Route path="/payables" element={<PayablesPage />} />

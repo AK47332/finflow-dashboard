@@ -176,3 +176,17 @@
   .shadow-primary-glow { box-shadow: var(--shadow-primary); }
   .transition-smooth { transition: var(--transition-smooth); }
 }
+
+/* Print receipt: hide everything except the receipt content */
+@media print {
+  body * { visibility: hidden !important; }
+  #pos-receipt, #pos-receipt * { visibility: visible !important; }
+  #pos-receipt {
+    position: absolute !important;
+    left: 0; top: 0;
+    width: 100%;
+    padding: 16px;
+    color: #000;
+    background: #fff;
+  }
+}
