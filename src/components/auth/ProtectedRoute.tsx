@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
+import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { Loader2 } from "lucide-react";
 
 function FullScreenLoader() {
@@ -14,11 +15,17 @@ function FullScreenLoader() {
 export function ProtectedRoute() {
   const { user, loading: authLoading } = useAuth();
   const { currentOrgId, loading: orgLoading } = useOrg();
+  const { isSuperAdmin, loading: saLoading } = useSuperAdmin();
   const location = useLocation();
 
-  if (authLoading || orgLoading) return <FullScreenLoader />;
+  if (authLoading || orgLoading || saLoading) return <FullScreenLoader />;
   if (!user) return <Navigate to="/auth" replace state={{ from: location }} />;
-  if (!currentOrgId && location.pathname !== "/onboarding") {
+  // Super-admins can access admin routes without an org
+  if (
+    !currentOrgId &&
+    location.pathname !== "/onboarding" &&
+    !(isSuperAdmin && location.pathname.startsWith("/admin"))
+  ) {
     return <Navigate to="/onboarding" replace />;
   }
 

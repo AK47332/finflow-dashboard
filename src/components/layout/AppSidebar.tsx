@@ -13,9 +13,11 @@ import {
   Bell,
   BarChart3,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 
 const groups = [
   {
@@ -64,6 +66,18 @@ const groups = [
 
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
+  const { isSuperAdmin } = useSuperAdmin();
+  const visibleGroups = isSuperAdmin
+    ? [
+        ...groups,
+        {
+          label: "Admin",
+          items: [
+            { title: "Customers", url: "/admin/customers", icon: ShieldCheck },
+          ],
+        },
+      ]
+    : groups;
   return (
     <aside className="bg-gradient-sidebar text-sidebar-foreground flex h-full w-[240px] flex-col">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
@@ -77,7 +91,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-6">
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.label} className="mb-5">
             <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
               {group.label}
