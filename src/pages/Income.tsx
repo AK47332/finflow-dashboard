@@ -37,6 +37,7 @@ import {
 } from "@/store/incomeStore";
 import { IncomeFormDialog } from "@/components/income/IncomeFormDialog";
 import { exportIncomesCSV, exportIncomesPDF } from "@/lib/export";
+import { deleteIncomeAttachment } from "@/lib/storage";
 import { toast } from "sonner";
 
 type RangeKey = "Today" | "This Week" | "This Month" | "This Year" | "All";
@@ -246,9 +247,9 @@ export default function IncomePage() {
                   <TableCell className="text-sm text-muted-foreground">{i.paymentMethod}</TableCell>
                   <TableCell className="text-right font-semibold text-income">+{currency(i.amount)}</TableCell>
                   <TableCell>
-                    {i.documentDataUrl ? (
+                    {i.documentUrl ? (
                       <a
-                        href={i.documentDataUrl}
+                        href={i.documentUrl}
                         download={i.documentName}
                         target="_blank"
                         rel="noreferrer"
@@ -309,6 +310,9 @@ export default function IncomePage() {
               className="bg-expense text-expense-foreground hover:bg-expense/90"
               onClick={() => {
                 if (pendingDelete) {
+                  if (pendingDelete.documentPath) {
+                    void deleteIncomeAttachment(pendingDelete.documentPath).catch(() => {});
+                  }
                   remove(pendingDelete.id);
                   toast.success("Income deleted");
                   setPendingDelete(null);

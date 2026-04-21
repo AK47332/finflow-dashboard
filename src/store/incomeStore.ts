@@ -18,8 +18,9 @@ export type Income = {
   remainingDue?: number;
   tags?: string[];
   documentName?: string;
-  documentDataUrl?: string;
   documentType?: string;
+  documentPath?: string; // storage path inside the bucket
+  documentUrl?: string;  // public URL for download
 };
 
 export const INCOME_CATEGORIES = [

@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Paperclip, X, FileText } from "lucide-react";
+import { Paperclip, X, FileText, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import {
   type PaymentMethod,
 } from "@/store/incomeStore";
 import { toast } from "sonner";
+import { uploadIncomeAttachment, deleteIncomeAttachment } from "@/lib/storage";
 
 type Props = {
   open: boolean;
@@ -45,8 +46,13 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
   const [remainingDue, setRemainingDue] = useState("");
   const [tags, setTags] = useState("");
   const [documentName, setDocumentName] = useState<string | undefined>(undefined);
-  const [documentDataUrl, setDocumentDataUrl] = useState<string | undefined>(undefined);
   const [documentType, setDocumentType] = useState<string | undefined>(undefined);
+  const [documentPath, setDocumentPath] = useState<string | undefined>(undefined);
+  const [documentUrl, setDocumentUrl] = useState<string | undefined>(undefined);
+  const [uploading, setUploading] = useState(false);
+  // Track newly uploaded paths within this session so we can clean up if user cancels
+  const newlyUploadedRef = useRef<string[]>([]);
+  const initialPathRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (open) {
@@ -62,13 +68,17 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
       setRemainingDue(initial?.remainingDue?.toString() ?? "");
       setTags(initial?.tags?.join(", ") ?? "");
       setDocumentName(initial?.documentName);
-      setDocumentDataUrl(initial?.documentDataUrl);
       setDocumentType(initial?.documentType);
+      setDocumentPath(initial?.documentPath);
+      setDocumentUrl(initial?.documentUrl);
+      newlyUploadedRef.current = [];
+      initialPathRef.current = initial?.documentPath;
     }
   }, [open, initial]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) return toast.error("Please wait for the upload to finish");
     const amt = parseFloat(amount);
     if (!title.trim()) return toast.error("Title is required");
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
@@ -90,15 +100,73 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
         .map((t) => t.trim())
         .filter(Boolean),
       documentName,
-      documentDataUrl,
       documentType,
+      documentPath,
+      documentUrl,
     });
+    // If we replaced an existing attachment, clean up the previous one in storage
+    if (initialPathRef.current && initialPathRef.current !== documentPath) {
+      void deleteIncomeAttachment(initialPathRef.current).catch(() => {});
+    }
+    // Don't delete uploads we are keeping
+    newlyUploadedRef.current = [];
     onOpenChange(false);
     toast.success(initial ? "Income updated" : "Income added");
   };
 
+  const handleClose = (next: boolean) => {
+    if (!next && !uploading) {
+      // User cancelled — remove any uploads they made this session that aren't being saved
+      const orphans = newlyUploadedRef.current.filter((p) => p !== initialPathRef.current);
+      orphans.forEach((p) => void deleteIncomeAttachment(p).catch(() => {}));
+      newlyUploadedRef.current = [];
+    }
+    onOpenChange(next);
+  };
+
+  const handleFilePick = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large (max 5 MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      // If we just uploaded another file in this session, remove it first to avoid orphans
+      if (documentPath && documentPath !== initialPathRef.current) {
+        await deleteIncomeAttachment(documentPath).catch(() => {});
+        newlyUploadedRef.current = newlyUploadedRef.current.filter((p) => p !== documentPath);
+      }
+      const uploaded = await uploadIncomeAttachment(file);
+      setDocumentPath(uploaded.path);
+      setDocumentUrl(uploaded.url);
+      setDocumentName(uploaded.name);
+      setDocumentType(uploaded.type);
+      newlyUploadedRef.current.push(uploaded.path);
+      toast.success("Attachment uploaded");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error(msg);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveAttachment = async () => {
+    if (!documentPath) return;
+    // Only delete from storage immediately if it's a brand-new upload from this session.
+    // For existing attachments, defer deletion until the form is saved.
+    if (documentPath !== initialPathRef.current) {
+      await deleteIncomeAttachment(documentPath).catch(() => {});
+      newlyUploadedRef.current = newlyUploadedRef.current.filter((p) => p !== documentPath);
+    }
+    setDocumentPath(undefined);
+    setDocumentUrl(undefined);
+    setDocumentName(undefined);
+    setDocumentType(undefined);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Income" : "Add Income"}</DialogTitle>
@@ -217,23 +285,29 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
 
           <div className="space-y-1.5">
             <Label>Attachment</Label>
-            {documentDataUrl ? (
+            {uploading ? (
+              <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                Uploading…
+              </div>
+            ) : documentUrl ? (
               <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <FileText className="h-4 w-4 shrink-0 text-primary" />
-                  <span className="truncate text-sm font-medium text-foreground">
+                  <a
+                    href={documentUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="truncate text-sm font-medium text-foreground hover:text-primary"
+                  >
                     {documentName}
-                  </span>
+                  </a>
                 </div>
                 <Button
                   type="button"
                   size="icon"
                   variant="ghost"
-                  onClick={() => {
-                    setDocumentName(undefined);
-                    setDocumentDataUrl(undefined);
-                    setDocumentType(undefined);
-                  }}
+                  onClick={() => void handleRemoveAttachment()}
                   aria-label="Remove attachment"
                 >
                   <X className="h-4 w-4" />
@@ -249,25 +323,13 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                      toast.error("File too large (max 5 MB)");
-                      e.target.value = "";
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      setDocumentDataUrl(reader.result as string);
-                      setDocumentName(file.name);
-                      setDocumentType(file.type);
-                    };
-                    reader.onerror = () => toast.error("Failed to read file");
-                    reader.readAsDataURL(file);
+                    if (file) void handleFilePick(file);
+                    e.target.value = "";
                   }}
                 />
               </label>
             )}
-            <p className="text-xs text-muted-foreground">Image or PDF, up to 5 MB.</p>
+            <p className="text-xs text-muted-foreground">Image or PDF, up to 5 MB. Saved to Lovable Cloud storage.</p>
           </div>
 
           <DialogFooter className="gap-2">
