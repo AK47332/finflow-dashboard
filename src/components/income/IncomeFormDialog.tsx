@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Paperclip, X, FileText } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -43,6 +44,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
   const [isPartial, setIsPartial] = useState(false);
   const [remainingDue, setRemainingDue] = useState("");
   const [tags, setTags] = useState("");
+  const [documentName, setDocumentName] = useState<string | undefined>(undefined);
+  const [documentDataUrl, setDocumentDataUrl] = useState<string | undefined>(undefined);
+  const [documentType, setDocumentType] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (open) {
@@ -57,6 +61,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
       setIsPartial(initial?.isPartial ?? false);
       setRemainingDue(initial?.remainingDue?.toString() ?? "");
       setTags(initial?.tags?.join(", ") ?? "");
+      setDocumentName(initial?.documentName);
+      setDocumentDataUrl(initial?.documentDataUrl);
+      setDocumentType(initial?.documentType);
     }
   }, [open, initial]);
 
@@ -82,6 +89,9 @@ export function IncomeFormDialog({ open, onOpenChange, initial, onSubmit }: Prop
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
+      documentName,
+      documentDataUrl,
+      documentType,
     });
     onOpenChange(false);
     toast.success(initial ? "Income updated" : "Income added");
