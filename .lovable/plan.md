@@ -1,94 +1,97 @@
 
 
-# Multi-Tenant Architecture for FinTrack Pro (CodeCanyon Resale)
+## How to test the app + self-host on cPanel
 
-## Your Goal
-You want to **sell FinTrack Pro to multiple clients** — each client should have their own isolated data ("separate clients, separate database"). Below are the realistic options, what they actually mean, and my recommendation.
+Two separate things to cover: (1) how to log in and test everything now, and (2) how to install this on your own cPanel hosting.
 
-## The Three Real Options
+---
 
-### Option A — Single hosted SaaS (one database, logical isolation) ⭐ Recommended for Lovable
-You host **one** instance of the app. Every client signs up, gets their own account, and sees only their own data. Under the hood it's one database, but each row is tagged with an `organization_id` (or `user_id`) and Row-Level Security (RLS) guarantees clients can never see each other's data.
+### Part 1 — How to test without existing login info
 
-- **Pros:** One codebase, one deploy, one database to maintain. Updates ship to everyone instantly. This is how Stripe, Notion, Slack work. Fully buildable in Lovable Cloud today.
-- **Cons:** All clients share infrastructure. If you want to physically separate a big client, you can't.
-- **Best when:** You want to run FinTrack Pro as your own SaaS product and charge clients monthly.
+You don't need pre-existing credentials. The app has self-serve signup. Here's the fastest path:
 
-### Option B — CodeCanyon "self-hosted" (each buyer installs their own copy)
-This is what your original brief asked for: a buyer downloads a ZIP, installs it on **their own** PHP+MySQL hosting, and runs it themselves. Each buyer = their own server = their own database = total isolation.
+**Option A — Create a test account (recommended)**
+1. Open the preview at `/auth`
+2. Click the **"Create account"** tab
+3. Enter any email (e.g. `test@example.com`), any full name, and a password (6+ chars)
+4. Submit — this creates a real account in your Lovable Cloud backend
+5. You'll be redirected to `/onboarding` to create your first workspace
+6. After onboarding you land on `/dashboard` with full access
 
-- **Pros:** Perfect isolation. Buyer owns their data. Classic CodeCanyon model.
-- **Cons:** **This is not what Lovable builds.** Lovable produces a React + Vite + Lovable Cloud (Supabase) app — not a Laravel/PHP app a shared-hosting buyer can install with a one-click installer. To deliver this, the app would need to be rewritten in Laravel + MySQL outside Lovable.
-- **Best when:** You're committed to the CodeCanyon download-and-install model. **Requires leaving Lovable.**
+**Option B — Use Google sign-in**
+- Click **"Continue with Google"** on `/auth` — works if Google provider is already enabled in Lovable Cloud
 
-### Option C — One Lovable project per client (manual multi-instance)
-For each client you sell to, you duplicate the Lovable project, which gives them their own separate Lovable Cloud database. You hand them their own URL.
+**Important note about email confirmation**
+- By default, Lovable Cloud requires email verification before first login. If signup succeeds but sign-in fails with "email not confirmed," we have two choices:
+  - **Quick fix for testing:** I disable email confirmation in auth settings so you can log in immediately (one toggle, ~10 seconds)
+  - **Proper fix:** set up the email domain (Phase 7) so verification emails actually send
 
-- **Pros:** Strong isolation per client, stays in Lovable.
-- **Cons:** You manually clone and maintain N copies. Bug fixes must be applied N times. Doesn't scale past a handful of clients. Each client costs you a Lovable project.
-- **Best when:** You have 2–5 high-value clients and want strong isolation without leaving Lovable.
+For testing today, I recommend the quick fix — I'll disable email confirmation when we switch to build mode.
 
-## My Recommendation: Option A (Multi-Tenant SaaS)
+**Landing page (no login needed)**
+- The public marketing page at `/` requires no auth — visit it directly to review the landing design
 
-Given you're building in Lovable, Option A is the only path that lets you (1) sell to many clients, (2) keep their data isolated, and (3) ship updates once. "Separate database per client" sounds safer than it is — properly enforced RLS gives you the same security guarantee with a fraction of the operational cost. This is the industry standard.
+---
 
-If your heart is set on the CodeCanyon downloadable-PHP-app model, we should stop and have that conversation now, because Lovable is the wrong tool for that specific goal.
+### Part 2 — Installing on your own cPanel
 
-## What Option A Looks Like in FinTrack Pro
+**The short answer: yes, you can self-host the frontend on cPanel, but the backend cannot move to cPanel.**
 
-```text
-                ┌─────────────────────────────┐
-                │   FinTrack Pro (one app)    │
-                └──────────────┬──────────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        ▼                      ▼                      ▼
-   Client A signs in     Client B signs in      Client C signs in
-   sees only A's data    sees only B's data     sees only C's data
-        │                      │                      │
-        └──────────────────────┼──────────────────────┘
-                               ▼
-                  One Lovable Cloud database
-              (every row tagged with organization_id;
-               RLS blocks cross-tenant reads/writes)
+Here's the honest breakdown:
+
+**What CAN go on cPanel**
+- The **frontend** (the React app) — it compiles to static HTML/CSS/JS and runs on any cPanel hosting with no Node.js required
+- Process:
+  1. In Lovable, click **Share → Download code** (or connect GitHub) to get the source
+  2. On your local machine run `npm install` then `npm run build` — produces a `dist/` folder
+  3. Upload the contents of `dist/` to your cPanel `public_html/` via File Manager or FTP
+  4. Add a `.htaccess` file in `public_html/` for SPA routing (so `/dashboard` refreshes don't 404)
+  5. The `.env` values (Supabase URL + anon key) get baked into the build — they're public-safe
+
+**What CANNOT go on cPanel**
+- The **backend** — database, auth, edge functions, file storage. This all lives on Lovable Cloud (Supabase under the hood) and cannot be moved to cPanel. cPanel's MySQL + PHP stack is not compatible with Postgres + Deno edge functions.
+- **Options for the backend:**
+  - **Keep it on Lovable Cloud** (easiest) — the frontend on your cPanel just calls the Lovable Cloud API. This works today with zero extra work.
+  - **Self-host Supabase on a VPS** (NOT cPanel — needs Docker). Requires a VPS from the same provider or DigitalOcean/Hetzner. I can generate the migration files and a docker-compose setup. Much more work.
+  - **Rewrite backend for cPanel (PHP + MySQL)** — not recommended. Would require rebuilding auth, RLS, edge functions from scratch. Weeks of work. Loses most of what makes the app reliable.
+
+**Recommended path for you**
+1. Frontend on your cPanel domain (e.g. `app.yourdomain.com`)
+2. Backend stays on Lovable Cloud (free tier is generous, scales with usage)
+3. Custom domain points to cPanel; cPanel serves the static build; app talks to Lovable Cloud API in the background
+4. Users never see or know about Lovable Cloud — it's just your API
+
+---
+
+### What I need from you to proceed
+
+```
+1. Testing: Should I disable email confirmation now so you can sign up
+   and log in immediately? (Recommended — re-enable when we do Phase 7)
+
+2. cPanel deployment: Do you want me to prepare a self-hosting guide
+   now (build instructions + .htaccess + cPanel upload steps), or
+   later after Phase 8/9 are done?
+
+3. Backend hosting: Confirm you're OK keeping the backend on Lovable
+   Cloud (recommended) vs self-hosting Supabase on a VPS (big extra
+   work). This is NOT the same as cPanel.
 ```
 
-**Tenancy model:** `organizations` (one per client company) → `organization_members` (users belonging to an org with a role: owner / admin / member) → all business tables (`incomes`, `expenses`, `clients`, `products`, etc.) carry an `organization_id` column protected by RLS.
+### Technical details (for reference)
 
-## Implementation Plan (once you approve, I switch to build mode)
-
-### Phase 1 — Foundation (multi-tenant + auth)
-1. **Auth**: email + password, plus Google sign-in. Email confirmation off for easy testing.
-2. **Tables**: `profiles`, `organizations`, `organization_members`, `app_role` enum (`owner`, `admin`, `member`), `has_role()` security-definer function, `current_org_id()` helper.
-3. **Onboarding**: on first sign-in, user creates an organization (becomes owner) or accepts an invite.
-4. **Migrate Income & Expense** off in-memory Zustand into Cloud tables with `organization_id` + RLS. Keep attachments in the existing buckets but namespace paths by `org_id/`.
-
-### Phase 2 — Core business modules (CRUD + RLS, all org-scoped)
-5. **Clients**, **Products**, **Services** — link from Income/Expense.
-6. **Receivables** & **Payables** — auto-generated from partial-payment incomes/expenses.
-7. **Capital** — owner contributions/withdrawals.
-
-### Phase 3 — Productivity
-8. **Notes**, **Reminders** (with browser notifications via the Notification API).
-
-### Phase 4 — Insights & admin
-9. **Reports** — P&L, income vs expense, by category/client, with PDF export.
-10. **Settings** — business profile, currency, logo, manage categories, **invite team members** (admin/member roles).
-11. **Activity logs** — append-only audit table.
-
-### Phase 5 — Polish
-12. Empty states, loading skeletons, mobile responsiveness, dashboard wired to live data.
-
-## Technical Details (skip if non-technical)
-- RLS pattern: every business table has `organization_id uuid not null`; SELECT/INSERT/UPDATE/DELETE policies all check `organization_id = public.current_org_id()` or `public.is_org_member(auth.uid(), organization_id)`.
-- Roles stored in `organization_members(org_id, user_id, role)` — never on `profiles` (prevents privilege escalation).
-- `has_role()` and `current_org_id()` are `SECURITY DEFINER` functions to avoid recursive RLS.
-- Storage paths: `{org_id}/{uuid}.{ext}` so a future bucket policy can enforce per-org access.
-- Stack stays: React 18 + Vite + Tailwind + Lovable Cloud (Supabase Postgres + Auth + Storage).
-
-## Decision Needed From You
-Reply with **A**, **B**, or **C**:
-- **A** — Build it as a multi-tenant SaaS in Lovable (recommended; I start Phase 1 immediately).
-- **B** — You actually need the downloadable PHP/MySQL CodeCanyon product; Lovable is the wrong tool and we should stop.
-- **C** — One Lovable project per client; I'll explain the manual cloning workflow.
+- Build output: Vite produces static assets in `dist/` — HTML entry + hashed JS/CSS chunks. No server-side rendering, no Node runtime needed at host.
+- `.htaccess` for SPA fallback on Apache (cPanel default):
+  ```text
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+  ```
+- Env vars at build time: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` — these are public-safe anon credentials, fine to ship in a static bundle.
+- CORS: Lovable Cloud backend accepts requests from any origin by default, so your cPanel domain will work without config.
+- SSL: use cPanel's free AutoSSL / Let's Encrypt on your custom domain.
+- Alternative to cPanel: publishing via Lovable's built-in Publish is one click, gives you `yourproject.lovable.app` + optional custom domain + auto SSL + SPA routing already handled. Worth considering before cPanel.
 
