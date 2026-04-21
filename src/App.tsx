@@ -15,6 +15,8 @@ import ServicesPage from "./pages/Services.tsx";
 import ReceivablesPage from "./pages/Receivables.tsx";
 import PayablesPage from "./pages/Payables.tsx";
 import CapitalPage from "./pages/Capital.tsx";
+import NotesPage from "./pages/Notes.tsx";
+import RemindersPage from "./pages/Reminders.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
@@ -29,8 +31,6 @@ import {
   Briefcase,
   ArrowDownLeft,
   ArrowUpRight,
-  StickyNote,
-  Bell,
   BarChart3,
   Settings,
 } from "lucide-react";
@@ -61,8 +61,8 @@ const App = () => (
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/receivables" element={<ReceivablesPage />} />
                   <Route path="/payables" element={<PayablesPage />} />
-                  <Route path="/notes" element={<PagePlaceholder title="Notes" description="Quick notes, Google Keep style." icon={StickyNote} />} />
-                  <Route path="/reminders" element={<PagePlaceholder title="Reminders" description="Never miss a deadline again." icon={Bell} />} />
+                  <Route path="/notes" element={<NotesPage />} />
+                  <Route path="/reminders" element={<RemindersPage />} />
                   <Route path="/reports" element={<PagePlaceholder title="Reports" description="P&L, income, expense and category reports." icon={BarChart3} />} />
                   <Route path="/settings" element={<PagePlaceholder title="Settings" description="Business profile, users and categories." icon={Settings} />} />
                 </Route>
