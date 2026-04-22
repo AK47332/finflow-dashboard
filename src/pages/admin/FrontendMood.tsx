@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Globe, ShoppingBag, FileText, Lock, Check } from "lucide-react";
+import { Loader2, Globe, ShoppingBag, FileText, Lock, Check, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { FrontendMode } from "@/lib/ecom";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,8 @@ export default function FrontendMoodPage() {
   const [heroImage, setHeroImage] = useState("");
   const [heroCtaLabel, setHeroCtaLabel] = useState("");
   const [heroCtaUrl, setHeroCtaUrl] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("");
+  const [accentColor, setAccentColor] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,8 @@ export default function FrontendMoodPage() {
       setHeroImage(settings.hero_image_url ?? "");
       setHeroCtaLabel(settings.hero_cta_label ?? "");
       setHeroCtaUrl(settings.hero_cta_url ?? "");
+      setPrimaryColor((settings as any).theme_primary_color ?? "");
+      setAccentColor((settings as any).theme_accent_color ?? "");
     }
   }, [settings]);
 
@@ -86,8 +90,10 @@ export default function FrontendMoodPage() {
           hero_image_url: heroImage || null,
           hero_cta_label: heroCtaLabel || null,
           hero_cta_url: heroCtaUrl || null,
+          theme_primary_color: primaryColor || null,
+          theme_accent_color: accentColor || null,
           updated_by: user?.id,
-        },
+        } as any,
         { onConflict: "organization_id" },
       );
     setBusy(false);
@@ -208,6 +214,64 @@ export default function FrontendMoodPage() {
               </div>
             </>
           )}
+        </section>
+      )}
+
+      {mode !== "private" && (
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-card p-5">
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Theme colors</h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Choose your storefront primary (CTA buttons, links) and accent (gold details, social hover) colors. Leave blank to use defaults.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Primary color</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={primaryColor || "#e8593c"}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent"
+                  aria-label="Primary color"
+                />
+                <Input
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  placeholder="#E8593C"
+                />
+                {primaryColor && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setPrimaryColor("")}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Accent color</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor || "#ef9f27"}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent"
+                  aria-label="Accent color"
+                />
+                <Input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#EF9F27"
+                />
+                {accentColor && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setAccentColor("")}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
       )}
 

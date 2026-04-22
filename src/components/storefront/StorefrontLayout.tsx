@@ -4,16 +4,27 @@ import { StorefrontHeader } from "./StorefrontHeader";
 import { StorefrontFooter } from "./StorefrontFooter";
 import { ContactWidget } from "./ContactWidget";
 import type { EcomCategory, EcomPage } from "@/lib/ecom";
+import { buildThemeStyle } from "@/lib/themeColor";
 
 type Props = {
   orgId: string;
   storeName: string;
   storeLogoUrl?: string | null;
   footerLogoUrl?: string | null;
+  themePrimaryColor?: string | null;
+  themeAccentColor?: string | null;
   children: ReactNode;
 };
 
-export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl, children }: Props) {
+export function StorefrontLayout({
+  orgId,
+  storeName,
+  storeLogoUrl,
+  footerLogoUrl,
+  themePrimaryColor,
+  themeAccentColor,
+  children,
+}: Props) {
   const [categories, setCategories] = useState<EcomCategory[]>([]);
   const [pages, setPages] = useState<EcomPage[]>([]);
 
@@ -48,7 +59,10 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl
   }, [orgId]);
 
   return (
-    <div className="storefront-theme flex min-h-screen flex-col bg-background text-foreground">
+    <div
+      className="storefront-theme flex min-h-screen flex-col bg-background text-foreground"
+      style={buildThemeStyle(themePrimaryColor, themeAccentColor)}
+    >
       <StorefrontHeader
         orgId={orgId}
         storeName={storeName}

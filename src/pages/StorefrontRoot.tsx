@@ -68,6 +68,8 @@ export default function StorefrontRoot() {
       storeName={storeName}
       storeLogoUrl={settings.store_logo_url}
       footerLogoUrl={settings.footer_logo_url}
+      themePrimaryColor={settings.theme_primary_color ?? null}
+      themeAccentColor={settings.theme_accent_color ?? null}
     >
       <Routes>
         <Route index element={<StorefrontHome orgId={orgId} settings={settings} />} />
