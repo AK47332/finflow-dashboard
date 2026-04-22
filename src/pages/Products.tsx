@@ -269,8 +269,36 @@ export default function ProductsPage() {
                 <TableCell className="text-sm text-muted-foreground">{p.unit ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="inline-flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => setPendingDelete(p)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Edit product"
+                          className="cursor-pointer hover:bg-primary-soft hover:text-primary"
+                          onClick={() => openEdit(p)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Delete product"
+                          className="cursor-pointer text-expense hover:bg-expense/10 hover:text-expense"
+                          onClick={() => setPendingDelete(p)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete</TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
