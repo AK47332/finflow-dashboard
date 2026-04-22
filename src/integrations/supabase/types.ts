@@ -536,47 +536,6 @@ export type Database = {
           },
         ]
       }
-      ecom_newsletter_subscribers: {
-        Row: {
-          created_at: string
-          email: string
-          full_name: string | null
-          id: string
-          is_unsubscribed: boolean
-          organization_id: string
-          source: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          full_name?: string | null
-          id?: string
-          is_unsubscribed?: boolean
-          organization_id: string
-          source?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          full_name?: string | null
-          id?: string
-          is_unsubscribed?: boolean
-          organization_id?: string
-          source?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ecom_newsletter_subscribers_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ecom_order_items: {
         Row: {
           created_at: string
@@ -1085,6 +1044,7 @@ export type Database = {
       }
       org_frontend_settings: {
         Row: {
+          footer_logo_url: string | null
           hero_cta_label: string | null
           hero_cta_url: string | null
           hero_image_url: string | null
@@ -1100,6 +1060,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          footer_logo_url?: string | null
           hero_cta_label?: string | null
           hero_cta_url?: string | null
           hero_image_url?: string | null
@@ -1115,6 +1076,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          footer_logo_url?: string | null
           hero_cta_label?: string | null
           hero_cta_url?: string | null
           hero_image_url?: string | null
