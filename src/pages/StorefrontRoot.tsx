@@ -63,6 +63,7 @@ export default function StorefrontRoot() {
         <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} />} />
         <Route path="cart" element={<StorefrontCart />} />
         <Route path="checkout" element={<StorefrontCheckout orgId={orgId} />} />
+        <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} />} />
       </Routes>
     </StorefrontLayout>
   );

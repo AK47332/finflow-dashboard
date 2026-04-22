@@ -1,9 +1,18 @@
 import { useMemo, useState } from "react";
+import { useEffect } from "react";
 import { Package, Pencil, Trash2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +42,9 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useOrg } from "@/contexts/OrgContext";
+import { slugify, type EcomCategory, type EcomProductExtra } from "@/lib/ecom";
 
 export type Product = {
   id: string;
@@ -50,6 +62,7 @@ export default function ProductsPage() {
     column: "name",
     ascending: true,
   });
+  const { currentOrgId } = useOrg();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -63,6 +76,27 @@ export default function ProductsPage() {
   const [unit, setUnit] = useState("");
   const [description, setDescription] = useState("");
 
+  // Ecommerce fields
+  const [ecomCategories, setEcomCategories] = useState<EcomCategory[]>([]);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
+  const [ecomCategoryId, setEcomCategoryId] = useState<string>("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [compareAtPrice, setCompareAtPrice] = useState("");
+  const [imageUrls, setImageUrls] = useState(""); // newline-separated
+  const [slug, setSlug] = useState("");
+
+  useEffect(() => {
+    if (!currentOrgId) return;
+    supabase
+      .from("ecom_categories")
+      .select("*")
+      .eq("organization_id", currentOrgId)
+      .order("sort_order")
+      .then(({ data }) => setEcomCategories((data as EcomCategory[]) ?? []));
+  }, [currentOrgId]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return rows;
@@ -73,15 +107,39 @@ export default function ProductsPage() {
 
   const reset = () => {
     setName(""); setSku(""); setPrice(""); setCost(""); setStock(""); setUnit(""); setDescription("");
+    setIsPublished(false); setIsFeatured(false); setIsTrending(false);
+    setEcomCategoryId(""); setShortDescription(""); setCompareAtPrice("");
+    setImageUrls(""); setSlug("");
     setEditing(null);
   };
   const openAdd = () => { reset(); setOpen(true); };
-  const openEdit = (p: Product) => {
+  const openEdit = async (p: Product) => {
     setEditing(p);
     setName(p.name); setSku(p.sku ?? ""); setPrice(p.price.toString());
     setCost(p.cost.toString()); setStock(p.stock.toString());
     setUnit(p.unit ?? ""); setDescription(p.description ?? "");
     setOpen(true);
+    // Load ecom extras for this product
+    if (currentOrgId) {
+      const { data } = await supabase
+        .from("ecom_product_extras")
+        .select("*")
+        .eq("product_id", p.id)
+        .maybeSingle();
+      if (data) {
+        const ex = data as EcomProductExtra;
+        setIsPublished(ex.is_published);
+        setIsFeatured(ex.is_featured);
+        setIsTrending(ex.is_trending);
+        setEcomCategoryId(ex.ecom_category_id ?? "");
+        setShortDescription(ex.short_description ?? "");
+        setCompareAtPrice(ex.compare_at_price ? String(ex.compare_at_price) : "");
+        setImageUrls((ex.image_urls ?? []).join("\n"));
+        setSlug(ex.slug);
+      } else {
+        setSlug(slugify(p.name));
+      }
+    }
   };
 
   const totalValue = rows.reduce((s, p) => s + p.price * p.stock, 0);
@@ -99,8 +157,39 @@ export default function ProductsPage() {
         unit: unit.trim() || null,
         description: description.trim() || null,
       };
-      if (editing) await update(editing.id, payload);
-      else await create(payload);
+      let productId = editing?.id;
+      if (editing) {
+        await update(editing.id, payload);
+      } else {
+        const created = await create(payload);
+        productId = (created as Product | undefined)?.id;
+      }
+      // Upsert ecom extras (always — defaults to unpublished)
+      if (productId && currentOrgId) {
+        const finalSlug = (slug.trim() || slugify(name)).toLowerCase();
+        const images = imageUrls
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const { error: exErr } = await supabase.from("ecom_product_extras").upsert(
+          {
+            product_id: productId,
+            organization_id: currentOrgId,
+            ecom_category_id: ecomCategoryId || null,
+            is_published: isPublished,
+            is_featured: isFeatured,
+            is_trending: isTrending,
+            short_description: shortDescription.trim() || null,
+            long_description: description.trim() || null,
+            compare_at_price: compareAtPrice ? parseFloat(compareAtPrice) : null,
+            image_urls: images,
+            tags: [],
+            slug: finalSlug,
+          },
+          { onConflict: "product_id" },
+        );
+        if (exErr) throw exErr;
+      }
       toast.success(editing ? "Product updated" : "Product added");
       setOpen(false);
       reset();
@@ -188,12 +277,19 @@ export default function ProductsPage() {
       </div>
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit Product" : "Add Product"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="pname">Name *</Label>
-              <Input id="pname" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                id="pname"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (!editing && !slug) setSlug(slugify(e.target.value));
+                }}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -223,6 +319,65 @@ export default function ProductsPage() {
               <Label htmlFor="pdesc">Description</Label>
               <Textarea id="pdesc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
+
+            {/* Ecommerce settings */}
+            <div className="rounded-xl border border-border/60 bg-muted/30 p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-sm">Storefront listing</div>
+                  <p className="text-xs text-muted-foreground">Settings that apply when Ecommerce mood is on.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="ppub" className="text-xs">Publish</Label>
+                  <Switch id="ppub" checked={isPublished} onCheckedChange={setIsPublished} />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pslug">Slug</Label>
+                  <Input id="pslug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pcat">Category</Label>
+                  <Select value={ecomCategoryId || "none"} onValueChange={(v) => setEcomCategoryId(v === "none" ? "" : v)}>
+                    <SelectTrigger id="pcat"><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {ecomCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pshort">Short description</Label>
+                <Textarea id="pshort" rows={2} value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} placeholder="Shown on product cards" />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pcompare">Compare-at price</Label>
+                  <Input id="pcompare" type="number" step="0.01" min="0" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)} placeholder="Original price" />
+                </div>
+                <div className="flex items-end gap-4 pb-1">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch checked={isFeatured} onCheckedChange={setIsFeatured} /> Featured
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch checked={isTrending} onCheckedChange={setIsTrending} /> Trending
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pimgs">Image URLs</Label>
+                <Textarea id="pimgs" rows={3} value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} placeholder="One URL per line" />
+              </div>
+            </div>
+
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Save changes" : "Add Product"}</Button>
