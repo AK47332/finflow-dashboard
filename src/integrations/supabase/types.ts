@@ -458,6 +458,56 @@ export type Database = {
           },
         ]
       }
+      ecom_contact_widget: {
+        Row: {
+          email: string | null
+          greeting: string | null
+          is_enabled: boolean
+          messenger_username: string | null
+          organization_id: string
+          phone_number: string | null
+          position: string
+          updated_at: string
+          updated_by: string | null
+          whatsapp_message: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          email?: string | null
+          greeting?: string | null
+          is_enabled?: boolean
+          messenger_username?: string | null
+          organization_id: string
+          phone_number?: string | null
+          position?: string
+          updated_at?: string
+          updated_by?: string | null
+          whatsapp_message?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          email?: string | null
+          greeting?: string | null
+          is_enabled?: boolean
+          messenger_username?: string | null
+          organization_id?: string
+          phone_number?: string | null
+          position?: string
+          updated_at?: string
+          updated_by?: string | null
+          whatsapp_message?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_contact_widget_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ecom_customers: {
         Row: {
           created_at: string
@@ -683,6 +733,56 @@ export type Database = {
           },
           {
             foreignKeyName: "ecom_orders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_pages: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          organization_id: string
+          show_in_footer: boolean
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          organization_id: string
+          show_in_footer?: boolean
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          organization_id?: string
+          show_in_footer?: boolean
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_pages_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
