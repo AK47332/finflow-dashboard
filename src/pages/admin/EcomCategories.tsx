@@ -114,6 +114,26 @@ export default function EcomCategoriesPage() {
                   <Label>Slug</Label>
                   <Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} />
                 </div>
+                <div className="space-y-1.5">
+                  <Label>Parent category</Label>
+                  <Select
+                    value={editing.parent_id ?? "none"}
+                    onValueChange={(v) => setEditing({ ...editing, parent_id: v === "none" ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Top-level category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— Top-level (no parent)</SelectItem>
+                      {items
+                        .filter((c) => !c.parent_id && c.id !== editing.id)
+                        .map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Leave empty to make this a main category. Pick a parent to make it a subcategory.</p>
+                </div>
                 <ImageUploader
                   label="Image"
                   value={editing.image_url ?? ""}
