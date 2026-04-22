@@ -634,6 +634,10 @@ export default function SettingsPage() {
 
         {/* Activity tab */}
         <TabsContent value="activity" className="mt-4">
+        </TabsContent>
+
+        {/* Footer settings tab — placeholder removed; real content above */}
+        <TabsContent value="__noop" className="hidden" />
           <div className="ft-card p-6">
             <h3 className="mb-4 text-sm font-semibold text-foreground">Recent activity</h3>
             {activity.length === 0 ? (
