@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Globe, ShoppingBag, FileText, Lock, Check } from "lucide-react";
+import { Loader2, Globe, ShoppingBag, FileText, Lock, Check, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { FrontendMode } from "@/lib/ecom";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,8 @@ export default function FrontendMoodPage() {
   const [heroImage, setHeroImage] = useState("");
   const [heroCtaLabel, setHeroCtaLabel] = useState("");
   const [heroCtaUrl, setHeroCtaUrl] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("");
+  const [accentColor, setAccentColor] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,8 @@ export default function FrontendMoodPage() {
       setHeroImage(settings.hero_image_url ?? "");
       setHeroCtaLabel(settings.hero_cta_label ?? "");
       setHeroCtaUrl(settings.hero_cta_url ?? "");
+      setPrimaryColor((settings as any).theme_primary_color ?? "");
+      setAccentColor((settings as any).theme_accent_color ?? "");
     }
   }, [settings]);
 
@@ -86,8 +90,10 @@ export default function FrontendMoodPage() {
           hero_image_url: heroImage || null,
           hero_cta_label: heroCtaLabel || null,
           hero_cta_url: heroCtaUrl || null,
+          theme_primary_color: primaryColor || null,
+          theme_accent_color: accentColor || null,
           updated_by: user?.id,
-        },
+        } as any,
         { onConflict: "organization_id" },
       );
     setBusy(false);
