@@ -1,71 +1,26 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
 
-export function StorefrontFooter({ storeName, orgId }: { storeName: string; orgId?: string | null }) {
-  const [email, setEmail] = useState("");
-  const [busy, setBusy] = useState(false);
-  const onSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.includes("@")) return toast.error("Please enter a valid email");
-    if (!orgId) return toast.error("Storefront not ready");
-    setBusy(true);
-    const { error } = await supabase
-      .from("ecom_newsletter_subscribers")
-      .insert({ organization_id: orgId, email: email.trim().toLowerCase(), source: "footer" });
-    setBusy(false);
-    if (error && !error.message.includes("duplicate")) {
-      return toast.error(error.message);
-    }
-    toast.success("Subscribed! Watch your inbox for festive drops.");
-    setEmail("");
-  };
+export function StorefrontFooter({
+  storeName,
+  footerLogoUrl,
+}: {
+  storeName: string;
+  orgId?: string | null;
+  footerLogoUrl?: string | null;
+}) {
   return (
     <footer className="mt-20 bg-charcoal text-background">
-      {/* Newsletter */}
-      <div className="border-b border-background/10">
-        <div className="container mx-auto grid items-center gap-6 px-4 py-12 md:grid-cols-2 md:py-14">
-          <div>
-            <div className="text-xs font-bold uppercase tracking-[0.2em] text-gold">
-              Stay in the loop
-            </div>
-            <h3 className="mt-2 font-serif-display text-2xl font-bold leading-tight md:text-3xl">
-              Get 10% off your first order
-            </h3>
-            <p className="mt-2 max-w-md text-sm text-background/70">
-              New collections, festival edits & member-only deals — delivered weekly.
-            </p>
-          </div>
-          <form onSubmit={onSubscribe} className="flex w-full gap-2 md:justify-end">
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
-              className="h-12 max-w-sm border-background/20 bg-background/5 text-background placeholder:text-background/50 focus-visible:ring-gold"
-            />
-            <Button
-              type="submit"
-              size="lg"
-              disabled={busy}
-              className="h-12 bg-gold px-8 font-bold uppercase tracking-wider text-charcoal hover:bg-gold/90"
-            >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
-            </Button>
-          </form>
-        </div>
-      </div>
-
       {/* Columns */}
       <div className="container mx-auto grid gap-10 px-4 py-14 md:grid-cols-5">
         <div className="md:col-span-2">
-          <div className="font-serif-display text-2xl font-bold tracking-tight">
-            {storeName}
-          </div>
+          {footerLogoUrl ? (
+            <img src={footerLogoUrl} alt={storeName} className="h-12 w-auto object-contain" />
+          ) : (
+            <div className="font-serif-display text-2xl font-bold tracking-tight">
+              {storeName}
+            </div>
+          )}
           <p className="mt-3 max-w-xs text-sm text-background/70">
             A modern South Asian fashion house — curating timeless craft and
             festive ready-to-wear since 2018.
