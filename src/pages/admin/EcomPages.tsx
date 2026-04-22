@@ -123,37 +123,39 @@ export default function EcomPagesPage() {
   };
 
   return (
-    <CrudShell
-      title="Storefront Pages"
-      description="Create CMS pages like About, Contact, Shipping & Returns. Footer links update automatically."
-      loading={loading}
-      empty={!loading && rows.length === 0}
-      emptyText="No pages yet. Create your first one."
-      onAdd={openAdd}
-      addLabel="New Page"
-      addClassName="bg-gradient-primary text-primary-foreground hover:opacity-90"
-    >
-      <div className="grid gap-3">
-        {rows.map((p) => (
-          <div key={p.id} className="ft-card flex items-center justify-between gap-3 p-4">
-            <div className="flex items-center gap-3">
-              <div className="ft-stat-icon bg-primary-soft text-primary"><FileText className="h-4 w-4" /></div>
-              <div>
-                <div className="font-semibold text-foreground">{p.title}</div>
-                <div className="text-xs text-muted-foreground">/page/{p.slug} · {p.show_in_footer ? "In footer" : "Hidden from footer"}</div>
+    <>
+      <CrudShell
+        title="Storefront Pages"
+        description="Create CMS pages like About, Contact, Shipping & Returns. Footer links update automatically."
+        loading={loading}
+        empty={!loading && rows.length === 0}
+        emptyText="No pages yet. Create your first one."
+        onAdd={openAdd}
+        addLabel="New Page"
+        addClassName="bg-gradient-primary text-primary-foreground hover:opacity-90"
+      >
+        <div className="grid gap-3">
+          {rows.map((p) => (
+            <div key={p.id} className="ft-card flex items-center justify-between gap-3 p-4">
+              <div className="flex items-center gap-3">
+                <div className="ft-stat-icon bg-primary-soft text-primary"><FileText className="h-4 w-4" /></div>
+                <div>
+                  <div className="font-semibold text-foreground">{p.title}</div>
+                  <div className="text-xs text-muted-foreground">/page/{p.slug} · {p.show_in_footer ? "In footer" : "Hidden from footer"}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-xs">
+                  <Switch checked={p.is_active} onCheckedChange={() => toggleActive(p)} />
+                  <span className="text-muted-foreground">{p.is_active ? "Active" : "Inactive"}</span>
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => openEdit(p)} aria-label="Edit"><Pencil className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" className="text-expense" onClick={() => setPendingDelete(p)} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-xs">
-                <Switch checked={p.is_active} onCheckedChange={() => toggleActive(p)} />
-                <span className="text-muted-foreground">{p.is_active ? "Active" : "Inactive"}</span>
-              </div>
-              <Button size="icon" variant="ghost" onClick={() => openEdit(p)} aria-label="Edit"><Pencil className="h-4 w-4" /></Button>
-              <Button size="icon" variant="ghost" className="text-expense" onClick={() => setPendingDelete(p)} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </CrudShell>
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -218,6 +220,6 @@ export default function EcomPagesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </CrudShell>
+    </>
   );
 }
