@@ -9,6 +9,7 @@ import { StorefrontShop } from "./storefront/StorefrontShop";
 import { StorefrontProduct } from "./storefront/StorefrontProduct";
 import { StorefrontCart } from "./storefront/StorefrontCart";
 import { StorefrontCheckout } from "./storefront/StorefrontCheckout";
+import { StorefrontPage } from "./storefront/StorefrontPage";
 import PortalPage from "./Portal";
 
 /**
@@ -74,6 +75,7 @@ export default function StorefrontRoot() {
         <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} />} />
         <Route path="cart" element={<StorefrontCart />} />
         <Route path="checkout" element={<StorefrontCheckout orgId={orgId} />} />
+        <Route path="page/:slug" element={<StorefrontPage orgId={orgId} />} />
         <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} />} />
       </Routes>
     </StorefrontLayout>

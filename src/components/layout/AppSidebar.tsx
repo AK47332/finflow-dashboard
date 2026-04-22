@@ -25,6 +25,8 @@ import {
   Palette,
   ChevronDown,
   UserCircle2,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -89,6 +91,8 @@ const groups: NavGroup[] = [
       { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
       { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
       { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
+      { title: "Pages", url: "/ecom/pages", icon: FileText },
+      { title: "Contact Widget", url: "/ecom/contact-widget", icon: MessageCircle },
       { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
     ],
   },

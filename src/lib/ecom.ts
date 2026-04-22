@@ -104,3 +104,26 @@ export type EcomInstagramPost = {
   sort_order: number;
   is_active: boolean;
 };
+
+export type EcomPage = {
+  id: string;
+  organization_id: string;
+  title: string;
+  slug: string;
+  content: string;
+  show_in_footer: boolean;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type EcomContactWidget = {
+  organization_id: string;
+  is_enabled: boolean;
+  position: "bottom-right" | "bottom-left";
+  greeting: string | null;
+  whatsapp_number: string | null;
+  whatsapp_message: string | null;
+  messenger_username: string | null;
+  phone_number: string | null;
+  email: string | null;
+};

@@ -2,7 +2,8 @@ import { ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StorefrontHeader } from "./StorefrontHeader";
 import { StorefrontFooter } from "./StorefrontFooter";
-import type { EcomCategory } from "@/lib/ecom";
+import { ContactWidget } from "./ContactWidget";
+import type { EcomCategory, EcomPage } from "@/lib/ecom";
 
 type Props = {
   orgId: string;
@@ -14,6 +15,7 @@ type Props = {
 
 export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl, children }: Props) {
   const [categories, setCategories] = useState<EcomCategory[]>([]);
+  const [pages, setPages] = useState<EcomPage[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,7 +29,19 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl
       if (cancelled) return;
       setCategories((data as EcomCategory[]) ?? []);
     }
+    async function loadPages() {
+      const { data } = await (supabase as any)
+        .from("ecom_pages")
+        .select("*")
+        .eq("organization_id", orgId)
+        .eq("is_active", true)
+        .eq("show_in_footer", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      setPages((data as EcomPage[]) ?? []);
+    }
     void load();
+    void loadPages();
     return () => {
       cancelled = true;
     };
@@ -42,7 +56,8 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl
         categories={categories.map((c) => ({ name: c.name, slug: c.slug }))}
       />
       <main className="flex-1">{children}</main>
-      <StorefrontFooter storeName={storeName} orgId={orgId} footerLogoUrl={footerLogoUrl} />
+      <StorefrontFooter storeName={storeName} orgId={orgId} footerLogoUrl={footerLogoUrl} pages={pages} />
+      <ContactWidget orgId={orgId} />
     </div>
   );
 }

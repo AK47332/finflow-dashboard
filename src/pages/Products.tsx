@@ -45,6 +45,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { slugify, type EcomCategory, type EcomProductExtra } from "@/lib/ecom";
+import { MultiImageUploader } from "@/components/ui/MultiImageUploader";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type Product = {
   id: string;
@@ -84,7 +90,7 @@ export default function ProductsPage() {
   const [ecomCategoryId, setEcomCategoryId] = useState<string>("");
   const [shortDescription, setShortDescription] = useState("");
   const [compareAtPrice, setCompareAtPrice] = useState("");
-  const [imageUrls, setImageUrls] = useState(""); // newline-separated
+  const [images, setImages] = useState<string[]>([]);
   const [slug, setSlug] = useState("");
 
   useEffect(() => {
@@ -109,7 +115,7 @@ export default function ProductsPage() {
     setName(""); setSku(""); setPrice(""); setCost(""); setStock(""); setUnit(""); setDescription("");
     setIsPublished(false); setIsFeatured(false); setIsTrending(false);
     setEcomCategoryId(""); setShortDescription(""); setCompareAtPrice("");
-    setImageUrls(""); setSlug("");
+    setImages([]); setSlug("");
     setEditing(null);
   };
   const openAdd = () => { reset(); setOpen(true); };
@@ -134,7 +140,7 @@ export default function ProductsPage() {
         setEcomCategoryId(ex.ecom_category_id ?? "");
         setShortDescription(ex.short_description ?? "");
         setCompareAtPrice(ex.compare_at_price ? String(ex.compare_at_price) : "");
-        setImageUrls((ex.image_urls ?? []).join("\n"));
+        setImages(ex.image_urls ?? []);
         setSlug(ex.slug);
       } else {
         setSlug(slugify(p.name));
@@ -167,10 +173,7 @@ export default function ProductsPage() {
       // Upsert ecom extras (always — defaults to unpublished)
       if (productId && currentOrgId) {
         const finalSlug = (slug.trim() || slugify(name)).toLowerCase();
-        const images = imageUrls
-          .split("\n")
-          .map((s) => s.trim())
-          .filter(Boolean);
+        const cleanImages = images.map((s) => s.trim()).filter(Boolean);
         const { error: exErr } = await supabase.from("ecom_product_extras").upsert(
           {
             product_id: productId,
@@ -182,7 +185,7 @@ export default function ProductsPage() {
             short_description: shortDescription.trim() || null,
             long_description: description.trim() || null,
             compare_at_price: compareAtPrice ? parseFloat(compareAtPrice) : null,
-            image_urls: images,
+            image_urls: cleanImages,
             tags: [],
             slug: finalSlug,
           },
@@ -266,8 +269,36 @@ export default function ProductsPage() {
                 <TableCell className="text-sm text-muted-foreground">{p.unit ?? "—"}</TableCell>
                 <TableCell className="text-right">
                   <div className="inline-flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => setPendingDelete(p)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Edit product"
+                          className="cursor-pointer hover:bg-primary-soft hover:text-primary"
+                          onClick={() => openEdit(p)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="Delete product"
+                          className="cursor-pointer text-expense hover:bg-expense/10 hover:text-expense"
+                          onClick={() => setPendingDelete(p)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete</TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>
@@ -372,10 +403,13 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="pimgs">Image URLs</Label>
-                <Textarea id="pimgs" rows={3} value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} placeholder="One URL per line" />
-              </div>
+              <MultiImageUploader
+                label="Product images"
+                values={images}
+                onChange={setImages}
+                folder="products"
+                max={8}
+              />
             </div>
 
             <DialogFooter className="gap-2">
