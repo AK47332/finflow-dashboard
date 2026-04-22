@@ -277,12 +277,19 @@ export default function ProductsPage() {
       </div>
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit Product" : "Add Product"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="pname">Name *</Label>
-              <Input id="pname" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                id="pname"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (!editing && !slug) setSlug(slugify(e.target.value));
+                }}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -312,6 +319,65 @@ export default function ProductsPage() {
               <Label htmlFor="pdesc">Description</Label>
               <Textarea id="pdesc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
+
+            {/* Ecommerce settings */}
+            <div className="rounded-xl border border-border/60 bg-muted/30 p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-sm">Storefront listing</div>
+                  <p className="text-xs text-muted-foreground">Settings that apply when Ecommerce mood is on.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="ppub" className="text-xs">Publish</Label>
+                  <Switch id="ppub" checked={isPublished} onCheckedChange={setIsPublished} />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pslug">Slug</Label>
+                  <Input id="pslug" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pcat">Category</Label>
+                  <Select value={ecomCategoryId || "none"} onValueChange={(v) => setEcomCategoryId(v === "none" ? "" : v)}>
+                    <SelectTrigger id="pcat"><SelectValue placeholder="None" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {ecomCategories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pshort">Short description</Label>
+                <Textarea id="pshort" rows={2} value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} placeholder="Shown on product cards" />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pcompare">Compare-at price</Label>
+                  <Input id="pcompare" type="number" step="0.01" min="0" value={compareAtPrice} onChange={(e) => setCompareAtPrice(e.target.value)} placeholder="Original price" />
+                </div>
+                <div className="flex items-end gap-4 pb-1">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch checked={isFeatured} onCheckedChange={setIsFeatured} /> Featured
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch checked={isTrending} onCheckedChange={setIsTrending} /> Trending
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pimgs">Image URLs</Label>
+                <Textarea id="pimgs" rows={3} value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} placeholder="One URL per line" />
+              </div>
+            </div>
+
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Save changes" : "Add Product"}</Button>
