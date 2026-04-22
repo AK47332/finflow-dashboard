@@ -224,11 +224,6 @@ export function StorefrontHome({ orgId, settings }: Props) {
         </section>
       )}
 
-      {/* Promo split */}
-      <section className="container mx-auto px-4 py-8">
-        <PromoCards />
-      </section>
-
       {/* Single banner full width if available */}
       {promoBanner && (
         <section className="container mx-auto px-4 py-16">
