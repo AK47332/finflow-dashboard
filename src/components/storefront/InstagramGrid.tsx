@@ -1,17 +1,28 @@
+import { useEffect, useState } from "react";
 import { Heart, Instagram } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { EcomInstagramPost } from "@/lib/ecom";
 
-const IMAGES = [
-  "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1606298855672-3efb63017be8?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1610189025214-7b4f60a25dab?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1622519407650-3df9883f76a5?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1594761051556-eba2935b1a8b?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&auto=format&fit=crop",
-];
+export function InstagramGrid({ orgId }: { orgId?: string | null }) {
+  const [items, setItems] = useState<EcomInstagramPost[]>([]);
 
-export function InstagramGrid() {
+  useEffect(() => {
+    if (!orgId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("ecom_instagram_posts")
+        .select("*")
+        .eq("organization_id", orgId)
+        .eq("is_active", true)
+        .order("sort_order");
+      if (!cancelled) setItems((data as EcomInstagramPost[]) ?? []);
+    })();
+    return () => { cancelled = true; };
+  }, [orgId]);
+
+  if (items.length === 0) return null;
+
   return (
     <section className="container mx-auto px-4 py-16 md:py-20">
       <div className="text-center">
@@ -23,15 +34,17 @@ export function InstagramGrid() {
         </h2>
       </div>
       <div className="mt-10 grid grid-cols-2 gap-2 sm:grid-cols-4 md:gap-3 lg:grid-cols-8">
-        {IMAGES.map((src, i) => (
+        {items.map((p) => (
           <a
-            key={i}
-            href="#"
+            key={p.id}
+            href={p.link_url ?? "#"}
+            target={p.link_url ? "_blank" : undefined}
+            rel={p.link_url ? "noopener noreferrer" : undefined}
             className="group relative aspect-square overflow-hidden rounded-lg bg-muted"
           >
             <img
-              src={src}
-              alt=""
+              src={p.image_url}
+              alt={p.caption ?? ""}
               loading="lazy"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
