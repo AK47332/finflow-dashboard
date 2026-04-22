@@ -840,6 +840,7 @@ export type Database = {
           document_path: string | null
           document_type: string | null
           document_url: string | null
+          ecom_order_id: string | null
           id: string
           is_partial: boolean
           organization_id: string
@@ -862,6 +863,7 @@ export type Database = {
           document_path?: string | null
           document_type?: string | null
           document_url?: string | null
+          ecom_order_id?: string | null
           id?: string
           is_partial?: boolean
           organization_id: string
@@ -884,6 +886,7 @@ export type Database = {
           document_path?: string | null
           document_type?: string | null
           document_url?: string | null
+          ecom_order_id?: string | null
           id?: string
           is_partial?: boolean
           organization_id?: string
