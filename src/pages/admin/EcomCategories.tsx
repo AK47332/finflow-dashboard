@@ -83,6 +83,21 @@ export default function EcomCategoriesPage() {
     void load();
   };
 
+  const toggleActive = async (c: EcomCategory, v: boolean) => {
+    // Optimistic UI
+    setItems((prev) => prev.map((it) => (it.id === c.id ? { ...it, is_active: v } : it)));
+    const { error } = await supabase
+      .from("ecom_categories")
+      .update({ is_active: v })
+      .eq("id", c.id);
+    if (error) {
+      toast.error(error.message);
+      void load();
+    } else {
+      toast.success(v ? "Category enabled" : "Category disabled");
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
