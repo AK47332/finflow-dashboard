@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -101,6 +101,87 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 262 60% 50%;
     --sidebar-ring: 0 0% 100%;
+
+    /* ============ STOREFRONT (South Asian fashion editorial) ============ */
+    /* Scoped under .storefront-theme so admin dashboard stays unchanged */
+  }
+
+  .storefront-theme {
+    --background: 48 23% 97%;            /* #FAFAF8 warm off-white */
+    --foreground: 0 0% 10%;              /* #1A1A1A near-black */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --muted: 40 16% 94%;
+    --muted-foreground: 50 4% 50%;       /* #888780 */
+    --border: 40 14% 88%;
+    --input: 40 14% 88%;
+    --ring: 11 79% 57%;
+
+    /* Brand: coral-red as primary CTA */
+    --primary: 11 79% 57%;               /* #E8593C coral */
+    --primary-foreground: 0 0% 100%;
+    --primary-deep: 11 79% 47%;
+    --primary-soft: 11 80% 96%;
+
+    --secondary: 40 16% 94%;
+    --secondary-foreground: 0 0% 10%;
+
+    --accent: 11 80% 96%;
+    --accent-foreground: 11 79% 47%;
+
+    --destructive: 11 79% 57%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Editorial accents */
+    --teal: 167 78% 24%;                 /* #0F6E56 deep teal */
+    --teal-foreground: 0 0% 100%;
+    --gold: 36 86% 55%;                  /* #EF9F27 warm gold */
+    --gold-foreground: 0 0% 10%;
+    --maroon: 350 60% 22%;               /* deep maroon */
+    --maroon-foreground: 0 0% 100%;
+    --forest: 158 50% 15%;               /* forest green */
+    --forest-foreground: 0 0% 100%;
+    --midnight: 230 50% 14%;             /* midnight navy */
+    --midnight-foreground: 0 0% 100%;
+    --charcoal: 0 0% 12%;
+    --charcoal-foreground: 0 0% 95%;
+    --ink: 0 0% 8%;
+
+    --radius: 0.875rem;
+
+    --gradient-primary: linear-gradient(135deg, hsl(11 79% 60%), hsl(11 79% 50%));
+    --gradient-gold: linear-gradient(135deg, hsl(36 86% 60%), hsl(28 86% 45%));
+    --gradient-teal: linear-gradient(135deg, hsl(167 78% 28%), hsl(167 78% 18%));
+    --gradient-maroon: linear-gradient(135deg, hsl(350 60% 22%), hsl(350 50% 12%));
+    --gradient-forest: linear-gradient(135deg, hsl(158 50% 18%), hsl(158 50% 10%));
+    --gradient-midnight: linear-gradient(135deg, hsl(230 50% 18%), hsl(230 60% 10%));
+    --gradient-charcoal-gold: linear-gradient(135deg, hsl(0 0% 12%), hsl(36 50% 22%));
+
+    --shadow-card: 0 4px 24px -8px hsl(0 0% 8% / 0.10);
+    --shadow-soft: 0 2px 10px -2px hsl(0 0% 8% / 0.06);
+    --shadow-lift: 0 18px 40px -12px hsl(0 0% 8% / 0.18);
+    --shadow-primary: 0 12px 30px -10px hsl(11 79% 57% / 0.40);
+    --shadow-gold: 0 12px 30px -10px hsl(36 86% 55% / 0.35);
+
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  .storefront-theme.dark,
+  .dark .storefront-theme {
+    --background: 0 0% 7%;
+    --foreground: 40 16% 94%;
+    --card: 0 0% 10%;
+    --card-foreground: 40 16% 94%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 50 4% 65%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --primary: 11 79% 60%;
+    --accent: 11 60% 18%;
+    --accent-foreground: 11 79% 70%;
   }
 
   .dark {
@@ -147,6 +228,88 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    font-feature-settings: 'lnum', 'pnum';
+  }
+  .font-serif-elegant {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  }
+  .bg-gradient-gold { background: var(--gradient-gold); }
+  .bg-gradient-teal { background: var(--gradient-teal); }
+  .bg-gradient-maroon { background: var(--gradient-maroon); }
+  .bg-gradient-forest { background: var(--gradient-forest); }
+  .bg-gradient-midnight { background: var(--gradient-midnight); }
+  .bg-gradient-charcoal-gold { background: var(--gradient-charcoal-gold); }
+  .shadow-gold { box-shadow: var(--shadow-gold); }
+  .text-gold { color: hsl(var(--gold)); }
+  .bg-gold { background-color: hsl(var(--gold)); }
+  .text-teal { color: hsl(var(--teal)); }
+  .bg-teal { background-color: hsl(var(--teal)); }
+  .text-maroon { color: hsl(var(--maroon)); }
+  .bg-maroon { background-color: hsl(var(--maroon)); }
+  .text-charcoal { color: hsl(var(--charcoal)); }
+  .bg-charcoal { background-color: hsl(var(--charcoal)); }
+  .border-gold { border-color: hsl(var(--gold)); }
+  .ring-gold { --tw-ring-color: hsl(var(--gold)); }
+
+  /* Decorative thin line under section headings */
+  .heading-underline::after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 2px;
+    margin-top: 12px;
+    background: hsl(var(--gold));
+    border-radius: 2px;
+  }
+  .heading-underline-center::after {
+    content: "";
+    display: block;
+    width: 56px;
+    height: 2px;
+    margin: 14px auto 0;
+    background: hsl(var(--gold));
+    border-radius: 2px;
+  }
+
+  /* Marquee */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+
+  /* Subtle hero parallax/zoom */
+  @keyframes slow-zoom {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+  }
+  .animate-slow-zoom { animation: slow-zoom 18s ease-in-out infinite alternate; }
+
+  /* Hero animated gradient */
+  @keyframes hero-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .hero-gradient-shimmer {
+    background-size: 200% 200%;
+    animation: hero-shimmer 12s ease infinite;
+  }
+
+  /* Skeleton shimmer */
+  @keyframes skel {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, hsl(var(--muted)) 0px, hsl(var(--muted) / 0.6) 80px, hsl(var(--muted)) 160px);
+    background-size: 200px 100%;
+    animation: skel 1.4s linear infinite;
   }
 }
 

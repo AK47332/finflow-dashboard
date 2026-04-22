@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
-import { ShoppingBag, Eye } from "lucide-react";
+import { ShoppingBag, Eye, Heart } from "lucide-react";
+import { useState } from "react";
 import type { StorefrontProduct } from "@/lib/ecom";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   const addItem = useCartStore((s) => s.addItem);
+  const [wished, setWished] = useState(false);
   const slug = product.extras?.slug ?? product.id;
   const image = product.extras?.image_urls?.[0] ?? null;
   const hoverImage = product.extras?.image_urls?.[1] ?? null;
@@ -14,6 +17,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
   const discount = showCompare
     ? Math.round(((compareAt! - product.price) / compareAt!) * 100)
     : 0;
+  const inStock = product.stock > 0;
 
   const onAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,10 +34,17 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     toast.success(`${product.name} added to cart`);
   };
 
+  const onWish = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setWished((w) => !w);
+    toast.success(wished ? "Removed from wishlist" : "Added to wishlist");
+  };
+
   return (
     <Link
       to={`/product/${slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all hover:-translate-y-0.5 hover:shadow-lift"
+      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-muted">
         {image ? (
@@ -42,14 +53,14 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               src={image}
               alt={product.name}
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+              className="absolute inset-0 h-full w-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:opacity-0"
             />
             {hoverImage ? (
               <img
                 src={hoverImage}
                 alt=""
                 loading="lazy"
-                className="absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-0 transition-all duration-700 group-hover:scale-100 group-hover:opacity-100"
               />
             ) : (
               <img
@@ -61,43 +72,55 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
             )}
           </>
         ) : (
-          <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-            No image
+          <div className="flex h-full items-center justify-center font-serif text-3xl text-muted-foreground/40">
+            {product.name[0]}
           </div>
         )}
 
-        {/* Badges */}
-        <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+        {/* Badges top-left */}
+        <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {product.extras?.is_trending && (
-            <span className="rounded-md bg-foreground px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background">
+            <span className="rounded-full bg-gradient-to-r from-primary to-primary-deep px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground shadow-md">
               Trending
             </span>
           )}
           {product.extras?.is_featured && !product.extras?.is_trending && (
-            <span className="rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+            <span className="rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-charcoal shadow-md">
               Featured
             </span>
           )}
+          {discount > 0 && (
+            <span className="rounded-full bg-foreground px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-background shadow-md">
+              -{discount}% off
+            </span>
+          )}
         </div>
-        {discount > 0 && (
-          <span className="absolute right-3 top-3 rounded-md bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">
-            -{discount}%
-          </span>
-        )}
+
+        {/* Wishlist top-right */}
+        <button
+          onClick={onWish}
+          aria-label="Add to wishlist"
+          className={cn(
+            "absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 backdrop-blur shadow-soft transition-all hover:scale-110",
+            wished ? "text-primary" : "text-foreground hover:text-primary",
+          )}
+        >
+          <Heart className={cn("h-4 w-4", wished && "fill-primary")} />
+        </button>
 
         {/* Slide-up action bar */}
         <div className="absolute inset-x-3 bottom-3 flex translate-y-3 gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <button
             onClick={onAdd}
-            disabled={product.stock <= 0}
-            className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-foreground text-xs font-semibold text-background shadow-lg transition-colors hover:bg-foreground/90 disabled:opacity-50"
+            disabled={!inStock}
+            className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-foreground text-xs font-bold uppercase tracking-wider text-background shadow-lg transition-all hover:bg-primary disabled:opacity-50"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
-            {product.stock > 0 ? "Add to cart" : "Sold out"}
+            {inStock ? "Quick Add" : "Sold out"}
           </button>
           <button
-            onClick={(e) => e.stopPropagation()}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-foreground shadow-lg transition-colors hover:bg-muted"
+            onClick={(e) => e.preventDefault()}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-background text-foreground shadow-lg transition-colors hover:bg-muted"
             aria-label="Quick view"
           >
             <Eye className="h-4 w-4" />
@@ -105,22 +128,43 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <div className="line-clamp-1 text-sm font-semibold">{product.name}</div>
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <div className="line-clamp-1 text-sm font-semibold tracking-tight">
+          {product.name}
+        </div>
         {product.extras?.short_description && (
           <div className="line-clamp-1 text-xs text-muted-foreground">
             {product.extras.short_description}
           </div>
         )}
-        <div className="mt-1.5 flex items-baseline gap-2">
+        <div className="mt-1 flex items-baseline gap-2">
           <span className="text-base font-bold text-foreground">
-            ${Number(product.price).toFixed(2)}
+            ₹{Number(product.price).toLocaleString("en-IN")}
           </span>
           {showCompare && (
             <span className="text-xs text-muted-foreground line-through">
-              ${Number(compareAt).toFixed(2)}
+              ₹{Number(compareAt).toLocaleString("en-IN")}
             </span>
           )}
+          {discount > 0 && (
+            <span className="text-xs font-bold text-primary">-{discount}%</span>
+          )}
+        </div>
+        <div className="mt-1 flex items-center gap-1.5 text-[11px]">
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              inStock ? "bg-emerald-500" : "bg-destructive",
+            )}
+          />
+          <span
+            className={cn(
+              "font-medium",
+              inStock ? "text-emerald-600" : "text-destructive",
+            )}
+          >
+            {inStock ? "In Stock" : "Out of Stock"}
+          </span>
         </div>
       </div>
     </Link>

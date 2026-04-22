@@ -33,7 +33,7 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, children }: P
   }, [orgId]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="storefront-theme flex min-h-screen flex-col bg-background text-foreground">
       <StorefrontHeader
         storeName={storeName}
         storeLogoUrl={storeLogoUrl}
