@@ -23,14 +23,20 @@ import {
   Megaphone,
   Instagram,
   Palette,
+  ChevronDown,
+  UserCircle2,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 
-const groups = [
+type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
+type NavGroup = { label: string; items: NavItem[]; collapsible?: boolean };
+
+const groups: NavGroup[] = [
   {
     label: "Overview",
     items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }],
@@ -75,6 +81,7 @@ const groups = [
   },
   {
     label: "Ecommerce",
+    collapsible: true,
     items: [
       { title: "Orders", url: "/ecom/orders", icon: ListOrdered },
       { title: "Products", url: "/products", icon: Package },
@@ -82,6 +89,7 @@ const groups = [
       { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
       { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
       { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
+      { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
       { title: "Storefront Mood", url: "/frontend-mood", icon: Palette },
     ],
   },
@@ -97,7 +105,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
     user?.email?.split("@")[0] ||
     "Account";
   const avatarInitials = (displayName || "?").slice(0, 2).toUpperCase();
-  const visibleGroups = isSuperAdmin
+  const visibleGroups: NavGroup[] = isSuperAdmin
     ? [
         ...groups,
         {
@@ -108,6 +116,25 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         },
       ]
     : groups;
+
+  // Track open state for collapsible groups; auto-open the group containing the active route
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    setOpenGroups((prev) => {
+      const next = { ...prev };
+      visibleGroups.forEach((g) => {
+        if (!g.collapsible) return;
+        const hasActive = g.items.some((item) =>
+          item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url),
+        );
+        if (hasActive) next[g.label] = true;
+        else if (next[g.label] === undefined) next[g.label] = false;
+      });
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, isSuperAdmin]);
+
   return (
     <aside className="bg-gradient-sidebar text-sidebar-foreground flex h-full w-[240px] flex-col">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
@@ -132,38 +159,95 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-6">
-        {visibleGroups.map((group) => (
-          <div key={group.label} className="mb-5">
-            <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-              {group.label}
+        {visibleGroups.map((group) => {
+          if (group.collapsible) {
+            const isOpen = !!openGroups[group.label];
+            const hasActive = group.items.some((item) => location.pathname.startsWith(item.url));
+            return (
+              <div key={group.label} className="mb-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOpenGroups((p) => ({ ...p, [group.label]: !p[group.label] }))
+                  }
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-smooth",
+                    hasActive
+                      ? "bg-white/15 text-white"
+                      : "text-white/85 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  <span className="flex items-center gap-3">
+                    <ShoppingBag className="h-[18px] w-[18px]" />
+                    {group.label}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isOpen ? "rotate-180" : "rotate-0",
+                    )}
+                  />
+                </button>
+                {isOpen && (
+                  <ul className="mt-1 space-y-1 border-l border-white/10 pl-3 ml-4">
+                    {group.items.map((item) => {
+                      const active = location.pathname.startsWith(item.url);
+                      return (
+                        <li key={item.url}>
+                          <NavLink
+                            to={item.url}
+                            onClick={onNavigate}
+                            className={cn(
+                              "group flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-smooth",
+                              active
+                                ? "bg-white text-primary shadow-soft"
+                                : "text-white/80 hover:bg-white/10 hover:text-white",
+                            )}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            );
+          }
+          return (
+            <div key={group.label} className="mb-5">
+              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
+                {group.label}
+              </div>
+              <ul className="space-y-1">
+                {group.items.map((item) => {
+                  const active =
+                    item.url === "/"
+                      ? location.pathname === "/"
+                      : location.pathname.startsWith(item.url);
+                  return (
+                    <li key={item.url}>
+                      <NavLink
+                        to={item.url}
+                        onClick={onNavigate}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-smooth",
+                          active
+                            ? "bg-white text-primary shadow-soft"
+                            : "text-white/85 hover:bg-white/10 hover:text-white",
+                        )}
+                      >
+                        <item.icon className="h-[18px] w-[18px]" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <ul className="space-y-1">
-              {group.items.map((item) => {
-                const active =
-                  item.url === "/"
-                    ? location.pathname === "/"
-                    : location.pathname.startsWith(item.url);
-                return (
-                  <li key={item.url}>
-                    <NavLink
-                      to={item.url}
-                      onClick={onNavigate}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-smooth",
-                        active
-                          ? "bg-white text-primary shadow-soft"
-                          : "text-white/85 hover:bg-white/10 hover:text-white",
-                      )}
-                    >
-                      <item.icon className="h-[18px] w-[18px]" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="relative mx-3 mb-4 overflow-hidden rounded-2xl bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm">
