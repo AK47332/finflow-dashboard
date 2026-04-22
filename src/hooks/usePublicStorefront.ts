@@ -58,6 +58,7 @@ export function usePublicStorefront() {
           store_name: org.data.name,
           store_tagline: null,
           store_logo_url: null,
+          footer_logo_url: null,
           hero_title: null,
           hero_subtitle: null,
           hero_image_url: null,

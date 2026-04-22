@@ -22,7 +22,6 @@ import {
   Tags,
   Megaphone,
   Instagram,
-  Mail,
   Palette,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -83,7 +82,6 @@ const groups = [
       { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
       { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
       { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
-      { title: "Newsletter", url: "/ecom/newsletter", icon: Mail },
       { title: "Storefront Mood", url: "/frontend-mood", icon: Palette },
     ],
   },

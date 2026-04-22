@@ -47,7 +47,6 @@ import EcomCategoriesPage from "./pages/admin/EcomCategories.tsx";
 import EcomBannersPage from "./pages/admin/EcomBanners.tsx";
 import EcomAnnouncementsPage from "./pages/admin/EcomAnnouncements.tsx";
 import EcomInstagramPage from "./pages/admin/EcomInstagram.tsx";
-import EcomNewsletterPage from "./pages/admin/EcomNewsletter.tsx";
 
 const queryClient = new QueryClient();
 
@@ -88,7 +87,6 @@ const App = () => (
                     <Route path="/ecom/banners" element={<EcomBannersPage />} />
                     <Route path="/ecom/announcements" element={<EcomAnnouncementsPage />} />
                     <Route path="/ecom/instagram" element={<EcomInstagramPage />} />
-                    <Route path="/ecom/newsletter" element={<EcomNewsletterPage />} />
                     <Route path="/admin/customers" element={<CustomersAdminPage />} />
                   </Route>
                 </Route>

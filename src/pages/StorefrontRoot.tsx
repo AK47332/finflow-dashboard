@@ -62,7 +62,12 @@ export default function StorefrontRoot() {
   const orgId = settings.organization_id;
   const storeName = settings.store_name ?? "Store";
   return (
-    <StorefrontLayout orgId={orgId} storeName={storeName} storeLogoUrl={settings.store_logo_url}>
+    <StorefrontLayout
+      orgId={orgId}
+      storeName={storeName}
+      storeLogoUrl={settings.store_logo_url}
+      footerLogoUrl={settings.footer_logo_url}
+    >
       <Routes>
         <Route index element={<StorefrontHome orgId={orgId} settings={settings} />} />
         <Route path="shop" element={<StorefrontShop orgId={orgId} />} />

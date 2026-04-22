@@ -8,10 +8,11 @@ type Props = {
   orgId: string;
   storeName: string;
   storeLogoUrl?: string | null;
+  footerLogoUrl?: string | null;
   children: ReactNode;
 };
 
-export function StorefrontLayout({ orgId, storeName, storeLogoUrl, children }: Props) {
+export function StorefrontLayout({ orgId, storeName, storeLogoUrl, footerLogoUrl, children }: Props) {
   const [categories, setCategories] = useState<EcomCategory[]>([]);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, children }: P
         categories={categories.map((c) => ({ name: c.name, slug: c.slug }))}
       />
       <main className="flex-1">{children}</main>
-      <StorefrontFooter storeName={storeName} orgId={orgId} />
+      <StorefrontFooter storeName={storeName} orgId={orgId} footerLogoUrl={footerLogoUrl} />
     </div>
   );
 }

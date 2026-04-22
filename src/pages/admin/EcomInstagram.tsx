@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, Loader2, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import type { EcomInstagramPost } from "@/lib/ecom";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function EcomInstagramPage() {
   const { currentOrgId } = useOrg();
@@ -88,10 +89,12 @@ export default function EcomInstagramPage() {
             </DialogHeader>
             {editing && (
               <form onSubmit={save} className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label>Image URL *</Label>
-                  <Input required value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} placeholder="https://…" />
-                </div>
+                <ImageUploader
+                  label="Image *"
+                  value={editing.image_url ?? ""}
+                  onChange={(url) => setEditing({ ...editing, image_url: url })}
+                  folder="instagram"
+                />
                 <div className="space-y-1.5">
                   <Label>Caption</Label>
                   <Input value={editing.caption ?? ""} onChange={(e) => setEditing({ ...editing, caption: e.target.value })} />

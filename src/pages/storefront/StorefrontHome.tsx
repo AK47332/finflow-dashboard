@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/storefront/ProductCard";
-import { CategoryBento } from "@/components/storefront/CategoryBento";
 import { CategoryPills } from "@/components/storefront/CategoryPills";
 import { InstagramGrid } from "@/components/storefront/InstagramGrid";
 import { cn } from "@/lib/utils";
@@ -162,21 +161,6 @@ export function StorefrontHome({ orgId, settings }: Props) {
           <div className="container mx-auto px-4">
             <CategoryPills categories={categories} />
           </div>
-        </section>
-      )}
-
-      {/* Bento categories */}
-      {categories.length > 0 && (
-        <section className="container mx-auto px-4 py-16 md:py-20">
-          <div className="text-center">
-            <div className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              Curated for you
-            </div>
-            <h2 className="heading-underline-center font-serif-display text-3xl font-bold md:text-4xl">
-              Shop by occasion
-            </h2>
-          </div>
-          <CategoryBento categories={categories} />
         </section>
       )}
 

@@ -12,6 +12,7 @@ import { Loader2, Globe, ShoppingBag, FileText, Lock, Check } from "lucide-react
 import { toast } from "sonner";
 import type { FrontendMode } from "@/lib/ecom";
 import { cn } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function FrontendMoodPage() {
   const { currentOrgId, currentOrg, role } = useOrg();
@@ -21,6 +22,8 @@ export default function FrontendMoodPage() {
   const [isPrimary, setIsPrimary] = useState(false);
   const [storeName, setStoreName] = useState("");
   const [storeTagline, setStoreTagline] = useState("");
+  const [storeLogo, setStoreLogo] = useState("");
+  const [footerLogo, setFooterLogo] = useState("");
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroImage, setHeroImage] = useState("");
@@ -35,6 +38,8 @@ export default function FrontendMoodPage() {
       setIsPrimary(settings.is_primary);
       setStoreName(settings.store_name ?? "");
       setStoreTagline(settings.store_tagline ?? "");
+      setStoreLogo(settings.store_logo_url ?? "");
+      setFooterLogo(settings.footer_logo_url ?? "");
       setHeroTitle(settings.hero_title ?? "");
       setHeroSubtitle(settings.hero_subtitle ?? "");
       setHeroImage(settings.hero_image_url ?? "");
@@ -74,6 +79,8 @@ export default function FrontendMoodPage() {
           is_primary: isPrimary,
           store_name: storeName || currentOrg?.name || null,
           store_tagline: storeTagline || null,
+          store_logo_url: storeLogo || null,
+          footer_logo_url: footerLogo || null,
           hero_title: heroTitle || null,
           hero_subtitle: heroSubtitle || null,
           hero_image_url: heroImage || null,
@@ -153,6 +160,23 @@ export default function FrontendMoodPage() {
             </div>
           </div>
 
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ImageUploader
+              label="Header logo"
+              value={storeLogo}
+              onChange={setStoreLogo}
+              folder="logos"
+              previewClassName="h-20"
+            />
+            <ImageUploader
+              label="Footer logo"
+              value={footerLogo}
+              onChange={setFooterLogo}
+              folder="logos"
+              previewClassName="h-20"
+            />
+          </div>
+
           {mode === "ecommerce" && (
             <>
               <div className="my-2 h-px bg-border" />
@@ -165,19 +189,22 @@ export default function FrontendMoodPage() {
                 <Label>Hero subtitle</Label>
                 <Textarea value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Short copy under the headline" />
               </div>
+              <ImageUploader
+                label="Hero image"
+                value={heroImage}
+                onChange={setHeroImage}
+                folder="hero"
+                previewClassName="h-40"
+              />
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Hero image URL</Label>
-                  <Input value={heroImage} onChange={(e) => setHeroImage(e.target.value)} placeholder="https://…" />
-                </div>
                 <div className="space-y-1.5">
                   <Label>CTA label</Label>
                   <Input value={heroCtaLabel} onChange={(e) => setHeroCtaLabel(e.target.value)} placeholder="Shop now" />
                 </div>
-              </div>
               <div className="space-y-1.5">
                 <Label>CTA URL</Label>
                 <Input value={heroCtaUrl} onChange={(e) => setHeroCtaUrl(e.target.value)} placeholder="/shop" />
+              </div>
               </div>
             </>
           )}
