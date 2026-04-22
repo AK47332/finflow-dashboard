@@ -1,0 +1,84 @@
+export type FrontendMode = "private" | "ecommerce" | "landing";
+
+export type FrontendSettings = {
+  organization_id: string;
+  mode: FrontendMode;
+  is_primary: boolean;
+  store_name: string | null;
+  store_tagline: string | null;
+  store_logo_url: string | null;
+  hero_title: string | null;
+  hero_subtitle: string | null;
+  hero_image_url: string | null;
+  hero_cta_label: string | null;
+  hero_cta_url: string | null;
+};
+
+export type EcomCategory = {
+  id: string;
+  organization_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type EcomProductExtra = {
+  product_id: string;
+  organization_id: string;
+  ecom_category_id: string | null;
+  is_published: boolean;
+  is_featured: boolean;
+  is_trending: boolean;
+  short_description: string | null;
+  long_description: string | null;
+  compare_at_price: number | null;
+  image_urls: string[];
+  tags: string[];
+  slug: string;
+};
+
+export type StorefrontProduct = {
+  id: string;
+  organization_id: string;
+  name: string;
+  sku: string | null;
+  price: number;
+  stock: number;
+  unit: string | null;
+  description: string | null;
+  extras: EcomProductExtra | null;
+};
+
+export type EcomBanner = {
+  id: string;
+  organization_id: string;
+  title: string;
+  subtitle: string | null;
+  image_url: string | null;
+  cta_label: string | null;
+  cta_url: string | null;
+  position: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type CartItem = {
+  product_id: string;
+  name: string;
+  sku: string | null;
+  unit_price: number;
+  image_url: string | null;
+  quantity: number;
+  organization_id: string;
+};
+
+export const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "item";

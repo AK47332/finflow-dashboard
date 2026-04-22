@@ -226,6 +226,436 @@ export type Database = {
         }
         Relationships: []
       }
+      ecom_addresses: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          customer_id: string
+          full_name: string
+          id: string
+          is_default: boolean
+          label: string | null
+          line1: string
+          line2: string | null
+          organization_id: string
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          country?: string
+          created_at?: string
+          customer_id: string
+          full_name: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          line1: string
+          line2?: string | null
+          organization_id: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          customer_id?: string
+          full_name?: string
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          line1?: string
+          line2?: string | null
+          organization_id?: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_addresses_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "ecom_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_addresses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_banners: {
+        Row: {
+          created_at: string
+          created_by: string
+          cta_label: string | null
+          cta_url: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          organization_id: string
+          position: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          organization_id: string
+          position?: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          organization_id?: string
+          position?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_banners_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_categories: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          organization_id: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          organization_id: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_customers: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          organization_id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          organization_id: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          organization_id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_customers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total: number
+          order_id: string
+          product_id: string | null
+          product_name: string
+          product_sku: string | null
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total: number
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          product_sku?: string | null
+          quantity: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total?: number
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          product_sku?: string | null
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "ecom_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_orders: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          notes: string | null
+          order_number: string
+          organization_id: string
+          payment_method: string
+          payment_status: Database["public"]["Enums"]["order_payment_status"]
+          shipping_city: string | null
+          shipping_country: string | null
+          shipping_fee: number
+          shipping_full_name: string | null
+          shipping_line1: string | null
+          shipping_line2: string | null
+          shipping_postal_code: string | null
+          shipping_state: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          tax: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          order_number: string
+          organization_id: string
+          payment_method?: string
+          payment_status?: Database["public"]["Enums"]["order_payment_status"]
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_fee?: number
+          shipping_full_name?: string | null
+          shipping_line1?: string | null
+          shipping_line2?: string | null
+          shipping_postal_code?: string | null
+          shipping_state?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          order_number?: string
+          organization_id?: string
+          payment_method?: string
+          payment_status?: Database["public"]["Enums"]["order_payment_status"]
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_fee?: number
+          shipping_full_name?: string | null
+          shipping_line1?: string | null
+          shipping_line2?: string | null
+          shipping_postal_code?: string | null
+          shipping_state?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          tax?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "ecom_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_orders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_product_extras: {
+        Row: {
+          compare_at_price: number | null
+          ecom_category_id: string | null
+          image_urls: string[] | null
+          is_featured: boolean
+          is_published: boolean
+          is_trending: boolean
+          long_description: string | null
+          organization_id: string
+          product_id: string
+          short_description: string | null
+          slug: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          compare_at_price?: number | null
+          ecom_category_id?: string | null
+          image_urls?: string[] | null
+          is_featured?: boolean
+          is_published?: boolean
+          is_trending?: boolean
+          long_description?: string | null
+          organization_id: string
+          product_id: string
+          short_description?: string | null
+          slug: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          compare_at_price?: number | null
+          ecom_category_id?: string | null
+          image_urls?: string[] | null
+          is_featured?: boolean
+          is_published?: boolean
+          is_trending?: boolean
+          long_description?: string | null
+          organization_id?: string
+          product_id?: string
+          short_description?: string | null
+          slug?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_product_extras_ecom_category_id_fkey"
+            columns: ["ecom_category_id"]
+            isOneToOne: false
+            referencedRelation: "ecom_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_product_extras_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_product_extras_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -511,6 +941,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "org_footer_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_frontend_settings: {
+        Row: {
+          hero_cta_label: string | null
+          hero_cta_url: string | null
+          hero_image_url: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
+          is_primary: boolean
+          mode: Database["public"]["Enums"]["frontend_mode"]
+          organization_id: string
+          store_logo_url: string | null
+          store_name: string | null
+          store_tagline: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          hero_cta_label?: string | null
+          hero_cta_url?: string | null
+          hero_image_url?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          is_primary?: boolean
+          mode?: Database["public"]["Enums"]["frontend_mode"]
+          organization_id: string
+          store_logo_url?: string | null
+          store_name?: string | null
+          store_tagline?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          hero_cta_label?: string | null
+          hero_cta_url?: string | null
+          hero_image_url?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          is_primary?: boolean
+          mode?: Database["public"]["Enums"]["frontend_mode"]
+          organization_id?: string
+          store_logo_url?: string | null
+          store_name?: string | null
+          store_tagline?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_frontend_settings_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: true
             referencedRelation: "organizations"
@@ -933,6 +1419,10 @@ export type Database = {
         Returns: boolean
       }
       is_account_active: { Args: { _user_id: string }; Returns: boolean }
+      is_ecom_customer: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -942,8 +1432,18 @@ export type Database = {
     Enums: {
       app_role: "owner" | "admin" | "member"
       capital_type: "contribution" | "withdrawal"
+      frontend_mode: "private" | "ecommerce" | "landing"
       invite_status: "pending" | "accepted" | "revoked" | "expired"
       ledger_status: "pending" | "partial" | "paid" | "overdue"
+      order_payment_status: "unpaid" | "paid" | "refunded"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "paid"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
+        | "returned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1073,8 +1573,19 @@ export const Constants = {
     Enums: {
       app_role: ["owner", "admin", "member"],
       capital_type: ["contribution", "withdrawal"],
+      frontend_mode: ["private", "ecommerce", "landing"],
       invite_status: ["pending", "accepted", "revoked", "expired"],
       ledger_status: ["pending", "partial", "paid", "overdue"],
+      order_payment_status: ["unpaid", "paid", "refunded"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "paid",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "returned",
+      ],
     },
   },
 } as const
