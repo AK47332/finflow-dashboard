@@ -45,6 +45,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { slugify, type EcomCategory, type EcomProductExtra } from "@/lib/ecom";
+import { MultiImageUploader } from "@/components/ui/MultiImageUploader";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type Product = {
   id: string;
@@ -84,7 +90,7 @@ export default function ProductsPage() {
   const [ecomCategoryId, setEcomCategoryId] = useState<string>("");
   const [shortDescription, setShortDescription] = useState("");
   const [compareAtPrice, setCompareAtPrice] = useState("");
-  const [imageUrls, setImageUrls] = useState(""); // newline-separated
+  const [images, setImages] = useState<string[]>([]);
   const [slug, setSlug] = useState("");
 
   useEffect(() => {
@@ -109,7 +115,7 @@ export default function ProductsPage() {
     setName(""); setSku(""); setPrice(""); setCost(""); setStock(""); setUnit(""); setDescription("");
     setIsPublished(false); setIsFeatured(false); setIsTrending(false);
     setEcomCategoryId(""); setShortDescription(""); setCompareAtPrice("");
-    setImageUrls(""); setSlug("");
+    setImages([]); setSlug("");
     setEditing(null);
   };
   const openAdd = () => { reset(); setOpen(true); };
@@ -134,7 +140,7 @@ export default function ProductsPage() {
         setEcomCategoryId(ex.ecom_category_id ?? "");
         setShortDescription(ex.short_description ?? "");
         setCompareAtPrice(ex.compare_at_price ? String(ex.compare_at_price) : "");
-        setImageUrls((ex.image_urls ?? []).join("\n"));
+        setImages(ex.image_urls ?? []);
         setSlug(ex.slug);
       } else {
         setSlug(slugify(p.name));
