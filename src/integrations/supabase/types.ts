@@ -1119,31 +1119,58 @@ export type Database = {
       }
       org_footer_settings: {
         Row: {
+          address: string | null
           contact_button_label: string | null
           contact_button_url: string | null
           contact_text: string | null
           copyright_text: string | null
+          description: string | null
+          email: string | null
+          facebook_url: string | null
+          instagram_url: string | null
           organization_id: string
+          payment_badges: string[] | null
+          phone: string | null
+          twitter_url: string | null
           updated_at: string
           updated_by: string | null
+          youtube_url: string | null
         }
         Insert: {
+          address?: string | null
           contact_button_label?: string | null
           contact_button_url?: string | null
           contact_text?: string | null
           copyright_text?: string | null
+          description?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          instagram_url?: string | null
           organization_id: string
+          payment_badges?: string[] | null
+          phone?: string | null
+          twitter_url?: string | null
           updated_at?: string
           updated_by?: string | null
+          youtube_url?: string | null
         }
         Update: {
+          address?: string | null
           contact_button_label?: string | null
           contact_button_url?: string | null
           contact_text?: string | null
           copyright_text?: string | null
+          description?: string | null
+          email?: string | null
+          facebook_url?: string | null
+          instagram_url?: string | null
           organization_id?: string
+          payment_badges?: string[] | null
+          phone?: string | null
+          twitter_url?: string | null
           updated_at?: string
           updated_by?: string | null
+          youtube_url?: string | null
         }
         Relationships: [
           {
@@ -1169,6 +1196,8 @@ export type Database = {
           store_logo_url: string | null
           store_name: string | null
           store_tagline: string | null
+          theme_accent_color: string | null
+          theme_primary_color: string | null
           updated_at: string
           updated_by: string | null
         }
@@ -1185,6 +1214,8 @@ export type Database = {
           store_logo_url?: string | null
           store_name?: string | null
           store_tagline?: string | null
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -1201,6 +1232,8 @@ export type Database = {
           store_logo_url?: string | null
           store_name?: string | null
           store_tagline?: string | null
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
           updated_at?: string
           updated_by?: string | null
         }
