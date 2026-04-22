@@ -76,7 +76,7 @@ export default function EcomPagesPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentOrgId) return;
+    if (!currentOrgId) return toast.error("No organization selected");
     if (!title.trim()) return toast.error("Title required");
     const finalSlug = (slug.trim() || slugify(title)).toLowerCase();
     const payload = {

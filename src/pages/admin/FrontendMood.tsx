@@ -217,6 +217,64 @@ export default function FrontendMoodPage() {
         </section>
       )}
 
+      {mode !== "private" && (
+        <section className="space-y-4 rounded-2xl border border-border/60 bg-card p-5">
+          <div className="flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold">Theme colors</h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Choose your storefront primary (CTA buttons, links) and accent (gold details, social hover) colors. Leave blank to use defaults.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Primary color</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={primaryColor || "#e8593c"}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent"
+                  aria-label="Primary color"
+                />
+                <Input
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  placeholder="#E8593C"
+                />
+                {primaryColor && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setPrimaryColor("")}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Accent color</Label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor || "#ef9f27"}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="h-10 w-14 cursor-pointer rounded-md border border-border bg-transparent"
+                  aria-label="Accent color"
+                />
+                <Input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#EF9F27"
+                />
+                {accentColor && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setAccentColor("")}>
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="flex justify-end">
         <Button onClick={save} disabled={busy}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save settings"}
