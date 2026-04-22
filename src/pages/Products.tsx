@@ -62,6 +62,7 @@ export default function ProductsPage() {
     column: "name",
     ascending: true,
   });
+  const { currentOrgId } = useOrg();
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -75,6 +76,27 @@ export default function ProductsPage() {
   const [unit, setUnit] = useState("");
   const [description, setDescription] = useState("");
 
+  // Ecommerce fields
+  const [ecomCategories, setEcomCategories] = useState<EcomCategory[]>([]);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
+  const [ecomCategoryId, setEcomCategoryId] = useState<string>("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [compareAtPrice, setCompareAtPrice] = useState("");
+  const [imageUrls, setImageUrls] = useState(""); // newline-separated
+  const [slug, setSlug] = useState("");
+
+  useEffect(() => {
+    if (!currentOrgId) return;
+    supabase
+      .from("ecom_categories")
+      .select("*")
+      .eq("organization_id", currentOrgId)
+      .order("sort_order")
+      .then(({ data }) => setEcomCategories((data as EcomCategory[]) ?? []));
+  }, [currentOrgId]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return rows;
@@ -85,15 +107,39 @@ export default function ProductsPage() {
 
   const reset = () => {
     setName(""); setSku(""); setPrice(""); setCost(""); setStock(""); setUnit(""); setDescription("");
+    setIsPublished(false); setIsFeatured(false); setIsTrending(false);
+    setEcomCategoryId(""); setShortDescription(""); setCompareAtPrice("");
+    setImageUrls(""); setSlug("");
     setEditing(null);
   };
   const openAdd = () => { reset(); setOpen(true); };
-  const openEdit = (p: Product) => {
+  const openEdit = async (p: Product) => {
     setEditing(p);
     setName(p.name); setSku(p.sku ?? ""); setPrice(p.price.toString());
     setCost(p.cost.toString()); setStock(p.stock.toString());
     setUnit(p.unit ?? ""); setDescription(p.description ?? "");
     setOpen(true);
+    // Load ecom extras for this product
+    if (currentOrgId) {
+      const { data } = await supabase
+        .from("ecom_product_extras")
+        .select("*")
+        .eq("product_id", p.id)
+        .maybeSingle();
+      if (data) {
+        const ex = data as EcomProductExtra;
+        setIsPublished(ex.is_published);
+        setIsFeatured(ex.is_featured);
+        setIsTrending(ex.is_trending);
+        setEcomCategoryId(ex.ecom_category_id ?? "");
+        setShortDescription(ex.short_description ?? "");
+        setCompareAtPrice(ex.compare_at_price ? String(ex.compare_at_price) : "");
+        setImageUrls((ex.image_urls ?? []).join("\n"));
+        setSlug(ex.slug);
+      } else {
+        setSlug(slugify(p.name));
+      }
+    }
   };
 
   const totalValue = rows.reduce((s, p) => s + p.price * p.stock, 0);
@@ -111,8 +157,39 @@ export default function ProductsPage() {
         unit: unit.trim() || null,
         description: description.trim() || null,
       };
-      if (editing) await update(editing.id, payload);
-      else await create(payload);
+      let productId = editing?.id;
+      if (editing) {
+        await update(editing.id, payload);
+      } else {
+        const created = await create(payload);
+        productId = (created as Product | undefined)?.id;
+      }
+      // Upsert ecom extras (always — defaults to unpublished)
+      if (productId && currentOrgId) {
+        const finalSlug = (slug.trim() || slugify(name)).toLowerCase();
+        const images = imageUrls
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const { error: exErr } = await supabase.from("ecom_product_extras").upsert(
+          {
+            product_id: productId,
+            organization_id: currentOrgId,
+            ecom_category_id: ecomCategoryId || null,
+            is_published: isPublished,
+            is_featured: isFeatured,
+            is_trending: isTrending,
+            short_description: shortDescription.trim() || null,
+            long_description: description.trim() || null,
+            compare_at_price: compareAtPrice ? parseFloat(compareAtPrice) : null,
+            image_urls: images,
+            tags: [],
+            slug: finalSlug,
+          },
+          { onConflict: "product_id" },
+        );
+        if (exErr) throw exErr;
+      }
       toast.success(editing ? "Product updated" : "Product added");
       setOpen(false);
       reset();
