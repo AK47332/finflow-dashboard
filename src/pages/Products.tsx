@@ -173,10 +173,7 @@ export default function ProductsPage() {
       // Upsert ecom extras (always — defaults to unpublished)
       if (productId && currentOrgId) {
         const finalSlug = (slug.trim() || slugify(name)).toLowerCase();
-        const images = imageUrls
-          .split("\n")
-          .map((s) => s.trim())
-          .filter(Boolean);
+        const cleanImages = images.map((s) => s.trim()).filter(Boolean);
         const { error: exErr } = await supabase.from("ecom_product_extras").upsert(
           {
             product_id: productId,
@@ -188,7 +185,7 @@ export default function ProductsPage() {
             short_description: shortDescription.trim() || null,
             long_description: description.trim() || null,
             compare_at_price: compareAtPrice ? parseFloat(compareAtPrice) : null,
-            image_urls: images,
+            image_urls: cleanImages,
             tags: [],
             slug: finalSlug,
           },
