@@ -1,9 +1,18 @@
 import { useMemo, useState } from "react";
+import { useEffect } from "react";
 import { Package, Pencil, Trash2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +42,9 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useOrg } from "@/contexts/OrgContext";
+import { slugify, type EcomCategory, type EcomProductExtra } from "@/lib/ecom";
 
 export type Product = {
   id: string;
