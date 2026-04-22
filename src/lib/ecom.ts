@@ -7,6 +7,7 @@ export type FrontendSettings = {
   store_name: string | null;
   store_tagline: string | null;
   store_logo_url: string | null;
+  footer_logo_url: string | null;
   hero_title: string | null;
   hero_subtitle: string | null;
   hero_image_url: string | null;
@@ -101,14 +102,4 @@ export type EcomInstagramPost = {
   link_url: string | null;
   sort_order: number;
   is_active: boolean;
-};
-
-export type EcomNewsletterSubscriber = {
-  id: string;
-  organization_id: string;
-  email: string;
-  full_name: string | null;
-  source: string | null;
-  is_unsubscribed: boolean;
-  created_at: string;
 };
