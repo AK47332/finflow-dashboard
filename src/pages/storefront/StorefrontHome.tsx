@@ -6,10 +6,6 @@ import { ArrowRight, Sparkles, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CategoryBento } from "@/components/storefront/CategoryBento";
 import { CategoryPills } from "@/components/storefront/CategoryPills";
-import { PromoCards } from "@/components/storefront/PromoCards";
-import { TestimonialCarousel } from "@/components/storefront/TestimonialCarousel";
-import { ColorFilter } from "@/components/storefront/ColorFilter";
-import { BlogTeaser } from "@/components/storefront/BlogTeaser";
 import { InstagramGrid } from "@/components/storefront/InstagramGrid";
 import { cn } from "@/lib/utils";
 import type {
@@ -228,11 +224,6 @@ export function StorefrontHome({ orgId, settings }: Props) {
         </section>
       )}
 
-      {/* Promo split */}
-      <section className="container mx-auto px-4 py-8">
-        <PromoCards />
-      </section>
-
       {/* Single banner full width if available */}
       {promoBanner && (
         <section className="container mx-auto px-4 py-16">
@@ -268,15 +259,6 @@ export function StorefrontHome({ orgId, settings }: Props) {
           </div>
         </section>
       )}
-
-      {/* Find by colour */}
-      <ColorFilter />
-
-      {/* Testimonial */}
-      <TestimonialCarousel />
-
-      {/* Blog */}
-      <BlogTeaser />
 
       {/* Instagram */}
       <InstagramGrid />
