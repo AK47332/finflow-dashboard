@@ -6,10 +6,6 @@ import { ArrowRight, Sparkles, ChevronRight } from "lucide-react";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { CategoryBento } from "@/components/storefront/CategoryBento";
 import { CategoryPills } from "@/components/storefront/CategoryPills";
-import { PromoCards } from "@/components/storefront/PromoCards";
-import { TestimonialCarousel } from "@/components/storefront/TestimonialCarousel";
-import { ColorFilter } from "@/components/storefront/ColorFilter";
-import { BlogTeaser } from "@/components/storefront/BlogTeaser";
 import { InstagramGrid } from "@/components/storefront/InstagramGrid";
 import { cn } from "@/lib/utils";
 import type {
