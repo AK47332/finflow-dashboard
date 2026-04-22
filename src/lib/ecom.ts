@@ -13,6 +13,8 @@ export type FrontendSettings = {
   hero_image_url: string | null;
   hero_cta_label: string | null;
   hero_cta_url: string | null;
+  theme_primary_color?: string | null;
+  theme_accent_color?: string | null;
 };
 
 export type EcomCategory = {

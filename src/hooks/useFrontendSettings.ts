@@ -15,6 +15,8 @@ const DEFAULTS = (orgId: string): FrontendSettings => ({
   hero_image_url: null,
   hero_cta_label: null,
   hero_cta_url: null,
+  theme_primary_color: null,
+  theme_accent_color: null,
 });
 
 export function useFrontendSettings(orgId: string | null) {
