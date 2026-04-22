@@ -77,7 +77,8 @@ export default function EcomOrdersPage() {
   };
 
   const updateStatus = async (id: string, field: "status" | "payment_status", value: string) => {
-    const { error } = await supabase.from("ecom_orders").update({ [field]: value }).eq("id", id);
+    const update: any = { [field]: value };
+    const { error } = await supabase.from("ecom_orders").update(update).eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
