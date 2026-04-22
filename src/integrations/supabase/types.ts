@@ -480,6 +480,44 @@ export type Database = {
           },
         ]
       }
+      org_footer_settings: {
+        Row: {
+          contact_button_label: string | null
+          contact_button_url: string | null
+          contact_text: string | null
+          copyright_text: string | null
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contact_button_label?: string | null
+          contact_button_url?: string | null
+          contact_text?: string | null
+          copyright_text?: string | null
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contact_button_label?: string | null
+          contact_button_url?: string | null
+          contact_text?: string | null
+          copyright_text?: string | null
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_footer_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           created_at: string
