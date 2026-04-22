@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { slugify, type EcomCategory } from "@/lib/ecom";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function EcomCategoriesPage() {
   const { currentOrgId } = useOrg();
@@ -100,10 +101,12 @@ export default function EcomCategoriesPage() {
                   <Label>Slug</Label>
                   <Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} />
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Image URL</Label>
-                  <Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} />
-                </div>
+                <ImageUploader
+                  label="Image"
+                  value={editing.image_url ?? ""}
+                  onChange={(url) => setEditing({ ...editing, image_url: url })}
+                  folder="categories"
+                />
                 <div className="space-y-1.5">
                   <Label>Description</Label>
                   <Textarea value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />

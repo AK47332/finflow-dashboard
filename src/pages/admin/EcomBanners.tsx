@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { EcomBanner } from "@/lib/ecom";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function EcomBannersPage() {
   const { currentOrgId } = useOrg();
@@ -98,10 +99,13 @@ export default function EcomBannersPage() {
                   <Label>Subtitle</Label>
                   <Textarea value={editing.subtitle ?? ""} onChange={(e) => setEditing({ ...editing, subtitle: e.target.value })} />
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Image URL</Label>
-                  <Input value={editing.image_url ?? ""} onChange={(e) => setEditing({ ...editing, image_url: e.target.value })} />
-                </div>
+                <ImageUploader
+                  label="Image"
+                  value={editing.image_url ?? ""}
+                  onChange={(url) => setEditing({ ...editing, image_url: url })}
+                  folder="banners"
+                  previewClassName="h-40"
+                />
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label>CTA label</Label>
