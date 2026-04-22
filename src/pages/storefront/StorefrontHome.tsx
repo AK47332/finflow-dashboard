@@ -260,15 +260,6 @@ export function StorefrontHome({ orgId, settings }: Props) {
         </section>
       )}
 
-      {/* Find by colour */}
-      <ColorFilter />
-
-      {/* Testimonial */}
-      <TestimonialCarousel />
-
-      {/* Blog */}
-      <BlogTeaser />
-
       {/* Instagram */}
       <InstagramGrid />
 
