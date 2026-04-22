@@ -74,6 +74,14 @@
     --gradient-capital: linear-gradient(135deg, hsl(217 91% 65%), hsl(217 91% 55%));
     --gradient-sidebar: linear-gradient(180deg, hsl(262 83% 58%), hsl(262 83% 45%));
 
+    /* Stat-card gradients (per tone) */
+    --gradient-stat-income: linear-gradient(135deg, hsl(160 84% 42%), hsl(170 76% 30%));
+    --gradient-stat-expense: linear-gradient(135deg, hsl(350 89% 62%), hsl(340 80% 48%));
+    --gradient-stat-profit: linear-gradient(135deg, hsl(38 92% 55%), hsl(28 90% 45%));
+    --gradient-stat-capital: linear-gradient(135deg, hsl(217 91% 62%), hsl(230 84% 50%));
+    --gradient-stat-receivable: linear-gradient(135deg, hsl(262 83% 62%), hsl(252 80% 50%));
+    --gradient-stat-payable: linear-gradient(135deg, hsl(330 81% 62%), hsl(320 76% 48%));
+
     /* Shadows — neumorphism / soft elevation */
     --shadow-card: 0 4px 20px -4px hsl(244 45% 20% / 0.08);
     --shadow-soft: 0 2px 8px -2px hsl(244 45% 20% / 0.06);
@@ -161,6 +169,15 @@
     background: var(--gradient-primary);
     box-shadow: var(--shadow-primary);
   }
+  .ft-stat-card {
+    @apply relative overflow-hidden rounded-2xl text-white;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+  .ft-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
 }
 
 @layer utilities {
@@ -170,6 +187,12 @@
   .bg-gradient-profit { background: var(--gradient-profit); }
   .bg-gradient-capital { background: var(--gradient-capital); }
   .bg-gradient-sidebar { background: var(--gradient-sidebar); }
+  .bg-gradient-stat-income { background: var(--gradient-stat-income); }
+  .bg-gradient-stat-expense { background: var(--gradient-stat-expense); }
+  .bg-gradient-stat-profit { background: var(--gradient-stat-profit); }
+  .bg-gradient-stat-capital { background: var(--gradient-stat-capital); }
+  .bg-gradient-stat-receivable { background: var(--gradient-stat-receivable); }
+  .bg-gradient-stat-payable { background: var(--gradient-stat-payable); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-lift { box-shadow: var(--shadow-lift); }

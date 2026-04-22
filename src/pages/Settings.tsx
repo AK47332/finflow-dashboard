@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
+import { useFooterSettings, DEFAULT_FOOTER } from "@/hooks/useFooterSettings";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY", "CNY", "BRL", "MXN", "ZAR", "AED", "BDT", "PKR"];
 
@@ -92,6 +93,43 @@ export default function SettingsPage() {
 
   // Activity
   const [activity, setActivity] = useState<Activity[]>([]);
+
+  // Footer settings
+  const { settings: footerSettings, reload: reloadFooter } = useFooterSettings(currentOrgId);
+  const [footerCopyright, setFooterCopyright] = useState("");
+  const [footerContactText, setFooterContactText] = useState("");
+  const [footerBtnLabel, setFooterBtnLabel] = useState("");
+  const [footerBtnUrl, setFooterBtnUrl] = useState("");
+  const [savingFooter, setSavingFooter] = useState(false);
+
+  useEffect(() => {
+    setFooterCopyright(footerSettings.copyright_text);
+    setFooterContactText(footerSettings.contact_text);
+    setFooterBtnLabel(footerSettings.contact_button_label);
+    setFooterBtnUrl(footerSettings.contact_button_url);
+  }, [footerSettings]);
+
+  async function handleSaveFooter() {
+    if (!currentOrgId || !user) return;
+    setSavingFooter(true);
+    const { error } = await (supabase as any)
+      .from("org_footer_settings")
+      .upsert(
+        {
+          organization_id: currentOrgId,
+          copyright_text: footerCopyright.trim() || DEFAULT_FOOTER.copyright_text,
+          contact_text: footerContactText.trim(),
+          contact_button_label: footerBtnLabel.trim(),
+          contact_button_url: footerBtnUrl.trim(),
+          updated_by: user.id,
+        },
+        { onConflict: "organization_id" },
+      );
+    setSavingFooter(false);
+    if (error) return toast.error(error.message);
+    toast.success("Footer updated");
+    await reloadFooter();
+  }
 
   useEffect(() => {
     if (!currentOrg) return;
@@ -348,6 +386,7 @@ export default function SettingsPage() {
           <TabsTrigger value="workspace"><Building2 className="h-4 w-4" /> Workspace</TabsTrigger>
           <TabsTrigger value="team"><UserPlus className="h-4 w-4" /> Team</TabsTrigger>
           <TabsTrigger value="categories"><Tag className="h-4 w-4" /> Categories</TabsTrigger>
+          <TabsTrigger value="footer"><PanelBottom className="h-4 w-4" /> Footer</TabsTrigger>
           <TabsTrigger value="activity"><History className="h-4 w-4" /> Activity</TabsTrigger>
         </TabsList>
 
@@ -615,6 +654,71 @@ export default function SettingsPage() {
                   </li>
                 ))}
               </ul>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Footer settings tab */}
+        <TabsContent value="footer" className="mt-4 space-y-4">
+          <div className="ft-card p-6">
+            <h3 className="mb-1 text-sm font-semibold text-foreground">App footer</h3>
+            <p className="mb-4 text-xs text-muted-foreground">
+              These texts and the contact button appear at the bottom of every page in your workspace.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="ft-copyright">Copyright text</Label>
+                <Input
+                  id="ft-copyright"
+                  value={footerCopyright}
+                  onChange={(e) => setFooterCopyright(e.target.value)}
+                  disabled={!isAdmin}
+                  placeholder="© 2026 Your Company. All rights reserved."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ft-contact-text">Contact text</Label>
+                <Input
+                  id="ft-contact-text"
+                  value={footerContactText}
+                  onChange={(e) => setFooterContactText(e.target.value)}
+                  disabled={!isAdmin}
+                  placeholder="Need help?"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ft-btn-label">Contact button label</Label>
+                <Input
+                  id="ft-btn-label"
+                  value={footerBtnLabel}
+                  onChange={(e) => setFooterBtnLabel(e.target.value)}
+                  disabled={!isAdmin}
+                  placeholder="Contact us"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="ft-btn-url">Contact button URL</Label>
+                <Input
+                  id="ft-btn-url"
+                  value={footerBtnUrl}
+                  onChange={(e) => setFooterBtnUrl(e.target.value)}
+                  disabled={!isAdmin}
+                  placeholder="mailto:support@example.com"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Use a full URL (https://…), an email link (mailto:…), or a phone link (tel:…).
+                </p>
+              </div>
+            </div>
+            {isAdmin ? (
+              <div className="mt-4">
+                <Button onClick={handleSaveFooter} disabled={savingFooter}>
+                  {savingFooter ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  Save footer
+                </Button>
+              </div>
+            ) : (
+              <p className="mt-4 text-xs text-muted-foreground">Only admins can edit the footer.</p>
             )}
           </div>
         </TabsContent>

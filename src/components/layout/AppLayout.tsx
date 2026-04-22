@@ -4,6 +4,7 @@ import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
 import { QuickActionsFab } from "./QuickActionsFab";
 import { ExpiryBanner } from "./ExpiryBanner";
+import { AppFooter } from "./AppFooter";
 import { cn } from "@/lib/utils";
 
 export function AppLayout() {
@@ -11,9 +12,11 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      {/* Desktop sidebar */}
-      <div className="hidden md:block">
-        <AppSidebar />
+      {/* Desktop sidebar — floating panel */}
+      <div className="hidden md:block py-3 pl-3">
+        <div className="sticky top-3 h-[calc(100vh-1.5rem)] overflow-hidden rounded-3xl shadow-lift">
+          <AppSidebar />
+        </div>
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -32,7 +35,7 @@ export function AppLayout() {
         />
         <div
           className={cn(
-            "absolute left-0 top-0 h-full transition-transform duration-300",
+            "absolute left-2 top-2 bottom-2 overflow-hidden rounded-3xl shadow-lift transition-transform duration-300",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
@@ -46,6 +49,7 @@ export function AppLayout() {
         <main className="flex-1 px-3 pt-5 pb-24 sm:px-4 sm:py-6 md:px-8 md:py-8">
           <Outlet />
         </main>
+        <AppFooter />
       </div>
 
       <QuickActionsFab />
