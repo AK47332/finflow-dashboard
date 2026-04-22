@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity";
 import { toast } from "sonner";
+import { useFooterSettings, DEFAULT_FOOTER } from "@/hooks/useFooterSettings";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY", "CNY", "BRL", "MXN", "ZAR", "AED", "BDT", "PKR"];
 
@@ -92,6 +93,43 @@ export default function SettingsPage() {
 
   // Activity
   const [activity, setActivity] = useState<Activity[]>([]);
+
+  // Footer settings
+  const { settings: footerSettings, reload: reloadFooter } = useFooterSettings(currentOrgId);
+  const [footerCopyright, setFooterCopyright] = useState("");
+  const [footerContactText, setFooterContactText] = useState("");
+  const [footerBtnLabel, setFooterBtnLabel] = useState("");
+  const [footerBtnUrl, setFooterBtnUrl] = useState("");
+  const [savingFooter, setSavingFooter] = useState(false);
+
+  useEffect(() => {
+    setFooterCopyright(footerSettings.copyright_text);
+    setFooterContactText(footerSettings.contact_text);
+    setFooterBtnLabel(footerSettings.contact_button_label);
+    setFooterBtnUrl(footerSettings.contact_button_url);
+  }, [footerSettings]);
+
+  async function handleSaveFooter() {
+    if (!currentOrgId || !user) return;
+    setSavingFooter(true);
+    const { error } = await (supabase as any)
+      .from("org_footer_settings")
+      .upsert(
+        {
+          organization_id: currentOrgId,
+          copyright_text: footerCopyright.trim() || DEFAULT_FOOTER.copyright_text,
+          contact_text: footerContactText.trim(),
+          contact_button_label: footerBtnLabel.trim(),
+          contact_button_url: footerBtnUrl.trim(),
+          updated_by: user.id,
+        },
+        { onConflict: "organization_id" },
+      );
+    setSavingFooter(false);
+    if (error) return toast.error(error.message);
+    toast.success("Footer updated");
+    await reloadFooter();
+  }
 
   useEffect(() => {
     if (!currentOrg) return;
@@ -348,6 +386,7 @@ export default function SettingsPage() {
           <TabsTrigger value="workspace"><Building2 className="h-4 w-4" /> Workspace</TabsTrigger>
           <TabsTrigger value="team"><UserPlus className="h-4 w-4" /> Team</TabsTrigger>
           <TabsTrigger value="categories"><Tag className="h-4 w-4" /> Categories</TabsTrigger>
+          <TabsTrigger value="footer"><PanelBottom className="h-4 w-4" /> Footer</TabsTrigger>
           <TabsTrigger value="activity"><History className="h-4 w-4" /> Activity</TabsTrigger>
         </TabsList>
 
