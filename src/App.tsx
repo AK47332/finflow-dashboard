@@ -50,6 +50,7 @@ import EcomInstagramPage from "./pages/admin/EcomInstagram.tsx";
 import EcomCustomersPage from "./pages/admin/EcomCustomers.tsx";
 import EcomPagesPage from "./pages/admin/EcomPages.tsx";
 import EcomContactWidgetPage from "./pages/admin/EcomContactWidget.tsx";
+import EcomFooterSettingsPage from "./pages/admin/EcomFooterSettings.tsx";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,7 @@ const App = () => (
                     <Route path="/ecom/customers" element={<EcomCustomersPage />} />
                     <Route path="/ecom/pages" element={<EcomPagesPage />} />
                     <Route path="/ecom/contact-widget" element={<EcomContactWidgetPage />} />
+                    <Route path="/ecom/footer" element={<EcomFooterSettingsPage />} />
                     <Route path="/admin/customers" element={<CustomersAdminPage />} />
                   </Route>
                 </Route>

@@ -93,6 +93,7 @@ const groups: NavGroup[] = [
       { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
       { title: "Pages", url: "/ecom/pages", icon: FileText },
       { title: "Contact Widget", url: "/ecom/contact-widget", icon: MessageCircle },
+      { title: "Footer", url: "/ecom/footer", icon: FileText },
       { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
     ],
   },
