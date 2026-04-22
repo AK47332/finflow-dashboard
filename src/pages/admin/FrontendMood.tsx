@@ -12,6 +12,7 @@ import { Loader2, Globe, ShoppingBag, FileText, Lock, Check } from "lucide-react
 import { toast } from "sonner";
 import type { FrontendMode } from "@/lib/ecom";
 import { cn } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function FrontendMoodPage() {
   const { currentOrgId, currentOrg, role } = useOrg();
@@ -21,6 +22,8 @@ export default function FrontendMoodPage() {
   const [isPrimary, setIsPrimary] = useState(false);
   const [storeName, setStoreName] = useState("");
   const [storeTagline, setStoreTagline] = useState("");
+  const [storeLogo, setStoreLogo] = useState("");
+  const [footerLogo, setFooterLogo] = useState("");
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroImage, setHeroImage] = useState("");
@@ -35,6 +38,8 @@ export default function FrontendMoodPage() {
       setIsPrimary(settings.is_primary);
       setStoreName(settings.store_name ?? "");
       setStoreTagline(settings.store_tagline ?? "");
+      setStoreLogo(settings.store_logo_url ?? "");
+      setFooterLogo(settings.footer_logo_url ?? "");
       setHeroTitle(settings.hero_title ?? "");
       setHeroSubtitle(settings.hero_subtitle ?? "");
       setHeroImage(settings.hero_image_url ?? "");
@@ -74,6 +79,8 @@ export default function FrontendMoodPage() {
           is_primary: isPrimary,
           store_name: storeName || currentOrg?.name || null,
           store_tagline: storeTagline || null,
+          store_logo_url: storeLogo || null,
+          footer_logo_url: footerLogo || null,
           hero_title: heroTitle || null,
           hero_subtitle: heroSubtitle || null,
           hero_image_url: heroImage || null,
