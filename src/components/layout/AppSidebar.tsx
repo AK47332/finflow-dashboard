@@ -20,6 +20,10 @@ import {
   Image as ImageIcon,
   ListOrdered,
   Tags,
+  Megaphone,
+  Instagram,
+  Mail,
+  Palette,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -45,7 +49,6 @@ const groups = [
     label: "People & Catalog",
     items: [
       { title: "Clients", url: "/clients", icon: Users },
-      { title: "Products", url: "/products", icon: Package },
       { title: "POS", url: "/pos", icon: ShoppingCart },
       { title: "Services", url: "/services", icon: Briefcase },
     ],
@@ -68,7 +71,6 @@ const groups = [
     label: "Insights",
     items: [
       { title: "Reports", url: "/reports", icon: BarChart3 },
-      { title: "Frontend Mood", url: "/frontend-mood", icon: Globe },
       { title: "Settings", url: "/settings", icon: Settings },
     ],
   },
@@ -76,8 +78,13 @@ const groups = [
     label: "Ecommerce",
     items: [
       { title: "Orders", url: "/ecom/orders", icon: ListOrdered },
+      { title: "Products", url: "/products", icon: Package },
       { title: "Categories", url: "/ecom/categories", icon: Tags },
       { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
+      { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
+      { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
+      { title: "Newsletter", url: "/ecom/newsletter", icon: Mail },
+      { title: "Storefront Mood", url: "/frontend-mood", icon: Palette },
     ],
   },
 ];

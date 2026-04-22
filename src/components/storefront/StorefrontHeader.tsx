@@ -11,9 +11,10 @@ type Props = {
   storeName: string;
   storeLogoUrl?: string | null;
   categories?: { name: string; slug: string }[];
+  orgId?: string | null;
 };
 
-export function StorefrontHeader({ storeName, storeLogoUrl, categories = [] }: Props) {
+export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], orgId }: Props) {
   const count = useCartStore((s) => s.count());
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [] }: P
 
   return (
     <header className="sticky top-0 z-40">
-      <AnnouncementBar />
+      <AnnouncementBar orgId={orgId} />
       <div
         className={cn(
           "border-b border-border/60 bg-background/85 backdrop-blur-md transition-all duration-300",

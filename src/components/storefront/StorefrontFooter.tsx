@@ -1,15 +1,26 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
+import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-export function StorefrontFooter({ storeName }: { storeName: string }) {
+export function StorefrontFooter({ storeName, orgId }: { storeName: string; orgId?: string | null }) {
   const [email, setEmail] = useState("");
-  const onSubscribe = (e: React.FormEvent) => {
+  const [busy, setBusy] = useState(false);
+  const onSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.includes("@")) return toast.error("Please enter a valid email");
+    if (!orgId) return toast.error("Storefront not ready");
+    setBusy(true);
+    const { error } = await supabase
+      .from("ecom_newsletter_subscribers")
+      .insert({ organization_id: orgId, email: email.trim().toLowerCase(), source: "footer" });
+    setBusy(false);
+    if (error && !error.message.includes("duplicate")) {
+      return toast.error(error.message);
+    }
     toast.success("Subscribed! Watch your inbox for festive drops.");
     setEmail("");
   };
@@ -40,9 +51,10 @@ export function StorefrontFooter({ storeName }: { storeName: string }) {
             <Button
               type="submit"
               size="lg"
+              disabled={busy}
               className="h-12 bg-gold px-8 font-bold uppercase tracking-wider text-charcoal hover:bg-gold/90"
             >
-              Subscribe
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Subscribe"}
             </Button>
           </form>
         </div>

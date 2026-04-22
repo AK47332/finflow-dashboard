@@ -82,3 +82,33 @@ export const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80) || "item";
+
+export type EcomAnnouncement = {
+  id: string;
+  organization_id: string;
+  text: string;
+  icon: string | null;
+  link_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type EcomInstagramPost = {
+  id: string;
+  organization_id: string;
+  image_url: string;
+  caption: string | null;
+  link_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type EcomNewsletterSubscriber = {
+  id: string;
+  organization_id: string;
+  email: string;
+  full_name: string | null;
+  source: string | null;
+  is_unsubscribed: boolean;
+  created_at: string;
+};

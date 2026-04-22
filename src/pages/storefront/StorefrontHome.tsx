@@ -261,7 +261,7 @@ export function StorefrontHome({ orgId, settings }: Props) {
       )}
 
       {/* Instagram */}
-      <InstagramGrid />
+      <InstagramGrid orgId={orgId} />
 
       {products.length === 0 && (
         <section className="container mx-auto px-4 py-20 text-center">

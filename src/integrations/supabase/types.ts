@@ -295,6 +295,53 @@ export type Database = {
           },
         ]
       }
+      ecom_announcements: {
+        Row: {
+          created_at: string
+          created_by: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          link_url: string | null
+          organization_id: string
+          sort_order: number
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          organization_id: string
+          sort_order?: number
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          organization_id?: string
+          sort_order?: number
+          text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_announcements_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ecom_banners: {
         Row: {
           created_at: string
@@ -435,6 +482,94 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "ecom_customers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_instagram_posts: {
+        Row: {
+          caption: string | null
+          created_at: string
+          created_by: string
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          organization_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          organization_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          organization_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_instagram_posts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecom_newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          is_unsubscribed: boolean
+          organization_id: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          is_unsubscribed?: boolean
+          organization_id: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_unsubscribed?: boolean
+          organization_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecom_newsletter_subscribers_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
