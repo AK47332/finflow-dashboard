@@ -90,7 +90,6 @@ const groups: NavGroup[] = [
       { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
       { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
       { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
-      { title: "Storefront Mood", url: "/frontend-mood", icon: Palette },
     ],
   },
 ];
@@ -111,6 +110,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         {
           label: "Admin",
           items: [
+            { title: "Frontend Mood", url: "/frontend-mood", icon: Palette },
             { title: "Customers", url: "/admin/customers", icon: ShieldCheck },
           ],
         },
