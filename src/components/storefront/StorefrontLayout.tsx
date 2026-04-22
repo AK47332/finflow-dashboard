@@ -35,12 +35,13 @@ export function StorefrontLayout({ orgId, storeName, storeLogoUrl, children }: P
   return (
     <div className="storefront-theme flex min-h-screen flex-col bg-background text-foreground">
       <StorefrontHeader
+        orgId={orgId}
         storeName={storeName}
         storeLogoUrl={storeLogoUrl}
         categories={categories.map((c) => ({ name: c.name, slug: c.slug }))}
       />
       <main className="flex-1">{children}</main>
-      <StorefrontFooter storeName={storeName} />
+      <StorefrontFooter storeName={storeName} orgId={orgId} />
     </div>
   );
 }
