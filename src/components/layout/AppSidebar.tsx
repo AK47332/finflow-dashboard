@@ -15,6 +15,11 @@ import {
   BarChart3,
   Settings,
   ShieldCheck,
+  Globe,
+  ShoppingBag,
+  Image as ImageIcon,
+  ListOrdered,
+  Tags,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -63,7 +68,16 @@ const groups = [
     label: "Insights",
     items: [
       { title: "Reports", url: "/reports", icon: BarChart3 },
+      { title: "Frontend Mood", url: "/frontend-mood", icon: Globe },
       { title: "Settings", url: "/settings", icon: Settings },
+    ],
+  },
+  {
+    label: "Ecommerce",
+    items: [
+      { title: "Orders", url: "/ecom/orders", icon: ListOrdered },
+      { title: "Categories", url: "/ecom/categories", icon: Tags },
+      { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
     ],
   },
 ];

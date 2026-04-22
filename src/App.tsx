@@ -39,6 +39,12 @@ import { PagePlaceholder } from "@/components/PagePlaceholder";
 import PortalPage from "./pages/Portal.tsx";
 import CustomersAdminPage from "./pages/admin/Customers.tsx";
 import { ExpiryGate } from "@/components/auth/ExpiryGate";
+import StorefrontRoot from "./pages/StorefrontRoot.tsx";
+import CustomerAccountPage from "./pages/CustomerAccount.tsx";
+import FrontendMoodPage from "./pages/admin/FrontendMood.tsx";
+import EcomOrdersPage from "./pages/admin/EcomOrders.tsx";
+import EcomCategoriesPage from "./pages/admin/EcomCategories.tsx";
+import EcomBannersPage from "./pages/admin/EcomBanners.tsx";
 
 const queryClient = new QueryClient();
 
@@ -51,9 +57,10 @@ const App = () => (
         <AuthProvider>
           <OrgProvider>
             <Routes>
-              <Route path="/" element={<PortalPage />} />
+              <Route path="/*" element={<StorefrontRoot />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
+              <Route path="/account" element={<CustomerAccountPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route element={<ExpiryGate />}>
                   <Route element={<AppLayout />}>
@@ -72,11 +79,14 @@ const App = () => (
                     <Route path="/reminders" element={<RemindersPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/frontend-mood" element={<FrontendMoodPage />} />
+                    <Route path="/ecom/orders" element={<EcomOrdersPage />} />
+                    <Route path="/ecom/categories" element={<EcomCategoriesPage />} />
+                    <Route path="/ecom/banners" element={<EcomBannersPage />} />
                     <Route path="/admin/customers" element={<CustomersAdminPage />} />
                   </Route>
                 </Route>
               </Route>
-              <Route path="*" element={<NotFound />} />
             </Routes>
           </OrgProvider>
         </AuthProvider>
