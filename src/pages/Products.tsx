@@ -375,10 +375,13 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="pimgs">Image URLs</Label>
-                <Textarea id="pimgs" rows={3} value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} placeholder="One URL per line" />
-              </div>
+              <MultiImageUploader
+                label="Product images"
+                values={images}
+                onChange={setImages}
+                folder="products"
+                max={8}
+              />
             </div>
 
             <DialogFooter className="gap-2">
