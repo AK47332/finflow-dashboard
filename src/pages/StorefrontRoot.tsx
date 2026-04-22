@@ -32,7 +32,13 @@ export default function StorefrontRoot() {
     );
   }
 
-  if (!settings || settings.mode === "private") {
+  // Only fall back to the original Portal when explicitly set to private.
+  // If no settings exist at all, the hook synthesizes an ecommerce default,
+  // so the public root domain shows the storefront by default.
+  if (settings && settings.mode === "private") {
+    return <PortalPage />;
+  }
+  if (!settings) {
     return <PortalPage />;
   }
 
