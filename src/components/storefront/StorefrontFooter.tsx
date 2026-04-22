@@ -1,13 +1,16 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
+import type { EcomPage } from "@/lib/ecom";
 
 export function StorefrontFooter({
   storeName,
   footerLogoUrl,
+  pages = [],
 }: {
   storeName: string;
   orgId?: string | null;
   footerLogoUrl?: string | null;
+  pages?: EcomPage[];
 }) {
   return (
     <footer className="mt-20 bg-charcoal text-background">
@@ -44,12 +47,18 @@ export function StorefrontFooter({
           </div>
         </div>
         <div>
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-gold">About</div>
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Pages</div>
           <ul className="mt-4 space-y-2.5 text-sm text-background/80">
-            <li><a href="#" className="hover:text-gold">Our story</a></li>
-            <li><a href="#" className="hover:text-gold">Sustainability</a></li>
-            <li><a href="#" className="hover:text-gold">The artisans</a></li>
-            <li><a href="#" className="hover:text-gold">Press</a></li>
+            {pages.length === 0 && (
+              <li className="text-background/50 text-xs italic">
+                No pages yet
+              </li>
+            )}
+            {pages.map((p) => (
+              <li key={p.id}>
+                <Link to={`/page/${p.slug}`} className="hover:text-gold">{p.title}</Link>
+              </li>
+            ))}
           </ul>
         </div>
         <div>
@@ -67,9 +76,6 @@ export function StorefrontFooter({
           <ul className="mt-4 space-y-2.5 text-sm text-background/80">
             <li><Link to="/account" className="hover:text-gold">My account</Link></li>
             <li><Link to="/account?tab=orders" className="hover:text-gold">Track orders</Link></li>
-            <li><a href="#" className="hover:text-gold">Shipping & returns</a></li>
-            <li><a href="#" className="hover:text-gold">Size guide</a></li>
-            <li><a href="#" className="hover:text-gold">Contact us</a></li>
           </ul>
         </div>
       </div>
