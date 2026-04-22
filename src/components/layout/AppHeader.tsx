@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Search, ChevronDown, LogOut, Building2, Check, Settings as SettingsIcon } from "lucide-react";
+import { Menu, Search, ChevronDown, LogOut, Building2, Check, Settings as SettingsIcon, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationsBell } from "./NotificationsBell";
+import { ThemeToggle } from "./ThemeToggle";
 
 function initials(name?: string | null, email?: string | null) {
   const src = name || email || "";
@@ -114,6 +115,16 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
       </form>
 
       <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-xl"
+          onClick={() => navigate("/pos")}
+          aria-label="Open POS"
+          title="POS"
+        >
+          <ShoppingCart className="h-5 w-5" />
+        </Button>
         <NotificationsBell />
 
         <DropdownMenu>
@@ -144,6 +155,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <ThemeToggle />
       </div>
     </header>
   );
