@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { slugify, type EcomCategory } from "@/lib/ecom";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function EcomCategoriesPage() {
   const { currentOrgId } = useOrg();
@@ -41,6 +42,17 @@ export default function EcomCategoriesPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editing || !currentOrgId || !user) return;
+    // Prevent assigning a category as its own parent (or to one of its descendants)
+    if (editing.id && editing.parent_id) {
+      const isDescendant = (parentId: string): boolean => {
+        if (parentId === editing.id) return true;
+        const p = items.find((x) => x.id === parentId);
+        return p?.parent_id ? isDescendant(p.parent_id) : false;
+      };
+      if (isDescendant(editing.parent_id)) {
+        return toast.error("A category can't be its own parent or a child of itself.");
+      }
+    }
     const payload = {
       organization_id: currentOrgId,
       created_by: user.id,
@@ -50,6 +62,7 @@ export default function EcomCategoriesPage() {
       image_url: editing.image_url ?? null,
       sort_order: editing.sort_order ?? 0,
       is_active: editing.is_active ?? true,
+      parent_id: editing.parent_id ?? null,
     };
     if (editing.id) {
       const { error } = await supabase.from("ecom_categories").update(payload).eq("id", editing.id);
