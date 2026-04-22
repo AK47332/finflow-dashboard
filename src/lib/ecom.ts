@@ -24,6 +24,7 @@ export type EcomCategory = {
   image_url: string | null;
   sort_order: number;
   is_active: boolean;
+  parent_id: string | null;
 };
 
 export type EcomProductExtra = {

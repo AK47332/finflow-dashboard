@@ -35,6 +35,7 @@ export function StorefrontProduct({ orgId }: { orgId: string }) {
 
   useEffect(() => {
     let cancelled = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
     async function load() {
       if (!slug) return;
       setLoading(true);
