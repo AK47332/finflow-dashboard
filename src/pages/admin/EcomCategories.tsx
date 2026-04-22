@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { slugify, type EcomCategory } from "@/lib/ecom";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function EcomCategoriesPage() {
   const { currentOrgId } = useOrg();
@@ -41,6 +42,17 @@ export default function EcomCategoriesPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editing || !currentOrgId || !user) return;
+    // Prevent assigning a category as its own parent (or to one of its descendants)
+    if (editing.id && editing.parent_id) {
+      const isDescendant = (parentId: string): boolean => {
+        if (parentId === editing.id) return true;
+        const p = items.find((x) => x.id === parentId);
+        return p?.parent_id ? isDescendant(p.parent_id) : false;
+      };
+      if (isDescendant(editing.parent_id)) {
+        return toast.error("A category can't be its own parent or a child of itself.");
+      }
+    }
     const payload = {
       organization_id: currentOrgId,
       created_by: user.id,
@@ -50,6 +62,7 @@ export default function EcomCategoriesPage() {
       image_url: editing.image_url ?? null,
       sort_order: editing.sort_order ?? 0,
       is_active: editing.is_active ?? true,
+      parent_id: editing.parent_id ?? null,
     };
     if (editing.id) {
       const { error } = await supabase.from("ecom_categories").update(payload).eq("id", editing.id);
@@ -68,6 +81,21 @@ export default function EcomCategoriesPage() {
     if (!confirm("Delete this category?")) return;
     await supabase.from("ecom_categories").delete().eq("id", id);
     void load();
+  };
+
+  const toggleActive = async (c: EcomCategory, v: boolean) => {
+    // Optimistic UI
+    setItems((prev) => prev.map((it) => (it.id === c.id ? { ...it, is_active: v } : it)));
+    const { error } = await supabase
+      .from("ecom_categories")
+      .update({ is_active: v })
+      .eq("id", c.id);
+    if (error) {
+      toast.error(error.message);
+      void load();
+    } else {
+      toast.success(v ? "Category enabled" : "Category disabled");
+    }
   };
 
   return (
@@ -101,6 +129,26 @@ export default function EcomCategoriesPage() {
                   <Label>Slug</Label>
                   <Input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} />
                 </div>
+                <div className="space-y-1.5">
+                  <Label>Parent category</Label>
+                  <Select
+                    value={editing.parent_id ?? "none"}
+                    onValueChange={(v) => setEditing({ ...editing, parent_id: v === "none" ? null : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Top-level category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— Top-level (no parent)</SelectItem>
+                      {items
+                        .filter((c) => !c.parent_id && c.id !== editing.id)
+                        .map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Leave empty to make this a main category. Pick a parent to make it a subcategory.</p>
+                </div>
                 <ImageUploader
                   label="Image"
                   value={editing.image_url ?? ""}
@@ -131,35 +179,94 @@ export default function EcomCategoriesPage() {
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {items.length === 0 ? (
-            <p className="col-span-full py-12 text-center text-sm text-muted-foreground">No categories yet.</p>
-          ) : (
-            items.map((c) => (
-              <div key={c.id} className="flex gap-3 rounded-2xl border border-border/60 bg-card p-3">
-                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  {c.image_url ? <img src={c.image_url} alt={c.name} className="h-full w-full object-cover" /> : null}
+        items.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">No categories yet.</p>
+        ) : (
+          <div className="space-y-6">
+            {items.filter((c) => !c.parent_id).map((parent) => {
+              const children = items.filter((c) => c.parent_id === parent.id);
+              return (
+                <div key={parent.id} className="rounded-2xl border border-border/60 bg-card p-4">
+                  <CategoryRow
+                    c={parent}
+                    onEdit={() => { setEditing(parent); setOpen(true); }}
+                    onRemove={() => remove(parent.id)}
+                    onToggle={(v) => toggleActive(parent, v)}
+                  />
+                  {children.length > 0 && (
+                    <div className="mt-3 space-y-2 border-t border-border/60 pt-3 pl-4">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Subcategories ({children.length})
+                      </div>
+                      {children.map((child) => (
+                        <div key={child.id} className="flex items-start gap-2">
+                          <ChevronRight className="mt-2 h-3 w-3 shrink-0 text-muted-foreground" />
+                          <div className="flex-1">
+                            <CategoryRow
+                              c={child}
+                              compact
+                              onEdit={() => { setEditing(child); setOpen(true); }}
+                              onRemove={() => remove(child.id)}
+                              onToggle={(v) => toggleActive(child, v)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <div className="truncate font-semibold">{c.name}</div>
-                    {!c.is_active && <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] uppercase">Hidden</span>}
-                  </div>
-                  <div className="text-xs text-muted-foreground">/{c.slug}</div>
-                  <div className="mt-2 flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => remove(c.id)}>
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
+              );
+            })}
+            {/* Orphan subcategories whose parent was deleted (defensive) */}
+            {items.filter((c) => c.parent_id && !items.some((p) => p.id === c.parent_id)).map((c) => (
+              <div key={c.id} className="rounded-2xl border border-border/60 bg-card p-4">
+                <CategoryRow
+                  c={c}
+                  onEdit={() => { setEditing(c); setOpen(true); }}
+                  onRemove={() => remove(c.id)}
+                  onToggle={(v) => toggleActive(c, v)}
+                />
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )
       )}
+    </div>
+  );
+}
+
+function CategoryRow({
+  c, compact, onEdit, onRemove, onToggle,
+}: {
+  c: EcomCategory;
+  compact?: boolean;
+  onEdit: () => void;
+  onRemove: () => void;
+  onToggle: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`shrink-0 overflow-hidden rounded-xl bg-muted ${compact ? "h-10 w-10" : "h-14 w-14"}`}>
+        {c.image_url ? <img src={c.image_url} alt={c.name} className="h-full w-full object-cover" /> : null}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <div className={`truncate ${compact ? "text-sm font-medium" : "font-semibold"}`}>{c.name}</div>
+          {!c.is_active && <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] uppercase">Hidden</span>}
+        </div>
+        <div className="text-xs text-muted-foreground">/{c.slug}</div>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <Switch checked={c.is_active} onCheckedChange={onToggle} />
+        </div>
+        <Button size="sm" variant="ghost" onClick={onEdit}>
+          <Pencil className="h-3 w-3" />
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onRemove}>
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </div>
     </div>
   );
 }

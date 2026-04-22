@@ -408,6 +408,7 @@ export type Database = {
           is_active: boolean
           name: string
           organization_id: string
+          parent_id: string | null
           slug: string
           sort_order: number
           updated_at: string
@@ -421,6 +422,7 @@ export type Database = {
           is_active?: boolean
           name: string
           organization_id: string
+          parent_id?: string | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -434,6 +436,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           organization_id?: string
+          parent_id?: string | null
           slug?: string
           sort_order?: number
           updated_at?: string
@@ -444,6 +447,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecom_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "ecom_categories"
             referencedColumns: ["id"]
           },
         ]
