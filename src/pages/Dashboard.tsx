@@ -260,7 +260,16 @@ export default function Dashboard() {
     capital.length === 0;
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="relative animate-fade-in space-y-6">
+      {/* Decorative background flourish */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+      >
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute right-0 top-40 h-64 w-64 rounded-full bg-profit/15 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-capital/10 blur-3xl" />
+      </div>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">

@@ -19,6 +19,8 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
+import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 
 const groups = [
   {
@@ -69,6 +71,13 @@ const groups = [
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const { isSuperAdmin } = useSuperAdmin();
+  const { user } = useAuth();
+  const { currentOrg } = useOrg();
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "Account";
+  const avatarInitials = (displayName || "?").slice(0, 2).toUpperCase();
   const visibleGroups = isSuperAdmin
     ? [
         ...groups,
@@ -89,6 +98,17 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         <div className="leading-tight">
           <div className="text-base font-bold tracking-tight">FinTrack Pro</div>
           <div className="text-[11px] font-medium text-white/70">Income · Expense</div>
+        </div>
+      </div>
+
+      {/* Profile block */}
+      <div className="mx-3 mb-4 flex items-center gap-3 rounded-2xl bg-white/10 px-3 py-2.5 backdrop-blur-sm">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-sm font-bold text-primary">
+          {avatarInitials}
+        </div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-[13px] font-semibold text-white">{displayName}</div>
+          <div className="truncate text-[11px] text-white/70">{currentOrg?.name ?? user?.email}</div>
         </div>
       </div>
 
@@ -127,9 +147,18 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="mx-3 mb-4 rounded-2xl bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm">
-        <div className="font-semibold text-white">Pro tip</div>
-        <p className="mt-1 text-white/70">Press ⌘K to quickly add an income or expense.</p>
+      <div className="relative mx-3 mb-4 overflow-hidden rounded-2xl bg-white/10 p-4 text-xs text-white/85 backdrop-blur-sm">
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 opacity-20"
+          viewBox="0 0 100 100"
+        >
+          <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="1.5" />
+          <circle cx="50" cy="50" r="28" fill="none" stroke="white" strokeWidth="1.5" />
+          <circle cx="50" cy="50" r="16" fill="none" stroke="white" strokeWidth="1.5" />
+        </svg>
+        <div className="relative font-semibold text-white">Pro tip</div>
+        <p className="relative mt-1 text-white/70">Press ⌘K to quickly add an income or expense.</p>
       </div>
     </aside>
   );
