@@ -176,15 +176,17 @@ export default function AuthPage() {
           </form>
 
           {!isCustomer ? (
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Need an account?{" "}
+            <p className="mt-6 text-center text-xs text-muted-foreground">
+              Admin accounts are created by the platform administrator.
+              <br />
+              Need a subscription?{" "}
               <a
                 href="https://businessdeskpro.brownfoxit.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
               >
-                Renew Your Package
+                Get one here
                 <ExternalLink className="h-3 w-3" />
               </a>
             </p>
