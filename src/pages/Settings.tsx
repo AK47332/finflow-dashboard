@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,14 +51,14 @@ const TZ_STORAGE_KEY = "ui-timezone";
 type Member = {
   id: string;
   user_id: string;
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "account_manager" | "store_manager" | "sales_manager" | "member";
   profile?: { full_name: string | null; email: string | null; avatar_url: string | null };
 };
 
 type Invitation = {
   id: string;
   email: string;
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "account_manager" | "store_manager" | "sales_manager" | "member";
   status: "pending" | "accepted" | "revoked" | "expired";
   expires_at: string;
   created_at: string;
@@ -112,8 +112,16 @@ export default function SettingsPage() {
   // Invitations
   const [invites, setInvites] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
+  const [inviteRole, setInviteRole] = useState<
+    "sales_manager" | "account_manager" | "store_manager"
+  >("sales_manager");
   const [sendingInvite, setSendingInvite] = useState(false);
+
+  // Password change
+  const [pwdCurrent, setPwdCurrent] = useState("");
+  const [pwdNew, setPwdNew] = useState("");
+  const [pwdConfirm, setPwdConfirm] = useState("");
+  const [pwdBusy, setPwdBusy] = useState(false);
 
   // Categories
   const [categories, setCategories] = useState<Category[]>([]);
@@ -308,7 +316,7 @@ export default function SettingsPage() {
       summary: `Invited ${inviteEmail} as ${inviteRole}`,
     });
     setInviteEmail("");
-    setInviteRole("member");
+    setInviteRole("sales_manager");
     await loadInvites();
     await loadActivity();
   }
