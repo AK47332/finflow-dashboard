@@ -22,17 +22,25 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
+import { FileAttachment, AttachmentValue } from "@/components/ui/FileAttachment";
+import { Paperclip } from "lucide-react";
 
 export type LedgerStatus = "pending" | "partial" | "paid" | "overdue";
 
 export type LedgerEntry = {
   id: string;
+  title: string | null;
   party_name: string; // client_name | vendor_name (mapped by parent)
+  client_id?: string | null;
   description: string | null;
   amount: number;
   amount_paid: number;
   due_date: string | null;
   status: LedgerStatus;
+  document_url: string | null;
+  document_path: string | null;
+  document_name: string | null;
+  document_type: string | null;
 };
 
 const STATUSES: LedgerStatus[] = ["pending", "partial", "paid", "overdue"];
@@ -57,15 +65,27 @@ export function LedgerPage({ variant }: Props) {
     column: "due_date", ascending: true,
   });
 
+  // For receivables: pull clients for the picker.
+  const { rows: clients } = useOrgTable<{ id: string; name: string }>("clients", {
+    column: "name",
+    ascending: true,
+  });
+
   const rows: LedgerEntry[] = useMemo(
     () => rawRows.map((r) => ({
       id: r.id,
+      title: r.title ?? null,
       party_name: r[partyField] ?? "",
+      client_id: r.client_id ?? null,
       description: r.description,
       amount: Number(r.amount),
       amount_paid: Number(r.amount_paid),
       due_date: r.due_date,
       status: r.status,
+      document_url: r.document_url ?? null,
+      document_path: r.document_path ?? null,
+      document_name: r.document_name ?? null,
+      document_type: r.document_type ?? null,
     })),
     [rawRows, partyField],
   );
@@ -77,11 +97,16 @@ export function LedgerPage({ variant }: Props) {
   const [pendingDelete, setPendingDelete] = useState<LedgerEntry | null>(null);
 
   const [partyName, setPartyName] = useState("");
+  const [clientPick, setClientPick] = useState<string>("__custom__");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [amountPaid, setAmountPaid] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [status, setStatus] = useState<LedgerStatus>("pending");
+  const [attachment, setAttachment] = useState<AttachmentValue>({
+    url: null, path: null, name: null, type: null,
+  });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -100,20 +125,31 @@ export function LedgerPage({ variant }: Props) {
   }, [rows]);
 
   const reset = () => {
-    setPartyName(""); setDescription(""); setAmount(""); setAmountPaid("");
+    setPartyName(""); setClientPick("__custom__"); setTitle("");
+    setDescription(""); setAmount(""); setAmountPaid("");
     setDueDate(""); setStatus("pending"); setEditing(null);
+    setAttachment({ url: null, path: null, name: null, type: null });
   };
   const openAdd = () => { reset(); setOpen(true); };
   const openEdit = (r: LedgerEntry) => {
     setEditing(r);
-    setPartyName(r.party_name); setDescription(r.description ?? "");
+    setPartyName(r.party_name);
+    setClientPick(r.client_id ?? "__custom__");
+    setTitle(r.title ?? "");
+    setDescription(r.description ?? "");
     setAmount(r.amount.toString()); setAmountPaid(r.amount_paid.toString());
     setDueDate(r.due_date ?? ""); setStatus(r.status);
+    setAttachment({
+      url: r.document_url, path: r.document_path,
+      name: r.document_name, type: r.document_type,
+    });
     setOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) return toast.error("Title is required");
+    if (!description.trim()) return toast.error("Description is required");
     if (!partyName.trim()) return toast.error(`${partyLabel} name is required`);
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
@@ -131,12 +167,21 @@ export function LedgerPage({ variant }: Props) {
     try {
       const payload: Record<string, any> = {
         [partyField]: partyName.trim(),
+        title: title.trim(),
         description: description.trim() || null,
         amount: amt,
         amount_paid: paid,
         due_date: dueDate || null,
         status: computedStatus,
+        document_url: attachment.url,
+        document_path: attachment.path,
+        document_name: attachment.name,
+        document_type: attachment.type,
       };
+      if (isReceivable) {
+        payload.client_id =
+          clientPick && clientPick !== "__custom__" ? clientPick : null;
+      }
       if (editing) await update(editing.id, payload);
       else await create(payload);
       toast.success(editing ? "Entry updated" : "Entry added");
