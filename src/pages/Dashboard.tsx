@@ -100,6 +100,13 @@ export default function Dashboard() {
   const [capital, setCapital] = useState<any[]>([]);
   const [reminders, setReminders] = useState<any[]>([]);
 
+  // Live clock for the dashboard header
+  const [now, setNow] = useState<Date>(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     if (!currentOrgId) return;
     let cancel = false;
