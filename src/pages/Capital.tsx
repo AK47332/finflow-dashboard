@@ -59,6 +59,28 @@ export default function CapitalPage() {
     return { contrib, withdr, net: contrib - withdr };
   }, [rows]);
 
+  // Per-payment-method balance (contributions add, withdrawals subtract)
+  const balancesByMethod = useMemo(() => {
+    const map = new Map<string, number>();
+    PAYMENT_METHODS.forEach((m) => map.set(m, 0));
+    rows.forEach((r) => {
+      const key = r.payment_method && PAYMENT_METHODS.includes(r.payment_method) ? r.payment_method : "Other";
+      const sign = r.type === "contribution" ? 1 : -1;
+      map.set(key, (map.get(key) ?? 0) + sign * r.amount);
+    });
+    return PAYMENT_METHODS.map((m) => ({ method: m, balance: map.get(m) ?? 0 }));
+  }, [rows]);
+
+  const methodIcon = (m: string) => {
+    switch (m) {
+      case "Cash": return <Banknote className="h-5 w-5" />;
+      case "Bank Transfer": return <Landmark className="h-5 w-5" />;
+      case "Mobile Banking": return <Smartphone className="h-5 w-5" />;
+      case "Card": return <CreditCard className="h-5 w-5" />;
+      default: return <MoreHorizontal className="h-5 w-5" />;
+    }
+  };
+
   const reset = () => {
     setType("contribution"); setAmount(""); setDate(today());
     setPaymentMethod("Bank Transfer"); setDescription(""); setEditing(null);
