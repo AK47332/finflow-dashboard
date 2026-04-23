@@ -496,13 +496,19 @@ export default function Dashboard() {
             </div>
             {incomeDonut.length > 0 ? (
               <CategoryDonut
-                title="Income by source"
-                subtitle={range === "all" ? "All time" : `This ${range}`}
+                title={t("card.incomeBySource")}
+                subtitle={
+                  range === "all"
+                    ? t("card.allTime")
+                    : range === "custom"
+                    ? t("range.custom")
+                    : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any)
+                }
                 data={incomeDonut}
                 variant="income"
               />
             ) : (
-              <EmptyCard title="Income by source" body="No income yet in this range." linkTo="/income" linkText="Add income" />
+              <EmptyCard title={t("card.incomeBySource")} body={t("card.noIncomeRange")} linkTo="/income" linkText={t("card.addIncome")} />
             )}
           </section>
 
@@ -510,12 +516,21 @@ export default function Dashboard() {
             {/* Top Clients */}
             <div className="ft-card p-5 sm:p-6">
               <div className="mb-4">
-                <h3 className="text-base font-semibold text-foreground">Top clients</h3>
-                <p className="text-xs text-muted-foreground">By revenue ({range === "all" ? "all time" : `this ${range}`})</p>
+                <h3 className="text-base font-semibold text-foreground">{t("card.topClients")}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t("card.byRevenue", {
+                    range:
+                      range === "all"
+                        ? t("card.allTime")
+                        : range === "custom"
+                        ? t("range.custom")
+                        : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any),
+                  })}
+                </p>
               </div>
               {topClients.length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  No client revenue yet.
+                  {t("card.noClientRevenue")}
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -551,17 +566,17 @@ export default function Dashboard() {
             <div className="ft-card p-5 sm:p-6">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Upcoming reminders</h3>
-                  <p className="text-xs text-muted-foreground">Next {reminders.length}</p>
+                  <h3 className="text-base font-semibold text-foreground">{t("card.upcomingReminders")}</h3>
+                  <p className="text-xs text-muted-foreground">{t("card.next", { n: reminders.length })}</p>
                 </div>
                 <Bell className="h-4 w-4 text-muted-foreground" />
               </div>
               {reminders.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">No reminders set.</p>
+                  <p className="text-sm text-muted-foreground">{t("card.noReminders")}</p>
                   <Button asChild size="sm" variant="outline">
                     <Link to="/reminders">
-                      <Plus className="h-3 w-3" /> Add reminder
+                      <Plus className="h-3 w-3" /> {t("card.addReminder")}
                     </Link>
                   </Button>
                 </div>
@@ -597,7 +612,7 @@ export default function Dashboard() {
                               : "bg-primary-soft text-primary",
                           )}
                         >
-                          {overdue ? "Overdue" : "Upcoming"}
+                          {overdue ? t("badge.overdue") : t("badge.upcoming")}
                         </span>
                       </li>
                     );
