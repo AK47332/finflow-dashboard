@@ -134,7 +134,7 @@ export default function CapitalPage() {
       empty={!loading && rows.length === 0}
       emptyText="No capital movements yet."
       onAdd={openAdd}
-      addLabel="Add Capital"
+      addLabel="Update Capital"
       addClassName="bg-gradient-primary text-primary-foreground hover:opacity-90"
       stats={
         <div className="grid gap-4 sm:grid-cols-3">
