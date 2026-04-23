@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { TrendingDown, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip, RotateCw } from "lucide-react";
+import { TrendingDown, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip, RotateCw, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,6 +38,7 @@ import { deleteExpenseAttachment } from "@/lib/storage";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 type RangeKey = "Today" | "This Week" | "This Month" | "This Year" | "All";
 const RANGE_TABS: RangeKey[] = ["Today", "This Week", "This Month", "This Year", "All"];
