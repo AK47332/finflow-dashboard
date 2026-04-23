@@ -34,67 +34,68 @@ import { cn } from "@/lib/utils";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
+import { useLocale } from "@/contexts/LocaleContext";
 
-type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
-type NavGroup = { label: string; items: NavItem[]; collapsible?: boolean };
+type NavItem = { titleKey: string; url: string; icon: typeof LayoutDashboard };
+type NavGroup = { labelKey: string; items: NavItem[]; collapsible?: boolean };
 
 const groups: NavGroup[] = [
   {
-    label: "Overview",
-    items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }],
+    labelKey: "section.overview",
+    items: [{ titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard }],
   },
   {
-    label: "Money",
+    labelKey: "section.money",
     items: [
-      { title: "Income", url: "/income", icon: TrendingUp },
-      { title: "Expense", url: "/expense", icon: TrendingDown },
-      { title: "Capital", url: "/capital", icon: Wallet },
-      { title: "Profit & Loss", url: "/profit", icon: PiggyBank },
+      { titleKey: "nav.income", url: "/income", icon: TrendingUp },
+      { titleKey: "nav.expense", url: "/expense", icon: TrendingDown },
+      { titleKey: "nav.capital", url: "/capital", icon: Wallet },
+      { titleKey: "nav.profitLoss", url: "/profit", icon: PiggyBank },
     ],
   },
   {
-    label: "People & Catalog",
+    labelKey: "section.peopleCatalog",
     items: [
-      { title: "Clients", url: "/clients", icon: Users },
-      { title: "POS", url: "/pos", icon: ShoppingCart },
-      { title: "Services", url: "/services", icon: Briefcase },
+      { titleKey: "nav.clients", url: "/clients", icon: Users },
+      { titleKey: "nav.pos", url: "/pos", icon: ShoppingCart },
+      { titleKey: "nav.services", url: "/services", icon: Briefcase },
     ],
   },
   {
-    label: "Ledger",
+    labelKey: "section.ledger",
     items: [
-      { title: "Receivables", url: "/receivables", icon: ArrowDownLeft },
-      { title: "Payables", url: "/payables", icon: ArrowUpRight },
+      { titleKey: "nav.receivables", url: "/receivables", icon: ArrowDownLeft },
+      { titleKey: "nav.payables", url: "/payables", icon: ArrowUpRight },
     ],
   },
   {
-    label: "Productivity",
+    labelKey: "section.productivity",
     items: [
-      { title: "Notes", url: "/notes", icon: StickyNote },
-      { title: "Reminders", url: "/reminders", icon: Bell },
+      { titleKey: "nav.notes", url: "/notes", icon: StickyNote },
+      { titleKey: "nav.reminders", url: "/reminders", icon: Bell },
     ],
   },
   {
-    label: "Insights",
+    labelKey: "section.insights",
     items: [
-      { title: "Reports", url: "/reports", icon: BarChart3 },
-      { title: "Settings", url: "/settings", icon: Settings },
+      { titleKey: "nav.reports", url: "/reports", icon: BarChart3 },
+      { titleKey: "nav.settings", url: "/settings", icon: Settings },
     ],
   },
   {
-    label: "Ecommerce",
+    labelKey: "section.ecommerce",
     collapsible: true,
     items: [
-      { title: "Orders", url: "/ecom/orders", icon: ListOrdered },
-      { title: "Products", url: "/products", icon: Package },
-      { title: "Categories", url: "/ecom/categories", icon: Tags },
-      { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
-      { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
-      { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
-      { title: "Pages", url: "/ecom/pages", icon: FileText },
-      { title: "Contact Widget", url: "/ecom/contact-widget", icon: MessageCircle },
-      { title: "Footer", url: "/ecom/footer", icon: FileText },
-      { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
+      { titleKey: "nav.orders", url: "/ecom/orders", icon: ListOrdered },
+      { titleKey: "nav.products", url: "/products", icon: Package },
+      { titleKey: "nav.categories", url: "/ecom/categories", icon: Tags },
+      { titleKey: "nav.banners", url: "/ecom/banners", icon: ImageIcon },
+      { titleKey: "nav.announcements", url: "/ecom/announcements", icon: Megaphone },
+      { titleKey: "nav.instagram", url: "/ecom/instagram", icon: Instagram },
+      { titleKey: "nav.pages", url: "/ecom/pages", icon: FileText },
+      { titleKey: "nav.contactWidget", url: "/ecom/contact-widget", icon: MessageCircle },
+      { titleKey: "nav.footer", url: "/ecom/footer", icon: FileText },
+      { titleKey: "nav.customers", url: "/ecom/customers", icon: UserCircle2 },
     ],
   },
 ];
