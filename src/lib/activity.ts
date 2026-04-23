@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type ActivityAction = "created" | "updated" | "deleted" | "invited" | "joined" | "removed" | "role_changed";
+export type ActivityAction = "created" | "updated" | "deleted" | "invited" | "joined" | "removed" | "role_changed" | "password_changed";
 
 export async function logActivity(params: {
   orgId: string;
