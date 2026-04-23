@@ -18,6 +18,7 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export type Service = {
   id: string;
@@ -25,6 +26,7 @@ export type Service = {
   price: number;
   unit: string | null;
   description: string | null;
+  image_url: string | null;
 };
 
 export default function ServicesPage() {
@@ -40,6 +42,7 @@ export default function ServicesPage() {
   const [price, setPrice] = useState("");
   const [unit, setUnit] = useState("");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -48,12 +51,13 @@ export default function ServicesPage() {
   }, [rows, search]);
 
   const reset = () => {
-    setName(""); setPrice(""); setUnit(""); setDescription(""); setEditing(null);
+    setName(""); setPrice(""); setUnit(""); setDescription(""); setImageUrl(""); setEditing(null);
   };
   const openAdd = () => { reset(); setOpen(true); };
   const openEdit = (s: Service) => {
     setEditing(s); setName(s.name); setPrice(s.price.toString());
     setUnit(s.unit ?? ""); setDescription(s.description ?? "");
+    setImageUrl(s.image_url ?? "");
     setOpen(true);
   };
 
@@ -66,6 +70,7 @@ export default function ServicesPage() {
         price: parseFloat(price) || 0,
         unit: unit.trim() || null,
         description: description.trim() || null,
+        image_url: imageUrl.trim() || null,
       };
       if (editing) await update(editing.id, payload);
       else await create(payload);
@@ -118,6 +123,7 @@ export default function ServicesPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-primary-soft/60 hover:bg-primary-soft/60">
+              <TableHead className="w-[60px] text-foreground"></TableHead>
               <TableHead className="text-foreground">Name</TableHead>
               <TableHead className="text-right text-foreground">Price</TableHead>
               <TableHead className="text-foreground">Unit</TableHead>
@@ -128,6 +134,15 @@ export default function ServicesPage() {
           <TableBody>
             {filtered.map((s, i) => (
               <TableRow key={s.id} className={i % 2 === 1 ? "bg-muted/20" : undefined}>
+                <TableCell>
+                  {s.image_url ? (
+                    <img src={s.image_url} alt={s.name} className="h-10 w-10 rounded-md object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-soft text-primary">
+                      <Briefcase className="h-4 w-4" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium text-foreground">{s.name}</TableCell>
                 <TableCell className="text-right font-semibold">{currency(s.price)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{s.unit ?? "—"}</TableCell>
@@ -166,6 +181,13 @@ export default function ServicesPage() {
               <Label htmlFor="sdesc">Description</Label>
               <Textarea id="sdesc" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
+            <ImageUploader
+              label="Service image"
+              value={imageUrl}
+              onChange={setImageUrl}
+              folder="services"
+              previewClassName="h-36"
+            />
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Save changes" : "Add Service"}</Button>

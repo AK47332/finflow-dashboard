@@ -25,6 +25,7 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { FileAttachment, AttachmentValue } from "@/components/ui/FileAttachment";
 
 type Note = {
   id: string;
@@ -34,6 +35,11 @@ type Note = {
   pinned: boolean;
   tags: string[] | null;
   updated_at: string;
+  note_date: string;
+  document_url: string | null;
+  document_path: string | null;
+  document_name: string | null;
+  document_type: string | null;
 };
 
 const COLORS: Record<string, string> = {
@@ -60,6 +66,10 @@ export default function NotesPage() {
   const [content, setContent] = useState("");
   const [color, setColor] = useState("default");
   const [tagsInput, setTagsInput] = useState("");
+  const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10));
+  const [attachment, setAttachment] = useState<AttachmentValue>({
+    url: null, path: null, name: null, type: null,
+  });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -80,6 +90,8 @@ export default function NotesPage() {
     setContent("");
     setColor("default");
     setTagsInput("");
+    setNoteDate(new Date().toISOString().slice(0, 10));
+    setAttachment({ url: null, path: null, name: null, type: null });
     setEditing(null);
   };
 
@@ -93,6 +105,11 @@ export default function NotesPage() {
     setContent(n.content);
     setColor(n.color);
     setTagsInput((n.tags ?? []).join(", "));
+    setNoteDate(n.note_date ?? new Date().toISOString().slice(0, 10));
+    setAttachment({
+      url: n.document_url, path: n.document_path,
+      name: n.document_name, type: n.document_type,
+    });
     setOpen(true);
   };
 
@@ -111,6 +128,11 @@ export default function NotesPage() {
         content: content.trim(),
         color,
         tags: tags.length ? tags : null,
+        note_date: noteDate,
+        document_url: attachment.url,
+        document_path: attachment.path,
+        document_name: attachment.name,
+        document_type: attachment.type,
       };
       if (editing) await update(editing.id, payload);
       else await create({ ...payload, pinned: false });
