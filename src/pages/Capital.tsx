@@ -96,6 +96,23 @@ export default function CapitalPage() {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
+    // Guard: withdrawing more than available in that method
+    if (type === "withdrawal") {
+      const methodKey = PAYMENT_METHODS.includes(paymentMethod) ? paymentMethod : "Other";
+      const current = balancesByMethod.find((b) => b.method === methodKey)?.balance ?? 0;
+      // If editing an existing withdrawal on the same method, add it back into the available balance
+      const editingOffset =
+        editing && editing.type === "withdrawal" &&
+        (editing.payment_method ?? "Other") === methodKey
+          ? editing.amount
+          : 0;
+      const available = current + editingOffset;
+      if (amt > available) {
+        return toast.error(
+          `Not enough in ${methodKey}. Available: ${currency(available)}`,
+        );
+      }
+    }
     try {
       const payload = {
         type, amount: amt, date,
