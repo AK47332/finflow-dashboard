@@ -239,7 +239,7 @@ export default function CapitalPage() {
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>{editing ? "Edit Capital" : "Add Capital"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? "Edit Capital" : "Update Capital"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label>Type</Label>
@@ -283,7 +283,7 @@ export default function CapitalPage() {
             </div>
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">{editing ? "Save changes" : "Add Capital"}</Button>
+              <Button type="submit">{editing ? "Save changes" : "Update Capital"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
