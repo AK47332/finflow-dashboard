@@ -331,7 +331,10 @@ export default function SettingsPage() {
     await loadInvites();
   }
 
-  async function handleChangeRole(member: Member, newRole: "admin" | "member") {
+  async function handleChangeRole(
+    member: Member,
+    newRole: "admin" | "account_manager" | "store_manager" | "sales_manager",
+  ) {
     if (!currentOrgId || !user) return;
     const { error } = await supabase
       .from("organization_members")
@@ -519,7 +522,14 @@ export default function SettingsPage() {
         <TabsContent value="team" className="mt-4 space-y-4">
           {isAdmin && (
             <div className="ft-card p-6">
-              <h3 className="mb-4 text-sm font-semibold text-foreground">Invite teammate</h3>
+              <h3 className="mb-1 text-sm font-semibold text-foreground">Add Team Member</h3>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Invite a teammate by email and choose what they can access.
+                <br />
+                <strong>Sales Manager</strong> — products, services, POS &amp; clients.
+                <strong className="ml-3">Account Manager</strong> — full app except settings.
+                <strong className="ml-3">Store Manager</strong> — ecommerce admin only.
+              </p>
               <form onSubmit={handleSendInvite} className="flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[220px] space-y-1.5">
                   <Label htmlFor="invemail">Email</Label>
@@ -534,10 +544,11 @@ export default function SettingsPage() {
                 <div className="space-y-1.5">
                   <Label htmlFor="invrole">Role</Label>
                   <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as any)}>
-                    <SelectTrigger id="invrole" className="w-[140px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id="invrole" className="w-[180px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                      <SelectItem value="account_manager">Account Manager</SelectItem>
+                      <SelectItem value="store_manager">Store Manager</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -604,15 +615,23 @@ export default function SettingsPage() {
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
                           {m.role === "owner" && <Crown className="h-3 w-3" />}
                           {m.role === "admin" && <ShieldCheck className="h-3 w-3" />}
-                          {m.role}
+                          {m.role === "sales_manager"
+                            ? "Sales Manager"
+                            : m.role === "account_manager"
+                              ? "Account Manager"
+                              : m.role === "store_manager"
+                                ? "Store Manager"
+                                : m.role}
                         </span>
                         {isOwner && m.role !== "owner" && !isSelf && (
                           <>
                             <Select value={m.role} onValueChange={(v) => handleChangeRole(m, v as any)}>
-                              <SelectTrigger className="h-8 w-[110px]"><SelectValue /></SelectTrigger>
+                              <SelectTrigger className="h-8 w-[160px]"><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="member">Member</SelectItem>
+                                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                                <SelectItem value="account_manager">Account Manager</SelectItem>
+                                <SelectItem value="store_manager">Store Manager</SelectItem>
                               </SelectContent>
                             </Select>
                             <Button size="icon" variant="ghost" className="text-expense hover:text-expense" onClick={() => setRemoveTarget(m)}>
