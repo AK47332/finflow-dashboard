@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight, Banknote, Landmark, Smartphone, CreditCard, MoreHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
