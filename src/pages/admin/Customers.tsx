@@ -25,17 +25,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, KeyRound, Calendar, Loader2, Search } from "lucide-react";
+import { Plus, KeyRound, Calendar, Loader2, Search, Eye } from "lucide-react";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateCustomerDialog } from "@/components/admin/CreateCustomerDialog";
 import { ExtendExpiryDialog } from "@/components/admin/ExtendExpiryDialog";
 import { ResetPasswordDialog } from "@/components/admin/ResetPasswordDialog";
+import { CustomerDetailsDialog } from "@/components/admin/CustomerDetailsDialog";
 
 type Customer = {
   user_id: string;
   email: string | null;
   full_name: string | null;
+  phone: string | null;
+  organization_name: string | null;
   expires_at: string;
   notes: string | null;
   created_at: string;
@@ -58,6 +61,7 @@ export default function CustomersPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [extendTarget, setExtendTarget] = useState<Customer | null>(null);
   const [resetTarget, setResetTarget] = useState<Customer | null>(null);
+  const [viewTarget, setViewTarget] = useState<Customer | null>(null);
 
   useEffect(() => {
     document.title = "Create Admin — Super Admin";
@@ -191,6 +195,14 @@ export default function CustomersPage() {
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => setViewTarget(c)}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                              View
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => setExtendTarget(c)}
                             >
                               <Calendar className="h-3.5 w-3.5" />
@@ -231,6 +243,11 @@ export default function CustomersPage() {
         open={!!resetTarget}
         onOpenChange={(v) => !v && setResetTarget(null)}
         customer={resetTarget}
+      />
+      <CustomerDetailsDialog
+        open={!!viewTarget}
+        onOpenChange={(v) => !v && setViewTarget(null)}
+        customer={viewTarget}
       />
     </div>
   );

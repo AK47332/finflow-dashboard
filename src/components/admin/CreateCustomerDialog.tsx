@@ -20,6 +20,7 @@ const Schema = z.object({
   email: z.string().trim().email().max(255),
   password: z.string().min(8).max(128),
   full_name: z.string().trim().max(120).optional(),
+  phone: z.string().trim().max(32).optional(),
   organization_name: z.string().trim().max(120).optional(),
   expiry_days: z.number().int().min(1).max(3650),
   notes: z.string().trim().max(1000).optional(),
@@ -47,6 +48,7 @@ export function CreateCustomerDialog({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [orgName, setOrgName] = useState("");
   const [expiryDays, setExpiryDays] = useState(30);
   const [notes, setNotes] = useState("");
@@ -57,6 +59,7 @@ export function CreateCustomerDialog({
     setEmail("");
     setPassword("");
     setFullName("");
+    setPhone("");
     setOrgName("");
     setExpiryDays(30);
     setNotes("");
@@ -69,6 +72,7 @@ export function CreateCustomerDialog({
       email,
       password,
       full_name: fullName || undefined,
+      phone: phone || undefined,
       organization_name: orgName || undefined,
       expiry_days: expiryDays,
       notes: notes || undefined,
@@ -174,6 +178,19 @@ export function CreateCustomerDialog({
               />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="c-phone">Mobile number (optional)</Label>
+              <Input
+                id="c-phone"
+                type="tel"
+                inputMode="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 555 123 4567"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
               <Label htmlFor="c-days">Package length (days)</Label>
               <Input
                 id="c-days"
@@ -185,15 +202,15 @@ export function CreateCustomerDialog({
                 onChange={(e) => setExpiryDays(parseInt(e.target.value || "0", 10))}
               />
             </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="c-org">Workspace name (optional)</Label>
-            <Input
-              id="c-org"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              placeholder="Leave blank to auto-name from full name or email"
-            />
+            <div className="space-y-1.5">
+              <Label htmlFor="c-org">Workspace name (optional)</Label>
+              <Input
+                id="c-org"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                placeholder="Auto-named if blank"
+              />
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="c-notes">Notes (optional)</Label>

@@ -11,6 +11,7 @@ const BodySchema = z.object({
   email: z.string().trim().email().max(255),
   password: z.string().min(8).max(128),
   full_name: z.string().trim().max(120).optional().nullable(),
+  phone: z.string().trim().max(32).optional().nullable(),
   organization_name: z.string().trim().max(120).optional().nullable(),
   expiry_days: z.number().int().min(1).max(3650),
   notes: z.string().trim().max(1000).optional().nullable(),
@@ -79,7 +80,10 @@ Deno.serve(async (req) => {
         email: body.email,
         password: body.password,
         email_confirm: true,
-        user_metadata: { full_name: body.full_name ?? undefined },
+        user_metadata: {
+          full_name: body.full_name ?? undefined,
+          phone: body.phone ?? undefined,
+        },
       });
     if (createErr || !created.user) {
       return new Response(
