@@ -366,17 +366,17 @@ export default function Dashboard() {
       ) : (
         <>
           <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
-            <StatCard label="Total Income" value={fmtCurrency(totalIncome, sym)} icon={TrendingUp} tone="income" />
-            <StatCard label="Total Expense" value={fmtCurrency(totalExpense, sym)} icon={TrendingDown} tone="expense" />
+            <StatCard label={t("stat.totalIncome")} value={fmtCurrency(totalIncome, sym)} icon={TrendingUp} tone="income" />
+            <StatCard label={t("stat.totalExpense")} value={fmtCurrency(totalExpense, sym)} icon={TrendingDown} tone="expense" />
             <StatCard
-              label="Net Profit"
+              label={t("stat.netProfit")}
               value={fmtCurrency(profit, sym)}
               icon={PiggyBank}
               tone={profit >= 0 ? "profit" : "expense"}
             />
-            <StatCard label="Capital" value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
-            <StatCard label="Receivables" value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
-            <StatCard label="Payables" value={fmtCurrency(totalPayable, sym)} icon={ArrowUpRight} tone="payable" />
+            <StatCard label={t("stat.capital")} value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
+            <StatCard label={t("stat.receivables")} value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
+            <StatCard label={t("stat.payables")} value={fmtCurrency(totalPayable, sym)} icon={ArrowUpRight} tone="payable" />
           </section>
 
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
@@ -384,15 +384,15 @@ export default function Dashboard() {
               <div className="ft-card p-5 sm:p-6">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">Income vs Expense</h3>
-                    <p className="text-xs text-muted-foreground">Last 6 months</p>
+                    <h3 className="text-base font-semibold text-foreground">{t("card.incomeVsExpense")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("card.last6Months")}</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-income" /> Income
+                      <span className="h-2.5 w-2.5 rounded-sm bg-income" /> {t("card.income")}
                     </span>
                     <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-expense" /> Expense
+                      <span className="h-2.5 w-2.5 rounded-sm bg-expense" /> {t("card.expense")}
                     </span>
                   </div>
                 </div>
