@@ -89,10 +89,12 @@ export function CreateCustomerDialog({
       return;
     }
     if (data && (data as { error?: unknown }).error) {
-      toast.error("Failed to create customer");
+      toast.error("Failed to create admin");
       return;
     }
-    toast.success("Customer created");
+    const warn = (data as { org_warning?: string } | null)?.org_warning;
+    if (warn) toast.warning(`Admin created, but workspace setup failed: ${warn}`);
+    else toast.success("Admin created");
     onCreated();
     onOpenChange(false);
     reset();
