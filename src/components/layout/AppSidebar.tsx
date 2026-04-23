@@ -168,14 +168,14 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 overflow-y-auto px-3 pb-6">
         {visibleGroups.map((group) => {
           if (group.collapsible) {
-            const isOpen = !!openGroups[group.label];
+            const isOpen = !!openGroups[group.labelKey];
             const hasActive = group.items.some((item) => location.pathname.startsWith(item.url));
             return (
-              <div key={group.label} className="mb-3">
+              <div key={group.labelKey} className="mb-3">
                 <button
                   type="button"
                   onClick={() =>
-                    setOpenGroups((p) => ({ ...p, [group.label]: !p[group.label] }))
+                    setOpenGroups((p) => ({ ...p, [group.labelKey]: !p[group.labelKey] }))
                   }
                   className={cn(
                     "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-smooth",
@@ -186,7 +186,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 >
                   <span className="flex items-center gap-3">
                     <ShoppingBag className="h-[18px] w-[18px]" />
-                    {group.label}
+                    {t(group.labelKey)}
                   </span>
                   <ChevronDown
                     className={cn(
