@@ -36,6 +36,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { PagePlaceholder } from "@/components/PagePlaceholder";
+import ProfitLossPage from "./pages/ProfitLoss.tsx";
 import PortalPage from "./pages/Portal.tsx";
 import CustomersAdminPage from "./pages/admin/Customers.tsx";
 import { ExpiryGate } from "@/components/auth/ExpiryGate";
@@ -74,7 +75,7 @@ const App = () => (
                     <Route path="/income" element={<IncomePage />} />
                     <Route path="/expense" element={<ExpensePage />} />
                     <Route path="/capital" element={<CapitalPage />} />
-                    <Route path="/profit" element={<PagePlaceholder title="Profit & Loss" description="Live profit and loss across any period." icon={PiggyBank} />} />
+                    <Route path="/profit" element={<ProfitLossPage />} />
                     <Route path="/clients" element={<ClientsPage />} />
                     <Route path="/products" element={<ProductsPage />} />
                     <Route path="/pos" element={<PosPage />} />
