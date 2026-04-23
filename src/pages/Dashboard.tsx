@@ -298,24 +298,24 @@ export default function Dashboard() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Welcome back, {greetingName} 👋
+            {t("dash.welcome")}, {greetingName} 👋
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Here's how {currentOrg?.name ?? "your business"} is doing.
+            {t("dash.subtitle", { org: currentOrg?.name ?? t("dash.yourBusiness") })}
           </p>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
           <TabsList>
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="week">Week</TabsTrigger>
-            <TabsTrigger value="month">Month</TabsTrigger>
-            <TabsTrigger value="year">Year</TabsTrigger>
-            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="today">{t("range.today")}</TabsTrigger>
+            <TabsTrigger value="week">{t("range.week")}</TabsTrigger>
+            <TabsTrigger value="month">{t("range.month")}</TabsTrigger>
+            <TabsTrigger value="year">{t("range.year")}</TabsTrigger>
+            <TabsTrigger value="all">{t("range.all")}</TabsTrigger>
             <TabsTrigger
               value="custom"
               onClick={() => setCustomOpen(true)}
             >
-              Custom
+              {t("range.custom")}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -328,12 +328,12 @@ export default function Dashboard() {
               <CalendarRange className="h-4 w-4" />
               {customFrom && customTo
                 ? `${customFrom} → ${customTo}`
-                : "Pick a custom range"}
+                : t("range.pick")}
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-72 space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="dfrom" className="text-xs">From</Label>
+              <Label htmlFor="dfrom" className="text-xs">{t("range.from")}</Label>
               <Input
                 id="dfrom"
                 type="date"
@@ -342,7 +342,7 @@ export default function Dashboard() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="dto" className="text-xs">To</Label>
+              <Label htmlFor="dto" className="text-xs">{t("range.to")}</Label>
               <Input
                 id="dto"
                 type="date"
@@ -355,7 +355,7 @@ export default function Dashboard() {
               className="w-full"
               onClick={() => setCustomOpen(false)}
             >
-              Apply
+              {t("range.apply")}
             </Button>
           </PopoverContent>
         </Popover>
