@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight, Banknote, Landmark, Smartphone, CreditCard, MoreHorizontal } from "lucide-react";
+import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight, Banknote, Landmark, Smartphone, CreditCard, MoreHorizontal, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,7 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 type CapitalType = "contribution" | "withdrawal";
 
@@ -46,6 +47,7 @@ export default function CapitalPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<CapitalMovement | null>(null);
   const [pendingDelete, setPendingDelete] = useState<CapitalMovement | null>(null);
+  const [viewing, setViewing] = useState<CapitalMovement | null>(null);
 
   const [type, setType] = useState<CapitalType>("contribution");
   const [amount, setAmount] = useState("");
@@ -227,6 +229,7 @@ export default function CapitalPage() {
                 </TableCell>
                 <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => setViewing(m)} aria-label="View"><Eye className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => openEdit(m)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setPendingDelete(m)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>
                   </div>
@@ -308,6 +311,31 @@ export default function CapitalPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.type === "contribution" ? "Capital Contribution" : "Capital Withdrawal"}
+        description="Capital movement details"
+        fields={
+          viewing
+            ? [
+                { label: "Date", value: viewing.date },
+                { label: "Type", value: <span className="capitalize">{viewing.type}</span> },
+                {
+                  label: "Amount",
+                  value: (
+                    <span className={`font-semibold ${viewing.type === "contribution" ? "text-income" : "text-expense"}`}>
+                      {viewing.type === "contribution" ? "+" : "−"}{currency(viewing.amount)}
+                    </span>
+                  ),
+                },
+                { label: "Payment Method", value: viewing.payment_method ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Users, Pencil, Trash2, Search, Mail, Phone } from "lucide-react";
+import { Users, Pencil, Trash2, Search, Mail, Phone, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,7 @@ import {
 import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { toast } from "sonner";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 export type Client = {
   id: string;
@@ -53,6 +54,7 @@ export default function ClientsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Client | null>(null);
+  const [viewing, setViewing] = useState<Client | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [name, setName] = useState("");
@@ -230,6 +232,9 @@ export default function ClientsPage() {
                 </TableCell>
                 <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => setViewing(c)} aria-label="View">
+                      <Eye className="h-4 w-4" />
+                    </Button>
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)} aria-label="Edit">
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -318,6 +323,43 @@ export default function ClientsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.name ?? "Client"}
+        description="Client details"
+        fields={
+          viewing
+            ? [
+                { label: "Name", value: viewing.name },
+                { label: "Company", value: viewing.company ?? "—" },
+                {
+                  label: "Email",
+                  value: viewing.email ? (
+                    <a href={`mailto:${viewing.email}`} className="text-primary hover:underline">
+                      {viewing.email}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                },
+                {
+                  label: "Phone",
+                  value: viewing.phone ? (
+                    <a href={`tel:${viewing.phone}`} className="text-primary hover:underline">
+                      {viewing.phone}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                },
+                { label: "Address", value: viewing.address ?? "—", full: true },
+                { label: "Notes", value: viewing.notes ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

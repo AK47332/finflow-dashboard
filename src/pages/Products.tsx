@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
-import { Package, Pencil, Trash2, Search } from "lucide-react";
+import { Package, Pencil, Trash2, Search, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,6 +51,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 export type Product = {
   id: string;
@@ -73,6 +74,7 @@ export default function ProductsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
+  const [viewing, setViewing] = useState<Product | null>(null);
 
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
@@ -275,6 +277,21 @@ export default function ProductsPage() {
                           type="button"
                           size="icon"
                           variant="ghost"
+                          aria-label="View product"
+                          className="cursor-pointer hover:bg-primary-soft hover:text-primary"
+                          onClick={() => setViewing(p)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
                           aria-label="Edit product"
                           className="cursor-pointer hover:bg-primary-soft hover:text-primary"
                           onClick={() => openEdit(p)}
@@ -439,6 +456,33 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.name ?? "Product"}
+        description="Product details"
+        fields={
+          viewing
+            ? [
+                { label: "Name", value: viewing.name },
+                { label: "SKU", value: viewing.sku ?? "—" },
+                { label: "Price", value: <span className="font-semibold">{currency(viewing.price)}</span> },
+                { label: "Cost", value: currency(viewing.cost) },
+                {
+                  label: "Stock",
+                  value: (
+                    <span className={viewing.stock <= 0 ? "font-semibold text-expense" : ""}>
+                      {viewing.stock}
+                    </span>
+                  ),
+                },
+                { label: "Unit", value: viewing.unit ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

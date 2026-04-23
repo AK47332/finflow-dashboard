@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip } from "lucide-react";
+import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { Loader2 } from "lucide-react";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 type RangeKey = "Today" | "This Week" | "This Month" | "This Year" | "All";
 const RANGE_TABS: RangeKey[] = ["Today", "This Week", "This Month", "This Year", "All"];
@@ -86,6 +87,7 @@ export default function IncomePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Income | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Income | null>(null);
+  const [viewing, setViewing] = useState<Income | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -294,6 +296,9 @@ export default function IncomePage() {
                   </TableCell>
                   <TableCell className="ft-action-cell text-right">
                     <div className="inline-flex gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => setViewing(i)} aria-label="View">
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button size="icon" variant="ghost" onClick={() => openEdit(i)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -360,6 +365,44 @@ export default function IncomePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.title ?? "Income"}
+        description="Income entry details"
+        fields={
+          viewing
+            ? [
+                { label: "Date", value: viewing.date },
+                { label: "Amount", value: <span className="font-semibold text-income">+{currency(viewing.amount)}</span> },
+                { label: "Category", value: viewing.category },
+                { label: "Type", value: viewing.type },
+                { label: "Client", value: viewing.client ?? "—" },
+                { label: "Payment Method", value: viewing.paymentMethod },
+                { label: "Partial Payment", value: viewing.isPartial ? `Yes · Remaining ${currency(viewing.remainingDue ?? 0)}` : "No" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+                {
+                  label: "Attachment",
+                  value: viewing.documentUrl ? (
+                    <a
+                      href={viewing.documentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      {viewing.documentName ?? "Open attachment"}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                  full: true,
+                },
+              ]
+            : []
+        }
+      />
     </div>
   );
 }
