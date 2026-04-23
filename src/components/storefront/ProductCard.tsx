@@ -5,6 +5,7 @@ import type { StorefrontProduct } from "@/lib/ecom";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { currency } from "@/lib/format";
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   const addItem = useCartStore((s) => s.addItem);
@@ -139,11 +140,11 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         )}
         <div className="mt-1 flex items-baseline gap-2">
           <span className="text-base font-bold text-foreground">
-            ₹{Number(product.price).toLocaleString("en-IN")}
+            {currency(Number(product.price))}
           </span>
           {showCompare && (
             <span className="text-xs text-muted-foreground line-through">
-              ₹{Number(compareAt).toLocaleString("en-IN")}
+              {currency(Number(compareAt))}
             </span>
           )}
           {discount > 0 && (
