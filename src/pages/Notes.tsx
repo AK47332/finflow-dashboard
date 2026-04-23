@@ -251,7 +251,7 @@ export default function NotesPage() {
             )}
             <div className="mt-auto flex items-center justify-between pt-2">
               <span className="text-[10px] text-muted-foreground">
-                {new Date(n.updated_at).toLocaleDateString()}
+                {new Date(n.note_date ?? n.updated_at).toLocaleDateString()}
               </span>
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(n)}>
@@ -282,6 +282,16 @@ export default function NotesPage() {
               <Input id="ntitle" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Optional title" />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="ndate">Date *</Label>
+              <Input
+                id="ndate"
+                type="date"
+                value={noteDate}
+                onChange={(e) => setNoteDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="ncontent">Content</Label>
               <Textarea
                 id="ncontent"
@@ -295,6 +305,7 @@ export default function NotesPage() {
               <Label htmlFor="ntags">Tags (comma separated)</Label>
               <Input id="ntags" value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="ideas, todo" />
             </div>
+            <FileAttachment value={attachment} onChange={setAttachment} />
             <div className="space-y-1.5">
               <Label>Color</Label>
               <div className="flex flex-wrap gap-2">
