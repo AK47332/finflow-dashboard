@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Briefcase, Pencil, Trash2, Search } from "lucide-react";
+import { Briefcase, Pencil, Trash2, Search, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import { useOrgTable } from "@/hooks/useOrgTable";
 import { currency } from "@/lib/format";
 import { toast } from "sonner";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 export type Service = {
   id: string;
@@ -37,6 +38,7 @@ export default function ServicesPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Service | null>(null);
+  const [viewing, setViewing] = useState<Service | null>(null);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -149,6 +151,7 @@ export default function ServicesPage() {
                 <TableCell className="max-w-xs truncate text-sm text-muted-foreground">{s.description ?? "—"}</TableCell>
                 <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => setViewing(s)} aria-label="View"><Eye className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setPendingDelete(s)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>
                   </div>

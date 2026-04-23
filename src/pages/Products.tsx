@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
-import { Package, Pencil, Trash2, Search } from "lucide-react";
+import { Package, Pencil, Trash2, Search, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,6 +51,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 export type Product = {
   id: string;
@@ -73,6 +74,7 @@ export default function ProductsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
+  const [viewing, setViewing] = useState<Product | null>(null);
 
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
@@ -269,6 +271,21 @@ export default function ProductsPage() {
                 <TableCell className="text-sm text-muted-foreground">{p.unit ?? "—"}</TableCell>
                 <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          aria-label="View product"
+                          className="cursor-pointer hover:bg-primary-soft hover:text-primary"
+                          onClick={() => setViewing(p)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View</TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

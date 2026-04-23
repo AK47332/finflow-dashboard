@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pencil, Trash2, Search, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Pencil, Trash2, Search, ArrowDownLeft, ArrowUpRight, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import { currency } from "@/lib/format";
 import { toast } from "sonner";
 import { FileAttachment, AttachmentValue } from "@/components/ui/FileAttachment";
 import { Paperclip } from "lucide-react";
+import { RecordViewDialog } from "@/components/common/RecordViewDialog";
 
 export type LedgerStatus = "pending" | "partial" | "paid" | "overdue";
 
