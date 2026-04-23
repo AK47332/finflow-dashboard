@@ -197,7 +197,7 @@ const dict: Record<Locale, Record<string, string>> = {
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (l: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string | number>) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue | undefined>(undefined);
@@ -222,7 +222,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const setLocale = (l: Locale) => setLocaleState(l);
   const t = useCallback(
-    (key: string) => dict[locale][key] ?? dict.en[key] ?? key,
+    (key: string, vars?: Record<string, string | number>) => {
+      const raw = dict[locale][key] ?? dict.en[key] ?? key;
+      if (!vars) return raw;
+      return raw.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+    },
     [locale],
   );
 
