@@ -34,67 +34,68 @@ import { cn } from "@/lib/utils";
 import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
+import { useLocale } from "@/contexts/LocaleContext";
 
-type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
-type NavGroup = { label: string; items: NavItem[]; collapsible?: boolean };
+type NavItem = { titleKey: string; url: string; icon: typeof LayoutDashboard };
+type NavGroup = { labelKey: string; items: NavItem[]; collapsible?: boolean };
 
 const groups: NavGroup[] = [
   {
-    label: "Overview",
-    items: [{ title: "Dashboard", url: "/dashboard", icon: LayoutDashboard }],
+    labelKey: "section.overview",
+    items: [{ titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard }],
   },
   {
-    label: "Money",
+    labelKey: "section.money",
     items: [
-      { title: "Income", url: "/income", icon: TrendingUp },
-      { title: "Expense", url: "/expense", icon: TrendingDown },
-      { title: "Capital", url: "/capital", icon: Wallet },
-      { title: "Profit & Loss", url: "/profit", icon: PiggyBank },
+      { titleKey: "nav.income", url: "/income", icon: TrendingUp },
+      { titleKey: "nav.expense", url: "/expense", icon: TrendingDown },
+      { titleKey: "nav.capital", url: "/capital", icon: Wallet },
+      { titleKey: "nav.profitLoss", url: "/profit", icon: PiggyBank },
     ],
   },
   {
-    label: "People & Catalog",
+    labelKey: "section.peopleCatalog",
     items: [
-      { title: "Clients", url: "/clients", icon: Users },
-      { title: "POS", url: "/pos", icon: ShoppingCart },
-      { title: "Services", url: "/services", icon: Briefcase },
+      { titleKey: "nav.clients", url: "/clients", icon: Users },
+      { titleKey: "nav.pos", url: "/pos", icon: ShoppingCart },
+      { titleKey: "nav.services", url: "/services", icon: Briefcase },
     ],
   },
   {
-    label: "Ledger",
+    labelKey: "section.ledger",
     items: [
-      { title: "Receivables", url: "/receivables", icon: ArrowDownLeft },
-      { title: "Payables", url: "/payables", icon: ArrowUpRight },
+      { titleKey: "nav.receivables", url: "/receivables", icon: ArrowDownLeft },
+      { titleKey: "nav.payables", url: "/payables", icon: ArrowUpRight },
     ],
   },
   {
-    label: "Productivity",
+    labelKey: "section.productivity",
     items: [
-      { title: "Notes", url: "/notes", icon: StickyNote },
-      { title: "Reminders", url: "/reminders", icon: Bell },
+      { titleKey: "nav.notes", url: "/notes", icon: StickyNote },
+      { titleKey: "nav.reminders", url: "/reminders", icon: Bell },
     ],
   },
   {
-    label: "Insights",
+    labelKey: "section.insights",
     items: [
-      { title: "Reports", url: "/reports", icon: BarChart3 },
-      { title: "Settings", url: "/settings", icon: Settings },
+      { titleKey: "nav.reports", url: "/reports", icon: BarChart3 },
+      { titleKey: "nav.settings", url: "/settings", icon: Settings },
     ],
   },
   {
-    label: "Ecommerce",
+    labelKey: "section.ecommerce",
     collapsible: true,
     items: [
-      { title: "Orders", url: "/ecom/orders", icon: ListOrdered },
-      { title: "Products", url: "/products", icon: Package },
-      { title: "Categories", url: "/ecom/categories", icon: Tags },
-      { title: "Banners", url: "/ecom/banners", icon: ImageIcon },
-      { title: "Announcements", url: "/ecom/announcements", icon: Megaphone },
-      { title: "Instagram Feed", url: "/ecom/instagram", icon: Instagram },
-      { title: "Pages", url: "/ecom/pages", icon: FileText },
-      { title: "Contact Widget", url: "/ecom/contact-widget", icon: MessageCircle },
-      { title: "Footer", url: "/ecom/footer", icon: FileText },
-      { title: "Customers", url: "/ecom/customers", icon: UserCircle2 },
+      { titleKey: "nav.orders", url: "/ecom/orders", icon: ListOrdered },
+      { titleKey: "nav.products", url: "/products", icon: Package },
+      { titleKey: "nav.categories", url: "/ecom/categories", icon: Tags },
+      { titleKey: "nav.banners", url: "/ecom/banners", icon: ImageIcon },
+      { titleKey: "nav.announcements", url: "/ecom/announcements", icon: Megaphone },
+      { titleKey: "nav.instagram", url: "/ecom/instagram", icon: Instagram },
+      { titleKey: "nav.pages", url: "/ecom/pages", icon: FileText },
+      { titleKey: "nav.contactWidget", url: "/ecom/contact-widget", icon: MessageCircle },
+      { titleKey: "nav.footer", url: "/ecom/footer", icon: FileText },
+      { titleKey: "nav.customers", url: "/ecom/customers", icon: UserCircle2 },
     ],
   },
 ];
@@ -104,6 +105,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { isSuperAdmin } = useSuperAdmin();
   const { user } = useAuth();
   const { currentOrg } = useOrg();
+  const { t } = useLocale();
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||
@@ -113,10 +115,10 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
     ? [
         ...groups,
         {
-          label: "Admin",
+          labelKey: "section.admin",
           items: [
-            { title: "Frontend Mood", url: "/frontend-mood", icon: Palette },
-            { title: "Create Admin", url: "/admin/customers", icon: ShieldCheck },
+            { titleKey: "nav.frontendMood", url: "/frontend-mood", icon: Palette },
+            { titleKey: "nav.createAdmin", url: "/admin/customers", icon: ShieldCheck },
           ],
         },
       ]
@@ -132,8 +134,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         const hasActive = g.items.some((item) =>
           item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url),
         );
-        if (hasActive) next[g.label] = true;
-        else if (next[g.label] === undefined) next[g.label] = false;
+        if (hasActive) next[g.labelKey] = true;
+        else if (next[g.labelKey] === undefined) next[g.labelKey] = false;
       });
       return next;
     });
@@ -166,14 +168,14 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 overflow-y-auto px-3 pb-6">
         {visibleGroups.map((group) => {
           if (group.collapsible) {
-            const isOpen = !!openGroups[group.label];
+            const isOpen = !!openGroups[group.labelKey];
             const hasActive = group.items.some((item) => location.pathname.startsWith(item.url));
             return (
-              <div key={group.label} className="mb-3">
+              <div key={group.labelKey} className="mb-3">
                 <button
                   type="button"
                   onClick={() =>
-                    setOpenGroups((p) => ({ ...p, [group.label]: !p[group.label] }))
+                    setOpenGroups((p) => ({ ...p, [group.labelKey]: !p[group.labelKey] }))
                   }
                   className={cn(
                     "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-smooth",
@@ -184,7 +186,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 >
                   <span className="flex items-center gap-3">
                     <ShoppingBag className="h-[18px] w-[18px]" />
-                    {group.label}
+                    {t(group.labelKey)}
                   </span>
                   <ChevronDown
                     className={cn(
@@ -210,7 +212,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                             )}
                           >
                             <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
+                            <span>{t(item.titleKey)}</span>
                           </NavLink>
                         </li>
                       );
@@ -221,9 +223,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             );
           }
           return (
-            <div key={group.label} className="mb-5">
+            <div key={group.labelKey} className="mb-5">
               <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                {group.label}
+                {t(group.labelKey)}
               </div>
               <ul className="space-y-1">
                 {group.items.map((item) => {
@@ -244,7 +246,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                         )}
                       >
                         <item.icon className="h-[18px] w-[18px]" />
-                        <span>{item.title}</span>
+                        <span>{t(item.titleKey)}</span>
                       </NavLink>
                     </li>
                   );
