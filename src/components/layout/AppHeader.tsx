@@ -54,7 +54,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
   const { user, signOut } = useAuth();
   const { orgs, currentOrg, switchOrg } = useOrg();
   const navigate = useNavigate();
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, t } = useLocale();
   const [search, setSearch] = useState("");
 
   const displayName =
@@ -80,7 +80,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
         size="icon"
         className="md:hidden"
         onClick={onMenu}
-        aria-label="Open menu"
+        aria-label={t("header.openMenu")}
       >
         <Menu className="h-5 w-5" />
       </Button>
@@ -97,7 +97,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-60">
-          <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("header.workspaces")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {orgs.map((o) => (
             <DropdownMenuItem
@@ -111,7 +111,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
           ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/onboarding")}>
-            + Create new workspace
+            {t("header.createWorkspace")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -121,7 +121,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Jump to: income, expense, clients, reports…"
+          placeholder={t("header.search")}
           className="h-10 rounded-xl border-border/60 bg-background/60 pl-10 focus-visible:ring-primary/40"
         />
       </form>
@@ -132,8 +132,8 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
           size="icon"
           className="h-10 w-10 rounded-xl"
           onClick={() => navigate("/pos")}
-          aria-label="Open POS"
-          title="POS"
+          aria-label={t("header.openPos")}
+          title={t("nav.pos")}
         >
           <ShoppingCart className="h-5 w-5" />
         </Button>
@@ -143,14 +143,14 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
               variant="ghost"
               size="icon"
               className="h-10 w-10 rounded-xl"
-              aria-label="Language"
-              title="Language"
+              aria-label={t("lang.toggle")}
+              title={t("lang.toggle")}
             >
               <Languages className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuLabel>Language</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("lang.toggle")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => setLocale("en")}
@@ -186,7 +186,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
             <DropdownMenuLabel className="truncate">{user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate("/settings")}>
-              <SettingsIcon className="mr-2 h-4 w-4" /> Settings
+              <SettingsIcon className="mr-2 h-4 w-4" /> {t("nav.settings")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={async () => {
@@ -194,7 +194,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
                 navigate("/auth", { replace: true });
               }}
             >
-              <LogOut className="mr-2 h-4 w-4" /> Sign out
+              <LogOut className="mr-2 h-4 w-4" /> {t("header.signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
