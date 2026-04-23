@@ -14,7 +14,10 @@ import {
   Calendar,
   StickyNote,
   Clock,
+  KeyRound,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type CustomerDetails = {
   user_id: string;
@@ -70,6 +73,25 @@ export function CustomerDetailsDialog({
   onOpenChange: (v: boolean) => void;
   customer: CustomerDetails | null;
 }) {
+  const [lastChange, setLastChange] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open || !customer) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("password_changes")
+        .select("changed_at")
+        .eq("user_id", customer.user_id)
+        .order("changed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setLastChange(data?.changed_at ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, customer]);
+
   if (!customer) return null;
   const s = statusOf(customer.expires_at);
   return (
@@ -111,6 +133,15 @@ export function CustomerDetailsDialog({
             value={new Date(customer.created_at).toLocaleString()}
           />
           <Row icon={StickyNote} label="Notes" value={customer.notes} />
+          <Row
+            icon={KeyRound}
+            label="Password last changed"
+            value={
+              lastChange
+                ? new Date(lastChange).toLocaleString()
+                : "Never (still using initial password)"
+            }
+          />
         </div>
       </DialogContent>
     </Dialog>

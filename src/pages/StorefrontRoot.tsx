@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { usePublicStorefront } from "@/hooks/usePublicStorefront";
 import { StorefrontLayout } from "@/components/storefront/StorefrontLayout";
@@ -11,6 +11,8 @@ import { StorefrontCart } from "./storefront/StorefrontCart";
 import { StorefrontCheckout } from "./storefront/StorefrontCheckout";
 import { StorefrontPage } from "./storefront/StorefrontPage";
 import PortalPage from "./Portal";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Public root resolver:
@@ -20,17 +22,54 @@ import PortalPage from "./Portal";
  */
 export default function StorefrontRoot() {
   const { settings, loading } = usePublicStorefront();
+  const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
+  const [adminCheck, setAdminCheck] = useState<{ loading: boolean; isAdmin: boolean }>({
+    loading: true,
+    isAdmin: false,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    if (authLoading) return;
+    if (!user) {
+      setAdminCheck({ loading: false, isAdmin: false });
+      return;
+    }
+    setAdminCheck({ loading: true, isAdmin: false });
+    (async () => {
+      const [sa, mem] = await Promise.all([
+        supabase.from("super_admins").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase
+          .from("organization_members")
+          .select("id")
+          .eq("user_id", user.id)
+          .limit(1)
+          .maybeSingle(),
+      ]);
+      if (!cancelled) setAdminCheck({ loading: false, isAdmin: !!sa.data || !!mem.data });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (settings?.store_name) document.title = settings.store_name;
   }, [settings]);
 
-  if (loading) {
+  if (loading || authLoading || adminCheck.loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // If a logged-in admin or super admin lands on the storefront root,
+  // send them to their own dashboard. Customers stay on the storefront.
+  if (adminCheck.isAdmin && location.pathname === "/") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Only fall back to the original Portal when explicitly set to private.
