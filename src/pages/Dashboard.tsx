@@ -183,30 +183,131 @@ export default function Dashboard() {
     0,
   );
 
-  // 6-month bar chart (always last 6 months regardless of range)
-  const monthly = useMemo(() => {
-    const months: { key: string; label: string; income: number; expense: number }[] = [];
+  // Range-aware bar chart series.
+  // - today: hourly buckets (4-hour windows) for the day
+  // - week: 7 daily buckets
+  // - month: 30 daily buckets
+  // - year: 12 monthly buckets
+  // - all / custom: auto — daily if span <= 60 days, else monthly
+  const { series: monthly, chartSubtitle } = useMemo(() => {
+    type Bucket = { key: string; label: string; income: number; expense: number; from: Date; to: Date };
     const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      months.push({ key, label: ymKey(d), income: 0, expense: 0 });
-    }
-    const find = (date: string) => {
-      const d = new Date(date);
-      const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      return months.find((m) => m.key === k);
+    const buckets: Bucket[] = [];
+
+    const pushDaily = (count: number) => {
+      for (let i = count - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() - i);
+        const to = new Date(d);
+        to.setHours(23, 59, 59, 999);
+        buckets.push({
+          key: d.toISOString().slice(0, 10),
+          label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+          income: 0,
+          expense: 0,
+          from: d,
+          to,
+        });
+      }
     };
-    incomes.forEach((i) => {
-      const m = find(i.date);
-      if (m) m.income += i.amount;
-    });
-    expenses.forEach((e) => {
-      const m = find(e.date);
-      if (m) m.expense += e.amount;
-    });
-    return months;
-  }, [incomes, expenses]);
+    const pushMonthly = (count: number) => {
+      for (let i = count - 1; i >= 0; i--) {
+        const from = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const to = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
+        buckets.push({
+          key: `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}`,
+          label: from.toLocaleString(undefined, { month: "short" }),
+          income: 0,
+          expense: 0,
+          from,
+          to,
+        });
+      }
+    };
+
+    let subtitle = "";
+    if (range === "today") {
+      // 6 four-hour windows so the chart still has visible bars
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      for (let i = 0; i < 6; i++) {
+        const from = new Date(start);
+        from.setHours(i * 4);
+        const to = new Date(start);
+        to.setHours(i * 4 + 3, 59, 59, 999);
+        buckets.push({
+          key: `h${i}`,
+          label: `${String(i * 4).padStart(2, "0")}:00`,
+          income: 0,
+          expense: 0,
+          from,
+          to,
+        });
+      }
+      subtitle = t("range.today");
+    } else if (range === "week") {
+      pushDaily(7);
+      subtitle = t("range.week");
+    } else if (range === "month") {
+      pushDaily(30);
+      subtitle = t("range.month");
+    } else if (range === "year") {
+      pushMonthly(12);
+      subtitle = t("range.year");
+    } else if (range === "custom" && start && end) {
+      const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+      if (days <= 60) {
+        for (let i = 0; i < days; i++) {
+          const d = new Date(start);
+          d.setDate(d.getDate() + i);
+          d.setHours(0, 0, 0, 0);
+          const to = new Date(d);
+          to.setHours(23, 59, 59, 999);
+          buckets.push({
+            key: d.toISOString().slice(0, 10),
+            label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+            income: 0,
+            expense: 0,
+            from: d,
+            to,
+          });
+        }
+      } else {
+        // monthly buckets across custom range
+        const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+        const last = new Date(end.getFullYear(), end.getMonth(), 1);
+        while (cur <= last) {
+          const from = new Date(cur);
+          const to = new Date(cur.getFullYear(), cur.getMonth() + 1, 0, 23, 59, 59, 999);
+          buckets.push({
+            key: `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}`,
+            label: from.toLocaleString(undefined, { month: "short" }),
+            income: 0,
+            expense: 0,
+            from,
+            to,
+          });
+          cur.setMonth(cur.getMonth() + 1);
+        }
+      }
+      subtitle = `${customFrom || ""} → ${customTo || ""}`;
+    } else {
+      // all
+      pushMonthly(12);
+      subtitle = t("card.allTime");
+    }
+
+    const place = (dateStr: string, amount: number, kind: "income" | "expense") => {
+      const d = new Date(dateStr);
+      const b = buckets.find((x) => d >= x.from && d <= x.to);
+      if (b) b[kind] += amount;
+    };
+    incomes.forEach((i) => place(i.date, i.amount, "income"));
+    expenses.forEach((e) => place(e.date, e.amount, "expense"));
+
+    return { series: buckets, chartSubtitle: subtitle };
+  }, [incomes, expenses, range, start, end, customFrom, customTo, t]);
 
   const expenseDonut = useMemo(() => {
     const map: Record<string, number> = {};
@@ -385,7 +486,7 @@ export default function Dashboard() {
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h3 className="text-base font-semibold text-foreground">{t("card.incomeVsExpense")}</h3>
-                    <p className="text-xs text-muted-foreground">{t("card.last6Months")}</p>
+                    <p className="text-xs text-muted-foreground">{chartSubtitle}</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
