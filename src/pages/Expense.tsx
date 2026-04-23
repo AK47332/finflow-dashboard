@@ -82,6 +82,7 @@ export default function ExpensePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Expense | null>(null);
+  const [viewing, setViewing] = useState<Expense | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -286,6 +287,9 @@ export default function ExpensePage() {
                   </TableCell>
                   <TableCell className="ft-action-cell text-right">
                     <div className="inline-flex gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => setViewing(i)} aria-label="View">
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button size="icon" variant="ghost" onClick={() => openEdit(i)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -352,6 +356,43 @@ export default function ExpensePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.title ?? "Expense"}
+        description="Expense entry details"
+        fields={
+          viewing
+            ? [
+                { label: "Date", value: viewing.date },
+                { label: "Amount", value: <span className="font-semibold text-expense">−{currency(viewing.amount)}</span> },
+                { label: "Category", value: viewing.category },
+                { label: "Vendor", value: viewing.vendor ?? "—" },
+                { label: "Payment Method", value: viewing.paymentMethod },
+                { label: "Recurring", value: viewing.isRecurring ? `${viewing.recurrence ?? "Yes"}${viewing.nextDueDate ? ` · next ${viewing.nextDueDate}` : ""}` : "No" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+                {
+                  label: "Attachment",
+                  value: viewing.documentUrl ? (
+                    <a
+                      href={viewing.documentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      {viewing.documentName ?? "Open attachment"}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                  full: true,
+                },
+              ]
+            : []
+        }
+      />
     </div>
   );
 }
