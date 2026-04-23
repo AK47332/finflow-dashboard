@@ -12,7 +12,7 @@ export function CategoryPills({ categories, activeSlug }: Props) {
   const items = [{ id: "all", name: "All", slug: "", image_url: null }, ...categories];
   return (
     <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex min-w-max gap-5 py-4 md:gap-7">
+      <div className="flex min-w-max justify-center gap-5 py-4 md:gap-7">
         {items.map((c) => {
           const active = activeSlug === c.slug || (!activeSlug && c.slug === "");
           const href = c.slug ? `/shop?category=${c.slug}` : "/shop";
