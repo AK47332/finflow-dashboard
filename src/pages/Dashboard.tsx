@@ -12,6 +12,12 @@ import {
   Plus,
   StickyNote,
   ArrowRight,
+  Banknote,
+  Landmark,
+  Smartphone,
+  CreditCard,
+  MoreHorizontal,
+  Clock,
 } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CategoryDonut } from "@/components/dashboard/CategoryDonut";
