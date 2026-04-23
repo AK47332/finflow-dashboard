@@ -533,53 +533,6 @@ export default function Dashboard() {
             <StatCard to="/capital" label={t("stat.capital")} value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
           </section>
 
-          <section className="ft-card p-5 sm:p-6">
-            <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <h3 className="text-base font-semibold text-foreground">{t("stat.capital")} · By Source</h3>
-                <p className="text-xs text-muted-foreground">Live balance per payment method</p>
-              </div>
-              <Link to="/capital" className="text-xs font-semibold text-primary hover:underline">
-                {t("card.viewAll")}
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {capitalByMethod.map(({ method, balance }) => {
-                const Icon = methodIcon(method);
-                const tone =
-                  balance > 0
-                    ? "bg-income-soft text-income"
-                    : balance < 0
-                    ? "bg-expense-soft text-expense"
-                    : "bg-primary-soft text-primary";
-                return (
-                  <div
-                    key={method}
-                    className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`ft-stat-icon ${tone}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-medium text-muted-foreground">
-                          {method}
-                        </p>
-                        <p
-                          className={`truncate text-lg font-bold ${
-                            balance < 0 ? "text-expense" : "text-foreground"
-                          }`}
-                        >
-                          {fmtCurrency(balance, sym)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
             <div className="lg:col-span-2">
               <div className="ft-card p-5 sm:p-6">
