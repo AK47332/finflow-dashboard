@@ -116,7 +116,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           label: "Admin",
           items: [
             { title: "Frontend Mood", url: "/frontend-mood", icon: Palette },
-            { title: "Customers", url: "/admin/customers", icon: ShieldCheck },
+            { title: "Create Admin", url: "/admin/customers", icon: ShieldCheck },
           ],
         },
       ]

@@ -89,10 +89,12 @@ export function CreateCustomerDialog({
       return;
     }
     if (data && (data as { error?: unknown }).error) {
-      toast.error("Failed to create customer");
+      toast.error("Failed to create admin");
       return;
     }
-    toast.success("Customer created");
+    const warn = (data as { org_warning?: string } | null)?.org_warning;
+    if (warn) toast.warning(`Admin created, but workspace setup failed: ${warn}`);
+    else toast.success("Admin created");
     onCreated();
     onOpenChange(false);
     reset();
@@ -108,9 +110,10 @@ export function CreateCustomerDialog({
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add customer</DialogTitle>
+          <DialogTitle>Add admin</DialogTitle>
           <DialogDescription>
-            Create a customer account with a fixed package length.
+            Create a new admin account. A workspace will be created automatically and the
+            admin will get full dashboard access (except creating other admins).
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -184,12 +187,12 @@ export function CreateCustomerDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-org">Organization name (optional)</Label>
+            <Label htmlFor="c-org">Workspace name (optional)</Label>
             <Input
               id="c-org"
               value={orgName}
               onChange={(e) => setOrgName(e.target.value)}
-              placeholder="Leave blank — customer will set up their own"
+              placeholder="Leave blank to auto-name from full name or email"
             />
           </div>
           <div className="space-y-1.5">
@@ -210,7 +213,7 @@ export function CreateCustomerDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create customer"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create admin"}
             </Button>
           </DialogFooter>
         </form>

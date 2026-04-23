@@ -111,27 +111,52 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Optionally create organization
-    if (body.organization_name) {
-      const { error: orgErr } = await admin.from("organizations").insert({
-        name: body.organization_name,
-        created_by: userId,
-      });
-      if (orgErr) {
-        // non-fatal — return success but include warning
-        return new Response(
-          JSON.stringify({
-            user_id: userId,
-            expires_at: expiresAt,
-            org_warning: orgErr.message,
-          }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
+    // ALWAYS create an organization for new admin accounts so they land on
+    // the admin dashboard (not the e-commerce customer storefront).
+    const fallbackName = (body.full_name && body.full_name.trim().length > 0
+      ? body.full_name.trim()
+      : body.email.split("@")[0]) + "'s Workspace";
+    const orgName = body.organization_name && body.organization_name.trim().length > 0
+      ? body.organization_name.trim()
+      : fallbackName;
+
+    const { data: orgRow, error: orgErr } = await admin
+      .from("organizations")
+      .insert({ name: orgName, created_by: userId })
+      .select("id")
+      .single();
+
+    if (orgErr || !orgRow) {
+      return new Response(
+        JSON.stringify({
+          user_id: userId,
+          expires_at: expiresAt,
+          org_warning: orgErr?.message ?? "Failed to create workspace",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
+    // Defensive: ensure the user is owner even if the trigger didn't fire.
+    await admin
+      .from("organization_members")
+      .upsert(
+        { organization_id: orgRow.id, user_id: userId, role: "owner" },
+        { onConflict: "organization_id,user_id" },
+      );
+
+    // Make sure their current_org_id is set so they land in the right place.
+    await admin
+      .from("profiles")
+      .update({ current_org_id: orgRow.id })
+      .eq("user_id", userId);
+
     return new Response(
-      JSON.stringify({ user_id: userId, expires_at: expiresAt }),
+      JSON.stringify({
+        user_id: userId,
+        expires_at: expiresAt,
+        organization_id: orgRow.id,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (e) {
