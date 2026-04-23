@@ -1,4 +1,5 @@
 import { ArrowUpRight, ArrowDownRight, type LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import patternWave from "@/assets/stat-pattern-wave.svg";
 import patternDots from "@/assets/stat-pattern-dots.svg";
@@ -22,6 +23,7 @@ export function StatCard({
   tone,
   trend,
   trendDir = "up",
+  to,
 }: {
   label: string;
   value: string;
@@ -29,11 +31,12 @@ export function StatCard({
   tone: Tone;
   trend?: string;
   trendDir?: "up" | "down";
+  to?: string;
 }) {
   const t = toneStyles[tone];
   const positive = trendDir === "up";
-  return (
-    <div className={cn("ft-stat-card p-5", t.gradient)}>
+  const content = (
+    <>
       <img
         src={t.pattern}
         alt=""
@@ -57,6 +60,21 @@ export function StatCard({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
+
+  if (to) {
+    return (
+      <Link
+        to={to}
+        className={cn(
+          "ft-stat-card block p-5 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+          t.gradient,
+        )}
+      >
+        {content}
+      </Link>
+    );
+  }
+  return <div className={cn("ft-stat-card p-5", t.gradient)}>{content}</div>;
 }
