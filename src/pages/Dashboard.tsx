@@ -41,6 +41,7 @@ import { useExpenseStore } from "@/store/expenseStore";
 import { supabase } from "@/integrations/supabase/client";
 import { currency as fmtCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type Range = "today" | "week" | "month" | "year" | "all" | "custom";
 
@@ -80,6 +81,7 @@ function ymKey(d: Date) {
 export default function Dashboard() {
   const { user } = useAuth();
   const { currentOrg, currentOrgId } = useOrg();
+  const { t } = useLocale();
   const { incomes, fetch: fetchIncomes, loadedOrgId: incOrg } = useIncomeStore();
   const { expenses, fetch: fetchExpenses, loadedOrgId: expOrg } = useExpenseStore();
   const [range, setRange] = useState<Range>("month");
