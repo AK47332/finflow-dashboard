@@ -1,131 +1,50 @@
 
 
-## Storefront polish + demo catalog seed
+## Goal
+Add a one-click "Download source code (ZIP)" button inside the admin area so you can grab the entire frontend + edge functions + migrations as a single archive without going through GitHub.
 
-Goal: make the public storefront (home + product detail) feel like a real, modern shop — closer to the references you sent — and have it actually full of demo data right now so you can see it work.
+## How it will work
 
-### Part 1 — Seed demo categories, products, and a banner
+A new edge function (`download-source-zip`) runs server-side, walks the project directory it's deployed alongside, packages every relevant file into a ZIP in memory, and streams it back as `application/zip`. A button in the admin UI calls the function and triggers a browser download.
 
-I'll insert demo data into `Brown Fox` org (`is_primary` ecommerce — already configured):
+Because edge functions only have access to their own bundled files (not the full repo), the function will read source from a **GitHub archive endpoint** instead. The flow:
 
-**6 categories** (with Unsplash imagery):
-- Women, Men, Shoes, Bags, Accessories, New Arrivals
+1. Admin clicks **Download source (ZIP)**.
+2. Frontend calls the `download-source-zip` edge function.
+3. Function fetches `https://api.github.com/repos/{owner}/{repo}/zipball/{branch}` using a stored `GITHUB_TOKEN` + `GITHUB_REPO` secret.
+4. Function streams the ZIP back to the browser, which saves it as `fintrack-source-YYYYMMDD.zip`.
 
-**12 demo products** (published, with multi-image galleries, slugs, short + long descriptions, compare-at prices, and trending/featured flags). Examples:
-- "Linen Summer Dress" — $59 (was $89), Women, Trending
-- "Classic Denim Jacket" — $79, Men, Featured
-- "Leather Crossbody Bag" — $129 (was $169), Bags, Trending+Featured
-- "Minimal White Sneakers" — $99, Shoes, Featured
-- "Oversized Hoodie" — $49, Men
-- "Silk Scarf Set" — $35, Accessories
-- …plus 6 more across categories
+This means the project must be connected to GitHub at least once (one-time setup). After that, every download is one click.
 
-**1 hero banner** ("Spring Collection — up to 40% off")
+## What gets built
 
-All demo product images come from Unsplash CDN URLs (no upload needed). Inserted via the `insert tool` so we don't pollute migrations.
+**Backend**
+- New edge function `supabase/functions/download-source-zip/index.ts`
+  - Verifies the caller is a super admin
+  - Reads `GITHUB_TOKEN`, `GITHUB_REPO` (e.g. `user/repo`), `GITHUB_BRANCH` (default `main`) from secrets
+  - Fetches the GitHub zipball, streams response back with `Content-Disposition: attachment; filename="..."`
+- Register secrets via `add_secret` for `GITHUB_TOKEN`, `GITHUB_REPO`, `GITHUB_BRANCH`
 
-### Part 2 — Storefront Home redesign
+**Frontend**
+- New section in `src/pages/admin/Customers.tsx` (or a new `src/pages/admin/SourceDownload.tsx` page added to sidebar under Admin) titled **Source code backup**
+  - One button: **Download source (ZIP)**
+  - Shows a tooltip if GitHub is not yet connected, with a short setup checklist
+  - Uses `supabase.functions.invoke('download-source-zip')` and saves the blob via `URL.createObjectURL`
+- Sidebar entry: **Admin → Source backup** (super admin only)
 
-A cleaner, more boutique-style layout:
+## One-time setup you'll do (guided in the UI)
 
-```text
-┌────────────────────────────────────────────┐
-│  HERO  (full-bleed, large lifestyle image) │
-│  left: tagline pill, big serif-feel title, │
-│        subtitle, [Shop now] [Browse]       │
-│  right: product image w/ floating price    │
-│         card + "trending" sticker          │
-├────────────────────────────────────────────┤
-│  Marquee: free ship · 30-day returns ·     │
-│  secure pay · 24/7 support                 │
-├────────────────────────────────────────────┤
-│  Shop by category (6 tiles, varied sizes,  │
-│  bento-style grid on desktop)              │
-├────────────────────────────────────────────┤
-│  Trending now (4-up product grid)          │
-├────────────────────────────────────────────┤
-│  Promo split-banner (image left, copy +    │
-│  CTA right, gradient overlay)              │
-├────────────────────────────────────────────┤
-│  New arrivals (horizontal scroll on mobile)│
-├────────────────────────────────────────────┤
-│  Featured products (4-up)                  │
-├────────────────────────────────────────────┤
-│  "Why shop with us" — 3 icon cards         │
-├────────────────────────────────────────────┤
-│  Newsletter strip (email input + Subscribe)│
-└────────────────────────────────────────────┘
-```
+1. Connect the project to GitHub once (Connectors → GitHub → Create Repository) — already documented.
+2. Create a fine-grained GitHub Personal Access Token with **Contents: read** on that repo.
+3. Paste token + `owner/repo` into the secrets prompt that appears the first time you click the button.
 
-Visual upgrades:
-- Larger, magazine-style hero with overlapping product card
-- Bento-grid categories (1 large + 4 small + 1 wide) instead of equal squares
-- New "New arrivals" section using the most recently created products, horizontal-scroll on mobile
-- Refined `ProductCard`: cleaner badges, hover quick-view + add-to-cart bar that slides up from bottom (not just a small + button)
-- Newsletter capture (UI only — submit shows a toast)
+After that: one click = ZIP download, every time, with the latest code.
 
-### Part 3 — Single Product page redesign
+## Technical notes
 
-Match the second reference (rich, gallery-led layout):
-
-```text
-┌────────────────────────────────────────────┐
-│ Breadcrumb                                 │
-├──────────────────────┬─────────────────────┤
-│  GALLERY             │  INFO               │
-│  ┌──┐                │  Category tag       │
-│  ┌──┐  Big main img  │  H1 product name    │
-│  ┌──┐                │  ★★★★★ (24 reviews) │
-│  ┌──┐                │  $price  $compare   │
-│  thumbs (vertical)   │  "Save X%" pill     │
-│                      │  Short desc         │
-│                      │  ─── divider ───    │
-│                      │  Size selector      │
-│                      │  Color swatches     │
-│                      │  Qty stepper        │
-│                      │  [Add to cart] ♥ ⤴  │
-│                      │  Stock status       │
-│                      │  Trust strip (4 ic) │
-├──────────────────────┴─────────────────────┤
-│ Tabs: Description · Details · Shipping     │
-├────────────────────────────────────────────┤
-│ "You may also like" (4-up product grid)    │
-└────────────────────────────────────────────┘
-```
-
-Upgrades:
-- Vertical thumbnail strip on desktop (mobile keeps horizontal)
-- Sticky "Add to cart" bar on mobile when scrolled
-- Size + color selectors (UI-only for now — values pulled from `extras.tags` if present, else default S/M/L and 3 demo swatches; no schema change)
-- Tabs section for Description / Details (SKU, stock, category) / Shipping & returns copy
-- Reviews stub (★ rating shown, "24 reviews" — static for now; real reviews = future phase)
-- Refined trust badges grid
-
-### Part 4 — Header & footer micro-refinements
-
-- Header: sticky shrink on scroll, announcement bar above ("Free shipping on orders over $50 — Shop now")
-- Footer: payment-method icons row + social icons; copy stays editable from existing settings
-
-### Technical details
-
-- **No schema changes.** All new selectors (size/color), reviews count, and announcement bar are visual-only or read from existing fields.
-- **Files I'll edit:**
-  - `src/pages/storefront/StorefrontHome.tsx` — redesign sections
-  - `src/pages/storefront/StorefrontProduct.tsx` — redesign layout, add tabs + size/color/qty
-  - `src/components/storefront/ProductCard.tsx` — hover bar, refined badges
-  - `src/components/storefront/StorefrontHeader.tsx` — announcement bar, scroll-shrink
-  - `src/components/storefront/StorefrontFooter.tsx` — payment + social icons
-- **Files I'll create:**
-  - `src/components/storefront/AnnouncementBar.tsx`
-  - `src/components/storefront/CategoryBento.tsx`
-  - `src/components/storefront/NewsletterStrip.tsx`
-  - `src/components/storefront/ProductTabs.tsx`
-- **Demo data seed** via `insert tool` on `ecom_categories`, `products`, `ecom_product_extras`, `ecom_banners` for org `Brown Fox`. Uses Unsplash URLs (no upload). Data persists; you can edit/delete from admin Ecommerce Management anytime.
-
-### Out of scope (next phase)
-
-- Real product variants table (size/color affecting stock & price)
-- Real reviews table
-- Newsletter backend (just UI for now)
-- Wishlist persistence
+- We use GitHub's zipball endpoint instead of bundling files server-side because edge functions don't have filesystem access to the project repo.
+- Fallback we considered (and rejected): bundling source into the function at deploy time — this would inflate every deploy and the ZIP would go stale between deploys.
+- The downloaded ZIP includes everything in the GitHub repo: `src/`, `supabase/functions/`, `supabase/migrations/`, configs, package files. It does NOT include uploaded storage files (logos, product images) or database rows — those need separate exports as previously explained.
+- File naming: `fintrack-source-{YYYYMMDD-HHmm}.zip`.
+- Access: gated to super admins only via the existing `useSuperAdmin` hook + server-side role check.
 
