@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Pin, PinOff, Trash2, Pencil, Search, StickyNote } from "lucide-react";
+import { Pin, PinOff, Trash2, Pencil, Search, StickyNote, Paperclip } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ import { CrudShell } from "@/components/crud/CrudShell";
 import { useOrgTable } from "@/hooks/useOrgTable";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { FileAttachment, AttachmentValue } from "@/components/ui/FileAttachment";
 
 type Note = {
   id: string;
@@ -34,6 +35,11 @@ type Note = {
   pinned: boolean;
   tags: string[] | null;
   updated_at: string;
+  note_date: string;
+  document_url: string | null;
+  document_path: string | null;
+  document_name: string | null;
+  document_type: string | null;
 };
 
 const COLORS: Record<string, string> = {
@@ -60,6 +66,10 @@ export default function NotesPage() {
   const [content, setContent] = useState("");
   const [color, setColor] = useState("default");
   const [tagsInput, setTagsInput] = useState("");
+  const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10));
+  const [attachment, setAttachment] = useState<AttachmentValue>({
+    url: null, path: null, name: null, type: null,
+  });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -80,6 +90,8 @@ export default function NotesPage() {
     setContent("");
     setColor("default");
     setTagsInput("");
+    setNoteDate(new Date().toISOString().slice(0, 10));
+    setAttachment({ url: null, path: null, name: null, type: null });
     setEditing(null);
   };
 
@@ -93,6 +105,11 @@ export default function NotesPage() {
     setContent(n.content);
     setColor(n.color);
     setTagsInput((n.tags ?? []).join(", "));
+    setNoteDate(n.note_date ?? new Date().toISOString().slice(0, 10));
+    setAttachment({
+      url: n.document_url, path: n.document_path,
+      name: n.document_name, type: n.document_type,
+    });
     setOpen(true);
   };
 
@@ -111,6 +128,11 @@ export default function NotesPage() {
         content: content.trim(),
         color,
         tags: tags.length ? tags : null,
+        note_date: noteDate,
+        document_url: attachment.url,
+        document_path: attachment.path,
+        document_name: attachment.name,
+        document_type: attachment.type,
       };
       if (editing) await update(editing.id, payload);
       else await create({ ...payload, pinned: false });
@@ -227,9 +249,20 @@ export default function NotesPage() {
                 ))}
               </div>
             )}
+            {n.document_url && (
+              <a
+                href={n.document_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-fit items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary hover:underline"
+              >
+                <Paperclip className="h-3 w-3" />
+                <span className="max-w-[140px] truncate">{n.document_name ?? "Attachment"}</span>
+              </a>
+            )}
             <div className="mt-auto flex items-center justify-between pt-2">
               <span className="text-[10px] text-muted-foreground">
-                {new Date(n.updated_at).toLocaleDateString()}
+                {new Date(n.note_date ?? n.updated_at).toLocaleDateString()}
               </span>
               <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(n)}>
@@ -260,6 +293,16 @@ export default function NotesPage() {
               <Input id="ntitle" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Optional title" />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="ndate">Date *</Label>
+              <Input
+                id="ndate"
+                type="date"
+                value={noteDate}
+                onChange={(e) => setNoteDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="ncontent">Content</Label>
               <Textarea
                 id="ncontent"
@@ -273,6 +316,7 @@ export default function NotesPage() {
               <Label htmlFor="ntags">Tags (comma separated)</Label>
               <Input id="ntags" value={tagsInput} onChange={(e) => setTagsInput(e.target.value)} placeholder="ideas, todo" />
             </div>
+            <FileAttachment value={attachment} onChange={setAttachment} />
             <div className="space-y-1.5">
               <Label>Color</Label>
               <div className="flex flex-wrap gap-2">

@@ -1076,7 +1076,12 @@ export type Database = {
           content: string
           created_at: string
           created_by: string
+          document_name: string | null
+          document_path: string | null
+          document_type: string | null
+          document_url: string | null
           id: string
+          note_date: string
           organization_id: string
           pinned: boolean
           tags: string[] | null
@@ -1088,7 +1093,12 @@ export type Database = {
           content?: string
           created_at?: string
           created_by: string
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           id?: string
+          note_date?: string
           organization_id: string
           pinned?: boolean
           tags?: string[] | null
@@ -1100,7 +1110,12 @@ export type Database = {
           content?: string
           created_at?: string
           created_by?: string
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           id?: string
+          note_date?: string
           organization_id?: string
           pinned?: boolean
           tags?: string[] | null
@@ -1319,11 +1334,16 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          document_name: string | null
+          document_path: string | null
+          document_type: string | null
+          document_url: string | null
           due_date: string | null
           expense_id: string | null
           id: string
           organization_id: string
           status: Database["public"]["Enums"]["ledger_status"]
+          title: string | null
           updated_at: string
           vendor_name: string
         }
@@ -1333,11 +1353,16 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           due_date?: string | null
           expense_id?: string | null
           id?: string
           organization_id: string
           status?: Database["public"]["Enums"]["ledger_status"]
+          title?: string | null
           updated_at?: string
           vendor_name: string
         }
@@ -1347,11 +1372,16 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           due_date?: string | null
           expense_id?: string | null
           id?: string
           organization_id?: string
           status?: Database["public"]["Enums"]["ledger_status"]
+          title?: string | null
           updated_at?: string
           vendor_name?: string
         }
@@ -1467,11 +1497,16 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          document_name: string | null
+          document_path: string | null
+          document_type: string | null
+          document_url: string | null
           due_date: string | null
           id: string
           income_id: string | null
           organization_id: string
           status: Database["public"]["Enums"]["ledger_status"]
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -1482,11 +1517,16 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           due_date?: string | null
           id?: string
           income_id?: string | null
           organization_id: string
           status?: Database["public"]["Enums"]["ledger_status"]
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -1497,11 +1537,16 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          document_name?: string | null
+          document_path?: string | null
+          document_type?: string | null
+          document_url?: string | null
           due_date?: string | null
           id?: string
           income_id?: string | null
           organization_id?: string
           status?: Database["public"]["Enums"]["ledger_status"]
+          title?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1590,6 +1635,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          image_url: string | null
           name: string
           organization_id: string
           price: number
@@ -1601,6 +1647,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name: string
           organization_id: string
           price?: number
@@ -1612,6 +1659,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           organization_id?: string
           price?: number
