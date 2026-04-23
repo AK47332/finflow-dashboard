@@ -212,7 +212,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                             )}
                           >
                             <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
+                            <span>{t(item.titleKey)}</span>
                           </NavLink>
                         </li>
                       );
@@ -223,9 +223,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             );
           }
           return (
-            <div key={group.label} className="mb-5">
+            <div key={group.labelKey} className="mb-5">
               <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                {group.label}
+                {t(group.labelKey)}
               </div>
               <ul className="space-y-1">
                 {group.items.map((item) => {
@@ -246,7 +246,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                         )}
                       >
                         <item.icon className="h-[18px] w-[18px]" />
-                        <span>{item.title}</span>
+                        <span>{t(item.titleKey)}</span>
                       </NavLink>
                     </li>
                   );
