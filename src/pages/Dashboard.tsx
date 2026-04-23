@@ -41,6 +41,7 @@ import { useExpenseStore } from "@/store/expenseStore";
 import { supabase } from "@/integrations/supabase/client";
 import { currency as fmtCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/contexts/LocaleContext";
 
 type Range = "today" | "week" | "month" | "year" | "all" | "custom";
 
@@ -80,6 +81,7 @@ function ymKey(d: Date) {
 export default function Dashboard() {
   const { user } = useAuth();
   const { currentOrg, currentOrgId } = useOrg();
+  const { t } = useLocale();
   const { incomes, fetch: fetchIncomes, loadedOrgId: incOrg } = useIncomeStore();
   const { expenses, fetch: fetchExpenses, loadedOrgId: expOrg } = useExpenseStore();
   const [range, setRange] = useState<Range>("month");
@@ -296,24 +298,24 @@ export default function Dashboard() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Welcome back, {greetingName} 👋
+            {t("dash.welcome")}, {greetingName} 👋
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Here's how {currentOrg?.name ?? "your business"} is doing.
+            {t("dash.subtitle", { org: currentOrg?.name ?? t("dash.yourBusiness") })}
           </p>
         </div>
         <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
           <TabsList>
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="week">Week</TabsTrigger>
-            <TabsTrigger value="month">Month</TabsTrigger>
-            <TabsTrigger value="year">Year</TabsTrigger>
-            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="today">{t("range.today")}</TabsTrigger>
+            <TabsTrigger value="week">{t("range.week")}</TabsTrigger>
+            <TabsTrigger value="month">{t("range.month")}</TabsTrigger>
+            <TabsTrigger value="year">{t("range.year")}</TabsTrigger>
+            <TabsTrigger value="all">{t("range.all")}</TabsTrigger>
             <TabsTrigger
               value="custom"
               onClick={() => setCustomOpen(true)}
             >
-              Custom
+              {t("range.custom")}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -326,12 +328,12 @@ export default function Dashboard() {
               <CalendarRange className="h-4 w-4" />
               {customFrom && customTo
                 ? `${customFrom} → ${customTo}`
-                : "Pick a custom range"}
+                : t("range.pick")}
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-72 space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="dfrom" className="text-xs">From</Label>
+              <Label htmlFor="dfrom" className="text-xs">{t("range.from")}</Label>
               <Input
                 id="dfrom"
                 type="date"
@@ -340,7 +342,7 @@ export default function Dashboard() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="dto" className="text-xs">To</Label>
+              <Label htmlFor="dto" className="text-xs">{t("range.to")}</Label>
               <Input
                 id="dto"
                 type="date"
@@ -353,7 +355,7 @@ export default function Dashboard() {
               className="w-full"
               onClick={() => setCustomOpen(false)}
             >
-              Apply
+              {t("range.apply")}
             </Button>
           </PopoverContent>
         </Popover>
@@ -364,17 +366,17 @@ export default function Dashboard() {
       ) : (
         <>
           <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
-            <StatCard label="Total Income" value={fmtCurrency(totalIncome, sym)} icon={TrendingUp} tone="income" />
-            <StatCard label="Total Expense" value={fmtCurrency(totalExpense, sym)} icon={TrendingDown} tone="expense" />
+            <StatCard label={t("stat.totalIncome")} value={fmtCurrency(totalIncome, sym)} icon={TrendingUp} tone="income" />
+            <StatCard label={t("stat.totalExpense")} value={fmtCurrency(totalExpense, sym)} icon={TrendingDown} tone="expense" />
             <StatCard
-              label="Net Profit"
+              label={t("stat.netProfit")}
               value={fmtCurrency(profit, sym)}
               icon={PiggyBank}
               tone={profit >= 0 ? "profit" : "expense"}
             />
-            <StatCard label="Capital" value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
-            <StatCard label="Receivables" value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
-            <StatCard label="Payables" value={fmtCurrency(totalPayable, sym)} icon={ArrowUpRight} tone="payable" />
+            <StatCard label={t("stat.capital")} value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
+            <StatCard label={t("stat.receivables")} value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
+            <StatCard label={t("stat.payables")} value={fmtCurrency(totalPayable, sym)} icon={ArrowUpRight} tone="payable" />
           </section>
 
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
@@ -382,15 +384,15 @@ export default function Dashboard() {
               <div className="ft-card p-5 sm:p-6">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">Income vs Expense</h3>
-                    <p className="text-xs text-muted-foreground">Last 6 months</p>
+                    <h3 className="text-base font-semibold text-foreground">{t("card.incomeVsExpense")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("card.last6Months")}</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-income" /> Income
+                      <span className="h-2.5 w-2.5 rounded-sm bg-income" /> {t("card.income")}
                     </span>
                     <span className="flex items-center gap-1.5 text-muted-foreground">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-expense" /> Expense
+                      <span className="h-2.5 w-2.5 rounded-sm bg-expense" /> {t("card.expense")}
                     </span>
                   </div>
                 </div>
@@ -420,13 +422,19 @@ export default function Dashboard() {
             </div>
             {expenseDonut.length > 0 ? (
               <CategoryDonut
-                title="Expense by category"
-                subtitle={range === "all" ? "All time" : `This ${range}`}
+                title={t("card.expenseByCategory")}
+                subtitle={
+                  range === "all"
+                    ? t("card.allTime")
+                    : range === "custom"
+                    ? t("range.custom")
+                    : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any)
+                }
                 data={expenseDonut}
                 variant="expense"
               />
             ) : (
-              <EmptyCard title="Expense by category" body="No expenses yet in this range." linkTo="/expense" linkText="Add expense" />
+              <EmptyCard title={t("card.expenseByCategory")} body={t("card.noExpenseRange")} linkTo="/expense" linkText={t("card.addExpense")} />
             )}
           </section>
 
@@ -435,16 +443,16 @@ export default function Dashboard() {
               <div className="ft-card p-5 sm:p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">Recent transactions</h3>
-                    <p className="text-xs text-muted-foreground">Latest {recent.length} entries</p>
+                    <h3 className="text-base font-semibold text-foreground">{t("card.recentTransactions")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("card.latestEntries", { n: recent.length })}</p>
                   </div>
                   <Link to="/income" className="text-xs font-semibold text-primary hover:underline">
-                    View all
+                    {t("card.viewAll")}
                   </Link>
                 </div>
                 {recent.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
-                    No transactions yet in this range.
+                    {t("card.noTxRange")}
                   </p>
                 ) : (
                   <ul className="divide-y divide-border/60">
@@ -488,13 +496,19 @@ export default function Dashboard() {
             </div>
             {incomeDonut.length > 0 ? (
               <CategoryDonut
-                title="Income by source"
-                subtitle={range === "all" ? "All time" : `This ${range}`}
+                title={t("card.incomeBySource")}
+                subtitle={
+                  range === "all"
+                    ? t("card.allTime")
+                    : range === "custom"
+                    ? t("range.custom")
+                    : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any)
+                }
                 data={incomeDonut}
                 variant="income"
               />
             ) : (
-              <EmptyCard title="Income by source" body="No income yet in this range." linkTo="/income" linkText="Add income" />
+              <EmptyCard title={t("card.incomeBySource")} body={t("card.noIncomeRange")} linkTo="/income" linkText={t("card.addIncome")} />
             )}
           </section>
 
@@ -502,12 +516,21 @@ export default function Dashboard() {
             {/* Top Clients */}
             <div className="ft-card p-5 sm:p-6">
               <div className="mb-4">
-                <h3 className="text-base font-semibold text-foreground">Top clients</h3>
-                <p className="text-xs text-muted-foreground">By revenue ({range === "all" ? "all time" : `this ${range}`})</p>
+                <h3 className="text-base font-semibold text-foreground">{t("card.topClients")}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {t("card.byRevenue", {
+                    range:
+                      range === "all"
+                        ? t("card.allTime")
+                        : range === "custom"
+                        ? t("range.custom")
+                        : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any),
+                  })}
+                </p>
               </div>
               {topClients.length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  No client revenue yet.
+                  {t("card.noClientRevenue")}
                 </p>
               ) : (
                 <ul className="space-y-3">
@@ -543,17 +566,17 @@ export default function Dashboard() {
             <div className="ft-card p-5 sm:p-6">
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Upcoming reminders</h3>
-                  <p className="text-xs text-muted-foreground">Next {reminders.length}</p>
+                  <h3 className="text-base font-semibold text-foreground">{t("card.upcomingReminders")}</h3>
+                  <p className="text-xs text-muted-foreground">{t("card.next", { n: reminders.length })}</p>
                 </div>
                 <Bell className="h-4 w-4 text-muted-foreground" />
               </div>
               {reminders.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-8 text-center">
-                  <p className="text-sm text-muted-foreground">No reminders set.</p>
+                  <p className="text-sm text-muted-foreground">{t("card.noReminders")}</p>
                   <Button asChild size="sm" variant="outline">
                     <Link to="/reminders">
-                      <Plus className="h-3 w-3" /> Add reminder
+                      <Plus className="h-3 w-3" /> {t("card.addReminder")}
                     </Link>
                   </Button>
                 </div>
@@ -589,7 +612,7 @@ export default function Dashboard() {
                               : "bg-primary-soft text-primary",
                           )}
                         >
-                          {overdue ? "Overdue" : "Upcoming"}
+                          {overdue ? t("badge.overdue") : t("badge.upcoming")}
                         </span>
                       </li>
                     );
