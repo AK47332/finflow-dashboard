@@ -14,7 +14,13 @@ export type Organization = {
   created_by: string;
 };
 
-export type OrgRole = "owner" | "admin" | "member";
+export type OrgRole =
+  | "owner"
+  | "admin"
+  | "account_manager"
+  | "store_manager"
+  | "sales_manager"
+  | "member";
 
 type OrgContextValue = {
   orgs: Organization[];
