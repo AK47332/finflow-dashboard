@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { FrontendSettings } from "@/lib/ecom";
+import { setActiveCurrency } from "@/lib/format";
 
 /**
  * Resolves which org's storefront should serve the public root.
@@ -16,6 +17,15 @@ export function usePublicStorefront() {
 
   useEffect(() => {
     let cancelled = false;
+    async function applyOrgCurrency(orgId: string) {
+      const { data: org } = await supabase
+        .from("organizations")
+        .select("currency")
+        .eq("id", orgId)
+        .maybeSingle();
+      if (cancelled) return;
+      setActiveCurrency(org?.currency ?? "USD");
+    }
     async function load() {
       // 1. Primary org
       const primary = await supabase
@@ -26,6 +36,7 @@ export function usePublicStorefront() {
       if (cancelled) return;
       if (primary.data) {
         setSettings(primary.data as FrontendSettings);
+        await applyOrgCurrency((primary.data as FrontendSettings).organization_id);
         setLoading(false);
         return;
       }
@@ -39,18 +50,20 @@ export function usePublicStorefront() {
       if (cancelled) return;
       if (ecom.data) {
         setSettings(ecom.data as FrontendSettings);
+        await applyOrgCurrency((ecom.data as FrontendSettings).organization_id);
         setLoading(false);
         return;
       }
       // 3. Fallback to first organization, synthesize ecommerce settings.
       const org = await supabase
         .from("organizations")
-        .select("id, name")
+        .select("id, name, currency")
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
       if (cancelled) return;
       if (org.data) {
+        setActiveCurrency((org.data as any).currency ?? "USD");
         setSettings({
           organization_id: org.data.id,
           mode: "ecommerce",
