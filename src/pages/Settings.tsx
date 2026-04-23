@@ -30,6 +30,24 @@ import { useFooterSettings, DEFAULT_FOOTER } from "@/hooks/useFooterSettings";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AUD", "CAD", "JPY", "CNY", "BRL", "MXN", "ZAR", "AED", "BDT", "PKR"];
 
+const TIMEZONES = [
+  "UTC",
+  "America/New_York",
+  "America/Los_Angeles",
+  "America/Chicago",
+  "Europe/London",
+  "Europe/Berlin",
+  "Europe/Paris",
+  "Asia/Dhaka",
+  "Asia/Kolkata",
+  "Asia/Karachi",
+  "Asia/Dubai",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Australia/Sydney",
+];
+const TZ_STORAGE_KEY = "ui-timezone";
+
 type Member = {
   id: string;
   user_id: string;
@@ -74,6 +92,17 @@ export default function SettingsPage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [timezone, setTimezone] = useState<string>(() => {
+    try {
+      return (
+        window.localStorage.getItem(TZ_STORAGE_KEY) ||
+        Intl.DateTimeFormat().resolvedOptions().timeZone ||
+        "UTC"
+      );
+    } catch {
+      return "UTC";
+    }
+  });
 
   // Members
   const [members, setMembers] = useState<Member[]>([]);
@@ -437,6 +466,32 @@ export default function SettingsPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="orgtz">Timezone</Label>
+                  <Select
+                    value={timezone}
+                    onValueChange={(v) => {
+                      setTimezone(v);
+                      try {
+                        window.localStorage.setItem(TZ_STORAGE_KEY, v);
+                      } catch {
+                        /* ignore */
+                      }
+                      toast.success("Timezone saved");
+                    }}
+                    disabled={!isAdmin}
+                  >
+                    <SelectTrigger id="orgtz"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONES.map((tz) => (
+                        <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Used to display dates and times consistently across your workspace.
+                  </p>
                 </div>
                 {isAdmin && (
                   <Button onClick={handleSaveProfile} disabled={savingProfile}>

@@ -25,6 +25,14 @@ import {
   YAxis,
 } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CalendarRange } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
@@ -34,9 +42,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { currency as fmtCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-type Range = "today" | "week" | "month" | "year" | "all";
+type Range = "today" | "week" | "month" | "year" | "all" | "custom";
 
-function rangeStart(r: Range): Date | null {
+function rangeStart(r: Range, customStart?: string | null): Date | null {
   const now = new Date();
   if (r === "today") {
     const d = new Date(now);
@@ -52,24 +60,21 @@ function rangeStart(r: Range): Date | null {
   }
   if (r === "month") return new Date(now.getFullYear(), now.getMonth(), 1);
   if (r === "year") return new Date(now.getFullYear(), 0, 1);
+  if (r === "custom") return customStart ? new Date(customStart) : null;
+  return null;
+}
+
+function rangeEnd(r: Range, customEnd?: string | null): Date | null {
+  if (r === "custom" && customEnd) {
+    const d = new Date(customEnd);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
   return null;
 }
 
 function ymKey(d: Date) {
   return `${d.toLocaleString(undefined, { month: "short" })}`;
-}
-
-function symbolFor(code?: string) {
-  if (!code) return "$";
-  try {
-    return (
-      new Intl.NumberFormat(undefined, { style: "currency", currency: code })
-        .format(0)
-        .replace(/[\d.,\s]/g, "") || code
-    );
-  } catch {
-    return code;
-  }
 }
 
 export default function Dashboard() {
@@ -78,6 +83,9 @@ export default function Dashboard() {
   const { incomes, fetch: fetchIncomes, loadedOrgId: incOrg } = useIncomeStore();
   const { expenses, fetch: fetchExpenses, loadedOrgId: expOrg } = useExpenseStore();
   const [range, setRange] = useState<Range>("month");
+  const [customFrom, setCustomFrom] = useState<string>("");
+  const [customTo, setCustomTo] = useState<string>("");
+  const [customOpen, setCustomOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [receivables, setReceivables] = useState<any[]>([]);
   const [payables, setPayables] = useState<any[]>([]);
@@ -131,15 +139,30 @@ export default function Dashboard() {
     };
   }, [currentOrgId, incOrg, expOrg, fetchIncomes, fetchExpenses]);
 
-  const sym = symbolFor(currentOrg?.currency);
-  const start = rangeStart(range);
+  // Currency symbol now flows from OrgContext into the global formatter,
+  // so calling currency(n) without args automatically uses the right symbol.
+  const sym = undefined as unknown as string | undefined;
+  const start = rangeStart(range, customFrom);
+  const end = rangeEnd(range, customTo);
   const filteredIncomes = useMemo(
-    () => incomes.filter((i) => !start || new Date(i.date) >= start),
-    [incomes, start],
+    () =>
+      incomes.filter((i) => {
+        const d = new Date(i.date);
+        if (start && d < start) return false;
+        if (end && d > end) return false;
+        return true;
+      }),
+    [incomes, start, end],
   );
   const filteredExpenses = useMemo(
-    () => expenses.filter((e) => !start || new Date(e.date) >= start),
-    [expenses, start],
+    () =>
+      expenses.filter((e) => {
+        const d = new Date(e.date);
+        if (start && d < start) return false;
+        if (end && d > end) return false;
+        return true;
+      }),
+    [expenses, start, end],
   );
 
   const totalIncome = filteredIncomes.reduce((s, x) => s + x.amount, 0);
@@ -286,9 +309,55 @@ export default function Dashboard() {
             <TabsTrigger value="month">Month</TabsTrigger>
             <TabsTrigger value="year">Year</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger
+              value="custom"
+              onClick={() => setCustomOpen(true)}
+            >
+              Custom
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </header>
+
+      {range === "custom" && (
+        <Popover open={customOpen} onOpenChange={setCustomOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <CalendarRange className="h-4 w-4" />
+              {customFrom && customTo
+                ? `${customFrom} → ${customTo}`
+                : "Pick a custom range"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-72 space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="dfrom" className="text-xs">From</Label>
+              <Input
+                id="dfrom"
+                type="date"
+                value={customFrom}
+                onChange={(e) => setCustomFrom(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="dto" className="text-xs">To</Label>
+              <Input
+                id="dto"
+                type="date"
+                value={customTo}
+                onChange={(e) => setCustomTo(e.target.value)}
+              />
+            </div>
+            <Button
+              size="sm"
+              className="w-full"
+              onClick={() => setCustomOpen(false)}
+            >
+              Apply
+            </Button>
+          </PopoverContent>
+        </Popover>
+      )}
 
       {allEmpty ? (
         <EmptyDashboard sym={sym} />
@@ -559,7 +628,7 @@ function EmptyCard({
   );
 }
 
-function EmptyDashboard({ sym }: { sym: string }) {
+function EmptyDashboard({ sym }: { sym?: string }) {
   return (
     <div className="ft-card flex flex-col items-center justify-center gap-4 p-10 text-center sm:p-16">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-soft">
@@ -568,7 +637,7 @@ function EmptyDashboard({ sym }: { sym: string }) {
       <div>
         <h2 className="text-xl font-bold text-foreground">Let's get your books started</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          Add your first income or expense to see live charts, profit & loss, and category insights here. Currency: <strong>{sym}</strong>
+          Add your first income or expense to see live charts, profit & loss, and category insights here. Currency: <strong>{sym ?? ""}</strong>
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">

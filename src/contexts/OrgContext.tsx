@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./AuthContext";
 import { useIncomeStore } from "@/store/incomeStore";
 import { useExpenseStore } from "@/store/expenseStore";
+import { setActiveCurrency } from "@/lib/format";
 
 export type Organization = {
   id: string;
@@ -112,6 +113,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   };
 
   const currentOrg = orgs.find((o) => o.id === currentOrgId) ?? null;
+
+  // Keep the global currency formatter in sync with the active org so every
+  // `currency(n)` call across the app shows the correct symbol (USD →
+  // $, BDT → ৳, etc.) without per-call wiring.
+  useEffect(() => {
+    setActiveCurrency(currentOrg?.currency ?? "USD");
+  }, [currentOrg?.currency]);
 
   return (
     <OrgContext.Provider
