@@ -53,6 +53,7 @@ export default function ClientsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Client | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -95,6 +96,26 @@ export default function ClientsPage() {
     setNotes(c.notes ?? "");
     setOpen(true);
   };
+
+  // Open client from ?focus=<name> (e.g. clicked from Dashboard Top Clients)
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    if (!focus || loading || rows.length === 0) return;
+    const match = rows.find(
+      (r) => r.name.toLowerCase() === focus.toLowerCase(),
+    );
+    if (match) {
+      openEdit(match);
+    } else {
+      setSearch(focus);
+      toast.info(`No client named "${focus}" found. Add one?`);
+    }
+    // Clear the param so it doesn't re-trigger
+    const next = new URLSearchParams(searchParams);
+    next.delete("focus");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, rows]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
