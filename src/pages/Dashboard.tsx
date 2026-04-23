@@ -639,13 +639,17 @@ export default function Dashboard() {
                     const max = topClients[0].value || 1;
                     return (
                       <li key={c.name}>
-                        <div className="flex items-center gap-3">
+                        <Link
+                          to={`/clients?focus=${encodeURIComponent(c.name)}`}
+                          className="flex items-center gap-3 rounded-lg p-1 -m-1 transition-colors hover:bg-muted/50"
+                          aria-label={`Open client ${c.name}`}
+                        >
                           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-xs font-bold text-primary-foreground">
                             {c.name.slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between">
-                              <span className="truncate text-sm font-semibold text-foreground">{c.name}</span>
+                              <span className="truncate text-sm font-semibold text-foreground hover:text-primary">{c.name}</span>
                               <span className="text-sm font-bold text-foreground">{fmtCurrency(c.value, sym)}</span>
                             </div>
                             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -655,7 +659,7 @@ export default function Dashboard() {
                               />
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       </li>
                     );
                   })}
