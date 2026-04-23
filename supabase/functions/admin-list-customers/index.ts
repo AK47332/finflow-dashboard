@@ -67,10 +67,44 @@ Deno.serve(async (req) => {
     const profileMap = new Map(
       (profiles ?? []).map((p) => [p.user_id, p]),
     );
+
+    // Hydrate phone from auth.users user_metadata
+    const phoneMap = new Map<string, string | null>();
+    await Promise.all(
+      ids.map(async (uid) => {
+        const { data } = await admin.auth.admin.getUserById(uid);
+        const meta = (data?.user?.user_metadata ?? {}) as Record<string, unknown>;
+        const phone = (meta.phone as string | undefined) ?? data?.user?.phone ?? null;
+        phoneMap.set(uid, phone ?? null);
+      }),
+    );
+
+    // Pull org info per user (first owned org)
+    const orgMap = new Map<string, { id: string; name: string } | null>();
+    if (ids.length) {
+      const { data: members } = await admin
+        .from("organization_members")
+        .select("user_id, organization_id, role, created_at, organizations(name)")
+        .in("user_id", ids)
+        .eq("role", "owner")
+        .order("created_at", { ascending: true });
+      (members ?? []).forEach((m: { user_id: string; organization_id: string; organizations: { name: string } | null }) => {
+        if (!orgMap.has(m.user_id)) {
+          orgMap.set(m.user_id, {
+            id: m.organization_id,
+            name: m.organizations?.name ?? "—",
+          });
+        }
+      });
+    }
+
     const customers = (subs ?? []).map((s) => ({
       ...s,
       email: profileMap.get(s.user_id)?.email ?? null,
       full_name: profileMap.get(s.user_id)?.full_name ?? null,
+      phone: phoneMap.get(s.user_id) ?? null,
+      organization_id: orgMap.get(s.user_id)?.id ?? null,
+      organization_name: orgMap.get(s.user_id)?.name ?? null,
     }));
 
     return new Response(JSON.stringify({ customers }), {
