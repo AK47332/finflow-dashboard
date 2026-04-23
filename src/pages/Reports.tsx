@@ -5,7 +5,7 @@ import {
   FileText,
   TrendingDown,
   TrendingUp,
-  PiggyBank,
+  Sprout,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -239,7 +239,7 @@ export default function ReportsPage() {
           <div className="ft-card p-5">
             <div className="flex items-center gap-3">
               <div className="ft-stat-icon bg-profit/10 text-profit">
-                <PiggyBank className="h-5 w-5" />
+                <Sprout className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Net Profit</p>

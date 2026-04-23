@@ -28,7 +28,7 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  PiggyBank,
+  Sprout,
   Users,
   Package,
   Briefcase,

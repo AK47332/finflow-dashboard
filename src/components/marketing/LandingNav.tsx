@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { PiggyBank } from "lucide-react";
+import { Sprout } from "lucide-react";
 
 export function LandingNav({ user }: { user: User | null }) {
   return (
@@ -9,7 +9,7 @@ export function LandingNav({ user }: { user: User | null }) {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 shadow-lg shadow-violet-500/20">
-            <PiggyBank className="h-4 w-4 text-white" />
+            <Sprout className="h-4 w-4 text-white" />
           </span>
           <span className="text-[15px]">FinTrack Pro</span>
         </Link>
