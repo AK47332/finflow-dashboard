@@ -206,7 +206,7 @@ export default function CapitalPage() {
               <TableHead className="text-foreground">Method</TableHead>
               <TableHead className="text-foreground">Description</TableHead>
               <TableHead className="text-right text-foreground">Amount</TableHead>
-              <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
+              <TableHead className="ft-action-cell w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,7 +225,7 @@ export default function CapitalPage() {
                 <TableCell className={`text-right font-semibold ${m.type === "contribution" ? "text-income" : "text-expense"}`}>
                   {m.type === "contribution" ? "+" : "−"}{currency(m.amount)}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
                     <Button size="icon" variant="ghost" onClick={() => openEdit(m)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setPendingDelete(m)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>

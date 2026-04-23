@@ -200,7 +200,7 @@ export default function ClientsPage() {
               <TableHead className="text-foreground">Company</TableHead>
               <TableHead className="text-foreground">Email</TableHead>
               <TableHead className="text-foreground">Phone</TableHead>
-              <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
+              <TableHead className="ft-action-cell w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -228,7 +228,7 @@ export default function ClientsPage() {
                     <span className="text-muted-foreground">—</span>
                   )}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)} aria-label="Edit">
                       <Pencil className="h-4 w-4" />

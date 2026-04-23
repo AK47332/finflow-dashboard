@@ -255,7 +255,7 @@ export default function ProductsPage() {
               <TableHead className="text-right text-foreground">Cost</TableHead>
               <TableHead className="text-right text-foreground">Stock</TableHead>
               <TableHead className="text-foreground">Unit</TableHead>
-              <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
+              <TableHead className="ft-action-cell w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -267,7 +267,7 @@ export default function ProductsPage() {
                 <TableCell className="text-right text-sm text-muted-foreground">{currency(p.cost)}</TableCell>
                 <TableCell className={`text-right text-sm ${p.stock <= 0 ? "text-expense font-semibold" : "text-foreground"}`}>{p.stock}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{p.unit ?? "—"}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
