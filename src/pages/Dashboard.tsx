@@ -422,13 +422,19 @@ export default function Dashboard() {
             </div>
             {expenseDonut.length > 0 ? (
               <CategoryDonut
-                title="Expense by category"
-                subtitle={range === "all" ? "All time" : `This ${range}`}
+                title={t("card.expenseByCategory")}
+                subtitle={
+                  range === "all"
+                    ? t("card.allTime")
+                    : range === "custom"
+                    ? t("range.custom")
+                    : t(`card.this${range.charAt(0).toUpperCase() + range.slice(1)}` as any)
+                }
                 data={expenseDonut}
                 variant="expense"
               />
             ) : (
-              <EmptyCard title="Expense by category" body="No expenses yet in this range." linkTo="/expense" linkText="Add expense" />
+              <EmptyCard title={t("card.expenseByCategory")} body={t("card.noExpenseRange")} linkTo="/expense" linkText={t("card.addExpense")} />
             )}
           </section>
 
@@ -437,16 +443,16 @@ export default function Dashboard() {
               <div className="ft-card p-5 sm:p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">Recent transactions</h3>
-                    <p className="text-xs text-muted-foreground">Latest {recent.length} entries</p>
+                    <h3 className="text-base font-semibold text-foreground">{t("card.recentTransactions")}</h3>
+                    <p className="text-xs text-muted-foreground">{t("card.latestEntries", { n: recent.length })}</p>
                   </div>
                   <Link to="/income" className="text-xs font-semibold text-primary hover:underline">
-                    View all
+                    {t("card.viewAll")}
                   </Link>
                 </div>
                 {recent.length === 0 ? (
                   <p className="py-8 text-center text-sm text-muted-foreground">
-                    No transactions yet in this range.
+                    {t("card.noTxRange")}
                   </p>
                 ) : (
                   <ul className="divide-y divide-border/60">
