@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PiggyBank } from "lucide-react";
+import { Sprout } from "lucide-react";
 
 export function LandingFooter() {
   return (
@@ -7,7 +7,7 @@ export function LandingFooter() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
         <Link to="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-700">
-            <PiggyBank className="h-3.5 w-3.5 text-white" />
+            <Sprout className="h-3.5 w-3.5 text-white" />
           </span>
           <span className="text-sm">FinTrack Pro</span>
         </Link>

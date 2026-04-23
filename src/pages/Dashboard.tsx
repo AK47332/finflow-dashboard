@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   TrendingUp,
   TrendingDown,
-  PiggyBank,
+  Sprout,
   Wallet,
   ArrowDownLeft,
   ArrowUpRight,
@@ -525,7 +525,7 @@ export default function Dashboard() {
               to="/profit"
               label={t("stat.netProfit")}
               value={fmtCurrency(profit, sym)}
-              icon={PiggyBank}
+              icon={Sprout}
               tone={profit >= 0 ? "profit" : "expense"}
             />
             <StatCard to="/receivables" label={t("stat.receivables")} value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
@@ -869,7 +869,7 @@ function EmptyDashboard({ sym }: { sym?: string }) {
   return (
     <div className="ft-card flex flex-col items-center justify-center gap-4 p-10 text-center sm:p-16">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-soft">
-        <PiggyBank className="h-8 w-8" />
+        <Sprout className="h-8 w-8" />
       </div>
       <div>
         <h2 className="text-xl font-bold text-foreground">Let's get your books started</h2>
@@ -898,7 +898,7 @@ function EmptyDashboard({ sym }: { sym?: string }) {
         {[
           { icon: TrendingUp, label: "Track every sale" },
           { icon: TrendingDown, label: "Categorize spending" },
-          { icon: PiggyBank, label: "See profit live" },
+          { icon: Sprout, label: "See profit live" },
           { icon: StickyNote, label: "Notes & reminders" },
         ].map((f, i) => (
           <div key={i} className="flex items-center gap-2 rounded-xl bg-muted/40 px-3 py-2.5">
