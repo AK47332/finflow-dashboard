@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Pin, PinOff, Trash2, Pencil, Search, StickyNote } from "lucide-react";
+import { Pin, PinOff, Trash2, Pencil, Search, StickyNote, Paperclip } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -248,6 +248,17 @@ export default function NotesPage() {
                   </span>
                 ))}
               </div>
+            )}
+            {n.document_url && (
+              <a
+                href={n.document_url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-fit items-center gap-1 rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-medium text-primary hover:underline"
+              >
+                <Paperclip className="h-3 w-3" />
+                <span className="max-w-[140px] truncate">{n.document_name ?? "Attachment"}</span>
+              </a>
             )}
             <div className="mt-auto flex items-center justify-between pt-2">
               <span className="text-[10px] text-muted-foreground">
