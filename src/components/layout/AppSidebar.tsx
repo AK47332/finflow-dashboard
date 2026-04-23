@@ -35,6 +35,7 @@ import { useSuperAdmin } from "@/hooks/useSuperAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { useLocale } from "@/contexts/LocaleContext";
+import { canAccess } from "@/lib/permissions";
 
 type NavItem = { titleKey: string; url: string; icon: typeof LayoutDashboard };
 type NavGroup = { labelKey: string; items: NavItem[]; collapsible?: boolean };
@@ -104,14 +105,18 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const { isSuperAdmin } = useSuperAdmin();
   const { user } = useAuth();
-  const { currentOrg } = useOrg();
+  const { currentOrg, role } = useOrg();
   const { t } = useLocale();
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||
     "Account";
   const avatarInitials = (displayName || "?").slice(0, 2).toUpperCase();
-  const visibleGroups: NavGroup[] = isSuperAdmin
+  // Filter every nav item by the role-based permission rules. Super admins see
+  // everything plus the platform admin tools. Org owners/admins also see all
+  // app pages (canAccess returns true for them). Team members only see what
+  // their role grants.
+  const baseGroups: NavGroup[] = isSuperAdmin
     ? [
         ...groups,
         {
@@ -123,6 +128,12 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         },
       ]
     : groups;
+
+  const visibleGroups: NavGroup[] = isSuperAdmin
+    ? baseGroups
+    : baseGroups
+        .map((g) => ({ ...g, items: g.items.filter((it) => canAccess(role, it.url)) }))
+        .filter((g) => g.items.length > 0);
 
   // Track open state for collapsible groups; auto-open the group containing the active route
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
