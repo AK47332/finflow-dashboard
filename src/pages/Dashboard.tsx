@@ -187,6 +187,31 @@ export default function Dashboard() {
     (s, c: any) => s + (c.type === "contribution" ? Number(c.amount) : -Number(c.amount)),
     0,
   );
+
+  // Per-payment-method capital balance (contributions add, withdrawals subtract)
+  const CAPITAL_METHODS = ["Cash", "Bank Transfer", "Mobile Banking", "Card", "Other"] as const;
+  const capitalByMethod = useMemo(() => {
+    const map = new Map<string, number>();
+    CAPITAL_METHODS.forEach((m) => map.set(m, 0));
+    capital.forEach((c: any) => {
+      const raw = (c.payment_method as string | null) ?? "Other";
+      const key = (CAPITAL_METHODS as readonly string[]).includes(raw) ? raw : "Other";
+      const sign = c.type === "contribution" ? 1 : -1;
+      map.set(key, (map.get(key) ?? 0) + sign * Number(c.amount));
+    });
+    return CAPITAL_METHODS.map((m) => ({ method: m, balance: map.get(m) ?? 0 }));
+  }, [capital]);
+
+  const methodIcon = (m: string) => {
+    switch (m) {
+      case "Cash": return Banknote;
+      case "Bank Transfer": return Landmark;
+      case "Mobile Banking": return Smartphone;
+      case "Card": return CreditCard;
+      default: return MoreHorizontal;
+    }
+  };
+
   const totalReceivable = receivables.reduce(
     (s, r: any) => s + (Number(r.amount) - Number(r.amount_paid ?? 0)),
     0,
