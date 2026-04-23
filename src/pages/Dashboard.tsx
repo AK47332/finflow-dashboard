@@ -628,7 +628,7 @@ function EmptyCard({
   );
 }
 
-function EmptyDashboard({ sym }: { sym: string }) {
+function EmptyDashboard({ sym }: { sym?: string }) {
   return (
     <div className="ft-card flex flex-col items-center justify-center gap-4 p-10 text-center sm:p-16">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-soft">
@@ -637,7 +637,7 @@ function EmptyDashboard({ sym }: { sym: string }) {
       <div>
         <h2 className="text-xl font-bold text-foreground">Let's get your books started</h2>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">
-          Add your first income or expense to see live charts, profit & loss, and category insights here. Currency: <strong>{sym}</strong>
+          Add your first income or expense to see live charts, profit & loss, and category insights here. Currency: <strong>{sym ?? ""}</strong>
         </p>
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">
