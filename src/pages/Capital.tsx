@@ -268,6 +268,14 @@ export default function CapitalPage() {
                   {PAYMENT_METHODS.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
                 </SelectContent>
               </Select>
+              {type === "withdrawal" && (
+                <p className="text-xs text-muted-foreground">
+                  Available in <span className="font-medium text-foreground">{paymentMethod}</span>:{" "}
+                  <span className="font-semibold text-foreground">
+                    {currency(balancesByMethod.find((b) => b.method === paymentMethod)?.balance ?? 0)}
+                  </span>
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="kdesc">Description</Label>
