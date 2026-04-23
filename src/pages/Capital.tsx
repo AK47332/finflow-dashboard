@@ -168,6 +168,35 @@ export default function CapitalPage() {
         </div>
       }
     >
+      <div className="ft-card p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Capital by Payment Method</h3>
+            <p className="text-xs text-muted-foreground">Live balance per source — withdrawals deduct automatically.</p>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {balancesByMethod.map(({ method, balance }) => (
+            <div
+              key={method}
+              className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`ft-stat-icon ${balance > 0 ? "bg-income-soft text-income" : balance < 0 ? "bg-expense-soft text-expense" : "bg-primary-soft text-primary"}`}>
+                  {methodIcon(method)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-muted-foreground">{method}</p>
+                  <p className={`truncate text-lg font-bold ${balance < 0 ? "text-expense" : "text-foreground"}`}>
+                    {currency(balance)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="ft-card overflow-hidden">
         <Table>
           <TableHeader>
