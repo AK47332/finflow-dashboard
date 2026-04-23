@@ -72,13 +72,13 @@ export function QuickActionsFab() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-4 z-40 flex flex-col items-end gap-3 sm:right-6">
+      <div className="pointer-events-none fixed bottom-6 left-4 z-40 flex flex-col items-start gap-3 sm:left-auto sm:right-6 sm:items-end">
         {actions.map((a, i) => (
           <button
             key={a.label}
             onClick={a.onClick}
             className={cn(
-              "flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold shadow-lift transition-all duration-300",
+              "pointer-events-auto flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold shadow-lift transition-all duration-300",
               a.classes,
               open ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0",
             )}
@@ -91,7 +91,7 @@ export function QuickActionsFab() {
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Quick actions"
-          className="ft-fab flex h-14 w-14 items-center justify-center rounded-full text-primary-foreground transition-transform duration-300 hover:scale-105"
+          className="ft-fab pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full text-primary-foreground transition-transform duration-300 hover:scale-105"
         >
           {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
         </button>
