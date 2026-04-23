@@ -445,7 +445,18 @@ export default function Dashboard() {
             {t("dash.subtitle", { org: currentOrg?.name ?? t("dash.yourBusiness") })}
           </p>
         </div>
-        <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
+        <div className="flex flex-col items-start gap-3 sm:items-end">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card/80 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+            <Clock className="h-3.5 w-3.5 text-primary" />
+            <span className="tabular-nums">
+              {now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground">
+              {now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+            </span>
+          </div>
+          <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
           <TabsList>
             <TabsTrigger value="today">{t("range.today")}</TabsTrigger>
             <TabsTrigger value="week">{t("range.week")}</TabsTrigger>
@@ -459,7 +470,8 @@ export default function Dashboard() {
               {t("range.custom")}
             </TabsTrigger>
           </TabsList>
-        </Tabs>
+          </Tabs>
+        </div>
       </header>
 
       {range === "custom" && (
