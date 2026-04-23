@@ -1,4 +1,5 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { currency } from "@/lib/format";
 
 const palettes: Record<string, string[]> = {
   expense: ["hsl(350 89% 60%)", "hsl(38 92% 55%)", "hsl(262 83% 60%)", "hsl(217 91% 60%)", "hsl(160 70% 45%)"],
@@ -54,7 +55,7 @@ export function CategoryDonut({
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-[11px] font-medium text-muted-foreground">Total</span>
-          <span className="text-lg font-bold text-foreground">${total.toLocaleString()}</span>
+          <span className="text-lg font-bold text-foreground">{currency(total)}</span>
         </div>
       </div>
 
@@ -65,7 +66,7 @@ export function CategoryDonut({
               <span className="h-2.5 w-2.5 rounded-sm" style={{ background: colors[i % colors.length] }} />
               {d.name}
             </span>
-            <span className="font-semibold text-foreground">${d.value.toLocaleString()}</span>
+            <span className="font-semibold text-foreground">{currency(d.value)}</span>
           </li>
         ))}
       </ul>
