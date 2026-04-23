@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Wallet, Pencil, Trash2, ArrowDownLeft, ArrowUpRight, Banknote, Landmark, Smartphone, CreditCard, MoreHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -59,6 +59,28 @@ export default function CapitalPage() {
     return { contrib, withdr, net: contrib - withdr };
   }, [rows]);
 
+  // Per-payment-method balance (contributions add, withdrawals subtract)
+  const balancesByMethod = useMemo(() => {
+    const map = new Map<string, number>();
+    PAYMENT_METHODS.forEach((m) => map.set(m, 0));
+    rows.forEach((r) => {
+      const key = r.payment_method && PAYMENT_METHODS.includes(r.payment_method) ? r.payment_method : "Other";
+      const sign = r.type === "contribution" ? 1 : -1;
+      map.set(key, (map.get(key) ?? 0) + sign * r.amount);
+    });
+    return PAYMENT_METHODS.map((m) => ({ method: m, balance: map.get(m) ?? 0 }));
+  }, [rows]);
+
+  const methodIcon = (m: string) => {
+    switch (m) {
+      case "Cash": return <Banknote className="h-5 w-5" />;
+      case "Bank Transfer": return <Landmark className="h-5 w-5" />;
+      case "Mobile Banking": return <Smartphone className="h-5 w-5" />;
+      case "Card": return <CreditCard className="h-5 w-5" />;
+      default: return <MoreHorizontal className="h-5 w-5" />;
+    }
+  };
+
   const reset = () => {
     setType("contribution"); setAmount(""); setDate(today());
     setPaymentMethod("Bank Transfer"); setDescription(""); setEditing(null);
@@ -74,6 +96,23 @@ export default function CapitalPage() {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
+    // Guard: withdrawing more than available in that method
+    if (type === "withdrawal") {
+      const methodKey = PAYMENT_METHODS.includes(paymentMethod) ? paymentMethod : "Other";
+      const current = balancesByMethod.find((b) => b.method === methodKey)?.balance ?? 0;
+      // If editing an existing withdrawal on the same method, add it back into the available balance
+      const editingOffset =
+        editing && editing.type === "withdrawal" &&
+        (editing.payment_method ?? "Other") === methodKey
+          ? editing.amount
+          : 0;
+      const available = current + editingOffset;
+      if (amt > available) {
+        return toast.error(
+          `Not enough in ${methodKey}. Available: ${currency(available)}`,
+        );
+      }
+    }
     try {
       const payload = {
         type, amount: amt, date,
@@ -129,6 +168,35 @@ export default function CapitalPage() {
         </div>
       }
     >
+      <div className="ft-card p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Capital by Payment Method</h3>
+            <p className="text-xs text-muted-foreground">Live balance per source — withdrawals deduct automatically.</p>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {balancesByMethod.map(({ method, balance }) => (
+            <div
+              key={method}
+              className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`ft-stat-icon ${balance > 0 ? "bg-income-soft text-income" : balance < 0 ? "bg-expense-soft text-expense" : "bg-primary-soft text-primary"}`}>
+                  {methodIcon(method)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-muted-foreground">{method}</p>
+                  <p className={`truncate text-lg font-bold ${balance < 0 ? "text-expense" : "text-foreground"}`}>
+                    {currency(balance)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="ft-card overflow-hidden">
         <Table>
           <TableHeader>
@@ -200,6 +268,14 @@ export default function CapitalPage() {
                   {PAYMENT_METHODS.map((m) => (<SelectItem key={m} value={m}>{m}</SelectItem>))}
                 </SelectContent>
               </Select>
+              {type === "withdrawal" && (
+                <p className="text-xs text-muted-foreground">
+                  Available in <span className="font-medium text-foreground">{paymentMethod}</span>:{" "}
+                  <span className="font-semibold text-foreground">
+                    {currency(balancesByMethod.find((b) => b.method === paymentMethod)?.balance ?? 0)}
+                  </span>
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="kdesc">Description</Label>
