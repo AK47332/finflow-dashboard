@@ -168,28 +168,11 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
               <Field label="Full name" required>
                 <Input required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
               </Field>
-              <Field label="Country" required>
-                <Input required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
-              </Field>
               <div className="sm:col-span-2">
-                <Field label="Address line 1" required>
+                <Field label="Full Address" required>
                   <Input required value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} />
                 </Field>
               </div>
-              <div className="sm:col-span-2">
-                <Field label="Address line 2">
-                  <Input value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} />
-                </Field>
-              </div>
-              <Field label="City" required>
-                <Input required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-              </Field>
-              <Field label="State / Region">
-                <Input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
-              </Field>
-              <Field label="Postal code">
-                <Input value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} />
-              </Field>
             </div>
           </section>
 
