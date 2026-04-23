@@ -96,6 +96,7 @@ export function LedgerPage({ variant }: Props) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<LedgerEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<LedgerEntry | null>(null);
+  const [viewing, setViewing] = useState<LedgerEntry | null>(null);
 
   const [partyName, setPartyName] = useState("");
   const [clientPick, setClientPick] = useState<string>("__custom__");
@@ -297,6 +298,7 @@ export function LedgerPage({ variant }: Props) {
                 </TableCell>
                 <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => setViewing(r)} aria-label="View"><Eye className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setPendingDelete(r)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>
                   </div>
@@ -435,6 +437,46 @@ export function LedgerPage({ variant }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.title || (isReceivable ? "Receivable" : "Payable")}
+        description={`${isReceivable ? "Receivable" : "Payable"} entry details`}
+        fields={
+          viewing
+            ? [
+                { label: partyLabel, value: viewing.party_name },
+                { label: "Status", value: <span className="capitalize">{viewing.status}</span> },
+                { label: "Amount", value: <span className="font-semibold">{currency(viewing.amount)}</span> },
+                { label: "Paid", value: currency(viewing.amount_paid) },
+                {
+                  label: "Outstanding",
+                  value: <span className={`font-semibold ${isReceivable ? "text-income" : "text-expense"}`}>{currency(viewing.amount - viewing.amount_paid)}</span>,
+                },
+                { label: "Due Date", value: viewing.due_date ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+                {
+                  label: "Attachment",
+                  value: viewing.document_url ? (
+                    <a
+                      href={viewing.document_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      {viewing.document_name ?? "Open attachment"}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                  full: true,
+                },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }
