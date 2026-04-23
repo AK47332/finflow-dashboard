@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { TrendingDown, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,6 +109,23 @@ export default function ExpensePage() {
     setEditing(i);
     setDialogOpen(true);
   };
+
+  // Open expense edit from ?focus=<id> (e.g. clicked from Dashboard recent transactions)
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    if (!focus || expenses.length === 0) return;
+    const match = expenses.find((e) => e.id === focus);
+    if (match) {
+      openEdit(match);
+    } else {
+      toast.error("Expense entry not found");
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("focus");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expenses]);
 
   return (
     <div className="animate-fade-in space-y-6">

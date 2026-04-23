@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { TrendingUp, Plus, Search, Download, FileText, Pencil, Trash2, ArrowUpDown, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,6 +114,23 @@ export default function IncomePage() {
     setEditing(i);
     setDialogOpen(true);
   };
+
+  // Open income edit from ?focus=<id> (e.g. clicked from Dashboard recent transactions)
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    if (!focus || loading || incomes.length === 0) return;
+    const match = incomes.find((i) => i.id === focus);
+    if (match) {
+      openEdit(match);
+    } else {
+      toast.error("Income entry not found");
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("focus");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, incomes]);
 
   return (
     <div className="animate-fade-in space-y-6">

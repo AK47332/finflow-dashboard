@@ -331,6 +331,7 @@ export default function Dashboard() {
     const inc = filteredIncomes.map((i) => ({
       kind: "income" as const,
       id: `i-${i.id}`,
+      rawId: i.id,
       title: i.title,
       category: i.category,
       method: i.paymentMethod,
@@ -341,6 +342,7 @@ export default function Dashboard() {
     const exp = filteredExpenses.map((e) => ({
       kind: "expense" as const,
       id: `e-${e.id}`,
+      rawId: e.id,
       title: e.title,
       category: e.category,
       method: e.paymentMethod,
@@ -559,8 +561,16 @@ export default function Dashboard() {
                   <ul className="divide-y divide-border/60">
                     {recent.map((t) => {
                       const isIncome = t.kind === "income";
+                      const href = isIncome
+                        ? `/income?focus=${t.rawId}`
+                        : `/expense?focus=${t.rawId}`;
                       return (
-                        <li key={t.id} className="flex items-center gap-3 py-3 sm:gap-4">
+                        <li key={t.id}>
+                          <Link
+                            to={href}
+                            className="flex items-center gap-3 py-3 sm:gap-4 -mx-2 px-2 rounded-lg transition-colors hover:bg-muted/40"
+                            aria-label={`Open ${isIncome ? "income" : "expense"}: ${t.title}`}
+                          >
                           <div
                             className={cn(
                               "ft-stat-icon h-9 w-9 shrink-0 rounded-xl sm:h-10 sm:w-10",
@@ -588,6 +598,7 @@ export default function Dashboard() {
                               })}
                             </div>
                           </div>
+                          </Link>
                         </li>
                       );
                     })}
