@@ -311,6 +311,31 @@ export default function CapitalPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.type === "contribution" ? "Capital Contribution" : "Capital Withdrawal"}
+        description="Capital movement details"
+        fields={
+          viewing
+            ? [
+                { label: "Date", value: viewing.date },
+                { label: "Type", value: <span className="capitalize">{viewing.type}</span> },
+                {
+                  label: "Amount",
+                  value: (
+                    <span className={`font-semibold ${viewing.type === "contribution" ? "text-income" : "text-expense"}`}>
+                      {viewing.type === "contribution" ? "+" : "−"}{currency(viewing.amount)}
+                    </span>
+                  ),
+                },
+                { label: "Payment Method", value: viewing.payment_method ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

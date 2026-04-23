@@ -218,6 +218,32 @@ export default function ServicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.name ?? "Service"}
+        description="Service details"
+        fields={
+          viewing
+            ? [
+                {
+                  label: "Image",
+                  value: viewing.image_url ? (
+                    <img src={viewing.image_url} alt={viewing.name} className="h-32 w-32 rounded-lg object-cover" />
+                  ) : (
+                    "—"
+                  ),
+                  full: true,
+                },
+                { label: "Name", value: viewing.name },
+                { label: "Price", value: <span className="font-semibold">{currency(viewing.price)}</span> },
+                { label: "Unit", value: viewing.unit ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

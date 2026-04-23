@@ -456,6 +456,33 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.name ?? "Product"}
+        description="Product details"
+        fields={
+          viewing
+            ? [
+                { label: "Name", value: viewing.name },
+                { label: "SKU", value: viewing.sku ?? "—" },
+                { label: "Price", value: <span className="font-semibold">{currency(viewing.price)}</span> },
+                { label: "Cost", value: currency(viewing.cost) },
+                {
+                  label: "Stock",
+                  value: (
+                    <span className={viewing.stock <= 0 ? "font-semibold text-expense" : ""}>
+                      {viewing.stock}
+                    </span>
+                  ),
+                },
+                { label: "Unit", value: viewing.unit ?? "—" },
+                { label: "Description", value: viewing.description ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }

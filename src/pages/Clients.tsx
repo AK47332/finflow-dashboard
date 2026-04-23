@@ -323,6 +323,43 @@ export default function ClientsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RecordViewDialog
+        open={!!viewing}
+        onOpenChange={(v) => !v && setViewing(null)}
+        title={viewing?.name ?? "Client"}
+        description="Client details"
+        fields={
+          viewing
+            ? [
+                { label: "Name", value: viewing.name },
+                { label: "Company", value: viewing.company ?? "—" },
+                {
+                  label: "Email",
+                  value: viewing.email ? (
+                    <a href={`mailto:${viewing.email}`} className="text-primary hover:underline">
+                      {viewing.email}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                },
+                {
+                  label: "Phone",
+                  value: viewing.phone ? (
+                    <a href={`tel:${viewing.phone}`} className="text-primary hover:underline">
+                      {viewing.phone}
+                    </a>
+                  ) : (
+                    "—"
+                  ),
+                },
+                { label: "Address", value: viewing.address ?? "—", full: true },
+                { label: "Notes", value: viewing.notes ?? "—", full: true },
+              ]
+            : []
+        }
+      />
     </CrudShell>
   );
 }
