@@ -486,7 +486,7 @@ export default function Dashboard() {
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h3 className="text-base font-semibold text-foreground">{t("card.incomeVsExpense")}</h3>
-                    <p className="text-xs text-muted-foreground">{t("card.last6Months")}</p>
+                    <p className="text-xs text-muted-foreground">{chartSubtitle}</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
