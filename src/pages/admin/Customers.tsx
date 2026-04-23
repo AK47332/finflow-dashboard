@@ -60,7 +60,7 @@ export default function CustomersPage() {
   const [resetTarget, setResetTarget] = useState<Customer | null>(null);
 
   useEffect(() => {
-    document.title = "Customers — Admin";
+    document.title = "Create Admin — Super Admin";
   }, []);
 
   const load = async () => {
@@ -109,22 +109,22 @@ export default function CustomersPage() {
     <div className="space-y-6 p-4 md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Create Admin</h1>
           <p className="text-sm text-muted-foreground">
-            Create accounts and manage package expiry.
+            Create admin accounts with a dedicated workspace and manage package expiry.
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />
-          Add customer
+          Add admin
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All customers</CardTitle>
+          <CardTitle>All admin accounts</CardTitle>
           <CardDescription>
-            {customers.length} {customers.length === 1 ? "account" : "accounts"} total
+            {customers.length} {customers.length === 1 ? "admin" : "admins"} total
           </CardDescription>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
