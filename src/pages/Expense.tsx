@@ -237,7 +237,7 @@ export default function ExpensePage() {
               <TableHead className="text-foreground">Method</TableHead>
               <TableHead className="text-right text-foreground">Amount</TableHead>
               <TableHead className="text-foreground">Doc</TableHead>
-              <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
+              <TableHead className="ft-action-cell w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -283,7 +283,7 @@ export default function ExpensePage() {
                       <span className="text-xs text-muted-foreground">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="ft-action-cell text-right">
                     <div className="inline-flex gap-1">
                       <Button size="icon" variant="ghost" onClick={() => openEdit(i)} aria-label="Edit">
                         <Pencil className="h-4 w-4" />

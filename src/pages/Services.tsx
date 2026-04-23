@@ -128,7 +128,7 @@ export default function ServicesPage() {
               <TableHead className="text-right text-foreground">Price</TableHead>
               <TableHead className="text-foreground">Unit</TableHead>
               <TableHead className="text-foreground">Description</TableHead>
-              <TableHead className="w-[100px] text-right text-foreground">Actions</TableHead>
+              <TableHead className="ft-action-cell w-[100px] text-right text-foreground">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,7 +147,7 @@ export default function ServicesPage() {
                 <TableCell className="text-right font-semibold">{currency(s.price)}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{s.unit ?? "—"}</TableCell>
                 <TableCell className="max-w-xs truncate text-sm text-muted-foreground">{s.description ?? "—"}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="ft-action-cell text-right">
                   <div className="inline-flex gap-1">
                     <Button size="icon" variant="ghost" onClick={() => openEdit(s)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="icon" variant="ghost" onClick={() => setPendingDelete(s)} className="text-expense hover:text-expense"><Trash2 className="h-4 w-4" /></Button>

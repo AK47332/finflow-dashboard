@@ -318,6 +318,14 @@
     @apply bg-card rounded-2xl border border-border/40;
     box-shadow: var(--shadow-card);
   }
+  /* Sticky action column — keeps Edit/Delete buttons visible on narrow viewports */
+  .ft-action-cell {
+    @apply sticky right-0 z-10 bg-card;
+    box-shadow: -8px 0 12px -8px hsl(var(--foreground) / 0.08);
+  }
+  tr.bg-muted\/20 > .ft-action-cell {
+    background-color: hsl(var(--muted) / 0.35);
+  }
   .ft-card-hover {
     @apply transition-all duration-300;
   }
