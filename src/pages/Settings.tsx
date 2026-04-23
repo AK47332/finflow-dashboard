@@ -331,6 +331,53 @@ export default function SettingsPage() {
     await loadInvites();
   }
 
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    if (pwdNew.length < 8) {
+      return toast.error("New password must be at least 8 characters");
+    }
+    if (pwdNew !== pwdConfirm) {
+      return toast.error("Passwords do not match");
+    }
+    setPwdBusy(true);
+    // Verify current password by re-authenticating.
+    if (user.email) {
+      const { error: signinErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: pwdCurrent,
+      });
+      if (signinErr) {
+        setPwdBusy(false);
+        return toast.error("Current password is incorrect");
+      }
+    }
+    const { error } = await supabase.auth.updateUser({ password: pwdNew });
+    if (error) {
+      setPwdBusy(false);
+      return toast.error(error.message);
+    }
+    // Audit: record that the password changed (NOT the value).
+    await (supabase as any).from("password_changes").insert({
+      user_id: user.id,
+      email: user.email,
+    });
+    if (currentOrgId) {
+      await logActivity({
+        orgId: currentOrgId,
+        userId: user.id,
+        action: "password_changed",
+        entityType: "user",
+        summary: `Changed account password`,
+      });
+    }
+    setPwdCurrent("");
+    setPwdNew("");
+    setPwdConfirm("");
+    setPwdBusy(false);
+    toast.success("Password updated");
+  }
+
   async function handleChangeRole(
     member: Member,
     newRole: "admin" | "account_manager" | "store_manager" | "sales_manager",
@@ -645,6 +692,64 @@ export default function SettingsPage() {
                 })}
               </ul>
             )}
+          </div>
+
+          {/* Change my password */}
+          <div className="ft-card p-6">
+            <h3 className="mb-1 text-sm font-semibold text-foreground">
+              <KeyRound className="mr-1.5 inline h-4 w-4" />
+              Change my password
+            </h3>
+            <p className="mb-4 text-xs text-muted-foreground">
+              For your security, your actual password is never stored or shown to anyone.
+              The Super Admin only sees that a change happened and when.
+            </p>
+            <form
+              onSubmit={handleChangePassword}
+              className="grid max-w-md gap-3"
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-current">Current password</Label>
+                <Input
+                  id="pwd-current"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={pwdCurrent}
+                  onChange={(e) => setPwdCurrent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-new">New password</Label>
+                <Input
+                  id="pwd-new"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={pwdNew}
+                  onChange={(e) => setPwdNew(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-confirm">Confirm new password</Label>
+                <Input
+                  id="pwd-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={pwdConfirm}
+                  onChange={(e) => setPwdConfirm(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button type="submit" disabled={pwdBusy}>
+                  {pwdBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                  Update password
+                </Button>
+              </div>
+            </form>
           </div>
         </TabsContent>
 
