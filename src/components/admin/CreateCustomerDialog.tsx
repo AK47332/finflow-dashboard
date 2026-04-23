@@ -20,6 +20,7 @@ const Schema = z.object({
   email: z.string().trim().email().max(255),
   password: z.string().min(8).max(128),
   full_name: z.string().trim().max(120).optional(),
+  phone: z.string().trim().max(32).optional(),
   organization_name: z.string().trim().max(120).optional(),
   expiry_days: z.number().int().min(1).max(3650),
   notes: z.string().trim().max(1000).optional(),
@@ -47,6 +48,7 @@ export function CreateCustomerDialog({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [orgName, setOrgName] = useState("");
   const [expiryDays, setExpiryDays] = useState(30);
   const [notes, setNotes] = useState("");
@@ -57,6 +59,7 @@ export function CreateCustomerDialog({
     setEmail("");
     setPassword("");
     setFullName("");
+    setPhone("");
     setOrgName("");
     setExpiryDays(30);
     setNotes("");
@@ -69,6 +72,7 @@ export function CreateCustomerDialog({
       email,
       password,
       full_name: fullName || undefined,
+      phone: phone || undefined,
       organization_name: orgName || undefined,
       expiry_days: expiryDays,
       notes: notes || undefined,
