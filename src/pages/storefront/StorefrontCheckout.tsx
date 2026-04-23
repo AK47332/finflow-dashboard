@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { currency } from "@/lib/format";
 
 export function StorefrontCheckout({ orgId }: { orgId: string }) {
   const items = useCartStore((s) => s.items);
@@ -227,7 +228,7 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
                   {it.name} × {it.quantity}
                 </span>
                 <span className="shrink-0 font-semibold">
-                  ${(it.unit_price * it.quantity).toFixed(2)}
+                  {currency(it.unit_price * it.quantity)}
                 </span>
               </div>
             ))}
@@ -235,7 +236,7 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
           <div className="my-3 h-px bg-border" />
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-semibold">${subtotal.toFixed(2)}</span>
+            <span className="font-semibold">{currency(subtotal)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Shipping</span>
@@ -244,7 +245,7 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
           <div className="my-3 h-px bg-border" />
           <div className="flex justify-between text-base font-bold">
             <span>Total</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{currency(subtotal)}</span>
           </div>
           <Button type="submit" className="mt-4 w-full" size="lg" disabled={busy}>
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Place order"}
