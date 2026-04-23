@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, X, ShoppingBag, ArrowRight } from "lucide-react";
+import { currency } from "@/lib/format";
 
 export function StorefrontCart() {
   const items = useCartStore((s) => s.items);
@@ -42,7 +43,7 @@ export function StorefrontCart() {
                 <div className="line-clamp-1 font-semibold">{it.name}</div>
                 {it.sku && <div className="text-xs text-muted-foreground">SKU: {it.sku}</div>}
                 <div className="mt-1 text-sm font-bold text-primary">
-                  ${it.unit_price.toFixed(2)}
+                  {currency(it.unit_price)}
                 </div>
               </div>
               <div className="flex items-center rounded-lg border border-border/60">
@@ -55,7 +56,7 @@ export function StorefrontCart() {
                 </button>
               </div>
               <div className="w-20 text-right text-sm font-bold">
-                ${(it.unit_price * it.quantity).toFixed(2)}
+                {currency(it.unit_price * it.quantity)}
               </div>
               <button
                 onClick={() => removeItem(it.product_id)}
@@ -73,7 +74,7 @@ export function StorefrontCart() {
           <div className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-semibold">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold">{currency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Shipping</span>
@@ -82,7 +83,7 @@ export function StorefrontCart() {
             <div className="my-3 h-px bg-border" />
             <div className="flex justify-between text-base font-bold">
               <span>Total</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{currency(subtotal)}</span>
             </div>
           </div>
           <Button className="mt-5 w-full" onClick={() => navigate("/checkout")}>
