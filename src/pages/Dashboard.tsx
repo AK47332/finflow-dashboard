@@ -12,6 +12,12 @@ import {
   Plus,
   StickyNote,
   ArrowRight,
+  Banknote,
+  Landmark,
+  Smartphone,
+  CreditCard,
+  MoreHorizontal,
+  Clock,
 } from "lucide-react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { CategoryDonut } from "@/components/dashboard/CategoryDonut";
@@ -94,6 +100,13 @@ export default function Dashboard() {
   const [capital, setCapital] = useState<any[]>([]);
   const [reminders, setReminders] = useState<any[]>([]);
 
+  // Live clock for the dashboard header
+  const [now, setNow] = useState<Date>(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     if (!currentOrgId) return;
     let cancel = false;
@@ -174,6 +187,31 @@ export default function Dashboard() {
     (s, c: any) => s + (c.type === "contribution" ? Number(c.amount) : -Number(c.amount)),
     0,
   );
+
+  // Per-payment-method capital balance (contributions add, withdrawals subtract)
+  const CAPITAL_METHODS = ["Cash", "Bank Transfer", "Mobile Banking", "Card", "Other"] as const;
+  const capitalByMethod = useMemo(() => {
+    const map = new Map<string, number>();
+    CAPITAL_METHODS.forEach((m) => map.set(m, 0));
+    capital.forEach((c: any) => {
+      const raw = (c.payment_method as string | null) ?? "Other";
+      const key = (CAPITAL_METHODS as readonly string[]).includes(raw) ? raw : "Other";
+      const sign = c.type === "contribution" ? 1 : -1;
+      map.set(key, (map.get(key) ?? 0) + sign * Number(c.amount));
+    });
+    return CAPITAL_METHODS.map((m) => ({ method: m, balance: map.get(m) ?? 0 }));
+  }, [capital]);
+
+  const methodIcon = (m: string) => {
+    switch (m) {
+      case "Cash": return Banknote;
+      case "Bank Transfer": return Landmark;
+      case "Mobile Banking": return Smartphone;
+      case "Card": return CreditCard;
+      default: return MoreHorizontal;
+    }
+  };
+
   const totalReceivable = receivables.reduce(
     (s, r: any) => s + (Number(r.amount) - Number(r.amount_paid ?? 0)),
     0,
@@ -407,7 +445,18 @@ export default function Dashboard() {
             {t("dash.subtitle", { org: currentOrg?.name ?? t("dash.yourBusiness") })}
           </p>
         </div>
-        <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
+        <div className="flex flex-col items-start gap-3 sm:items-end">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-card/80 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur">
+            <Clock className="h-3.5 w-3.5 text-primary" />
+            <span className="tabular-nums">
+              {now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground">
+              {now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+            </span>
+          </div>
+          <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
           <TabsList>
             <TabsTrigger value="today">{t("range.today")}</TabsTrigger>
             <TabsTrigger value="week">{t("range.week")}</TabsTrigger>
@@ -421,7 +470,8 @@ export default function Dashboard() {
               {t("range.custom")}
             </TabsTrigger>
           </TabsList>
-        </Tabs>
+          </Tabs>
+        </div>
       </header>
 
       {range === "custom" && (
@@ -480,6 +530,53 @@ export default function Dashboard() {
             <StatCard label={t("stat.capital")} value={fmtCurrency(capitalBalance, sym)} icon={Wallet} tone="capital" />
             <StatCard label={t("stat.receivables")} value={fmtCurrency(totalReceivable, sym)} icon={ArrowDownLeft} tone="receivable" />
             <StatCard label={t("stat.payables")} value={fmtCurrency(totalPayable, sym)} icon={ArrowUpRight} tone="payable" />
+          </section>
+
+          <section className="ft-card p-5 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 className="text-base font-semibold text-foreground">{t("stat.capital")} · By Source</h3>
+                <p className="text-xs text-muted-foreground">Live balance per payment method</p>
+              </div>
+              <Link to="/capital" className="text-xs font-semibold text-primary hover:underline">
+                {t("card.viewAll")}
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {capitalByMethod.map(({ method, balance }) => {
+                const Icon = methodIcon(method);
+                const tone =
+                  balance > 0
+                    ? "bg-income-soft text-income"
+                    : balance < 0
+                    ? "bg-expense-soft text-expense"
+                    : "bg-primary-soft text-primary";
+                return (
+                  <div
+                    key={method}
+                    className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/40"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`ft-stat-icon ${tone}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium text-muted-foreground">
+                          {method}
+                        </p>
+                        <p
+                          className={`truncate text-lg font-bold ${
+                            balance < 0 ? "text-expense" : "text-foreground"
+                          }`}
+                        >
+                          {fmtCurrency(balance, sym)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </section>
 
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
