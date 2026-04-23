@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { Menu, Search, ChevronDown, LogOut, Building2, Check, Settings as SettingsIcon, ShoppingCart } from "lucide-react";
+import {
+  Menu,
+  Search,
+  ChevronDown,
+  LogOut,
+  Building2,
+  Check,
+  Settings as SettingsIcon,
+  ShoppingCart,
+  Languages,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +25,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationsBell } from "./NotificationsBell";
 import { ThemeToggle } from "./ThemeToggle";
+import { useLocale } from "@/contexts/LocaleContext";
 
 function initials(name?: string | null, email?: string | null) {
   const src = name || email || "";
@@ -43,6 +54,7 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
   const { user, signOut } = useAuth();
   const { orgs, currentOrg, switchOrg } = useOrg();
   const navigate = useNavigate();
+  const { locale, setLocale } = useLocale();
   const [search, setSearch] = useState("");
 
   const displayName =
@@ -125,6 +137,37 @@ export function AppHeader({ onMenu }: { onMenu: () => void }) {
         >
           <ShoppingCart className="h-5 w-5" />
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-xl"
+              aria-label="Language"
+              title="Language"
+            >
+              <Languages className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuLabel>Language</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => setLocale("en")}
+              className="flex items-center justify-between"
+            >
+              <span>English</span>
+              {locale === "en" && <Check className="h-4 w-4 text-primary" />}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setLocale("bn")}
+              className="flex items-center justify-between"
+            >
+              <span>বাংলা</span>
+              {locale === "bn" && <Check className="h-4 w-4 text-primary" />}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <NotificationsBell />
 
         <DropdownMenu>
