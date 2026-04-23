@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,14 +51,14 @@ const TZ_STORAGE_KEY = "ui-timezone";
 type Member = {
   id: string;
   user_id: string;
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "account_manager" | "store_manager" | "sales_manager" | "member";
   profile?: { full_name: string | null; email: string | null; avatar_url: string | null };
 };
 
 type Invitation = {
   id: string;
   email: string;
-  role: "owner" | "admin" | "member";
+  role: "owner" | "admin" | "account_manager" | "store_manager" | "sales_manager" | "member";
   status: "pending" | "accepted" | "revoked" | "expired";
   expires_at: string;
   created_at: string;
@@ -112,8 +112,16 @@ export default function SettingsPage() {
   // Invitations
   const [invites, setInvites] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"member" | "admin">("member");
+  const [inviteRole, setInviteRole] = useState<
+    "sales_manager" | "account_manager" | "store_manager"
+  >("sales_manager");
   const [sendingInvite, setSendingInvite] = useState(false);
+
+  // Password change
+  const [pwdCurrent, setPwdCurrent] = useState("");
+  const [pwdNew, setPwdNew] = useState("");
+  const [pwdConfirm, setPwdConfirm] = useState("");
+  const [pwdBusy, setPwdBusy] = useState(false);
 
   // Categories
   const [categories, setCategories] = useState<Category[]>([]);
@@ -308,7 +316,7 @@ export default function SettingsPage() {
       summary: `Invited ${inviteEmail} as ${inviteRole}`,
     });
     setInviteEmail("");
-    setInviteRole("member");
+    setInviteRole("sales_manager");
     await loadInvites();
     await loadActivity();
   }
@@ -323,7 +331,57 @@ export default function SettingsPage() {
     await loadInvites();
   }
 
-  async function handleChangeRole(member: Member, newRole: "admin" | "member") {
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    if (pwdNew.length < 8) {
+      return toast.error("New password must be at least 8 characters");
+    }
+    if (pwdNew !== pwdConfirm) {
+      return toast.error("Passwords do not match");
+    }
+    setPwdBusy(true);
+    // Verify current password by re-authenticating.
+    if (user.email) {
+      const { error: signinErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: pwdCurrent,
+      });
+      if (signinErr) {
+        setPwdBusy(false);
+        return toast.error("Current password is incorrect");
+      }
+    }
+    const { error } = await supabase.auth.updateUser({ password: pwdNew });
+    if (error) {
+      setPwdBusy(false);
+      return toast.error(error.message);
+    }
+    // Audit: record that the password changed (NOT the value).
+    await (supabase as any).from("password_changes").insert({
+      user_id: user.id,
+      email: user.email,
+    });
+    if (currentOrgId) {
+      await logActivity({
+        orgId: currentOrgId,
+        userId: user.id,
+        action: "password_changed",
+        entityType: "user",
+        summary: `Changed account password`,
+      });
+    }
+    setPwdCurrent("");
+    setPwdNew("");
+    setPwdConfirm("");
+    setPwdBusy(false);
+    toast.success("Password updated");
+  }
+
+  async function handleChangeRole(
+    member: Member,
+    newRole: "admin" | "account_manager" | "store_manager" | "sales_manager",
+  ) {
     if (!currentOrgId || !user) return;
     const { error } = await supabase
       .from("organization_members")
@@ -511,7 +569,14 @@ export default function SettingsPage() {
         <TabsContent value="team" className="mt-4 space-y-4">
           {isAdmin && (
             <div className="ft-card p-6">
-              <h3 className="mb-4 text-sm font-semibold text-foreground">Invite teammate</h3>
+              <h3 className="mb-1 text-sm font-semibold text-foreground">Add Team Member</h3>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Invite a teammate by email and choose what they can access.
+                <br />
+                <strong>Sales Manager</strong> — products, services, POS &amp; clients.
+                <strong className="ml-3">Account Manager</strong> — full app except settings.
+                <strong className="ml-3">Store Manager</strong> — ecommerce admin only.
+              </p>
               <form onSubmit={handleSendInvite} className="flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[220px] space-y-1.5">
                   <Label htmlFor="invemail">Email</Label>
@@ -526,10 +591,11 @@ export default function SettingsPage() {
                 <div className="space-y-1.5">
                   <Label htmlFor="invrole">Role</Label>
                   <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as any)}>
-                    <SelectTrigger id="invrole" className="w-[140px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id="invrole" className="w-[180px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                      <SelectItem value="account_manager">Account Manager</SelectItem>
+                      <SelectItem value="store_manager">Store Manager</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -596,15 +662,23 @@ export default function SettingsPage() {
                         <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary">
                           {m.role === "owner" && <Crown className="h-3 w-3" />}
                           {m.role === "admin" && <ShieldCheck className="h-3 w-3" />}
-                          {m.role}
+                          {m.role === "sales_manager"
+                            ? "Sales Manager"
+                            : m.role === "account_manager"
+                              ? "Account Manager"
+                              : m.role === "store_manager"
+                                ? "Store Manager"
+                                : m.role}
                         </span>
                         {isOwner && m.role !== "owner" && !isSelf && (
                           <>
                             <Select value={m.role} onValueChange={(v) => handleChangeRole(m, v as any)}>
-                              <SelectTrigger className="h-8 w-[110px]"><SelectValue /></SelectTrigger>
+                              <SelectTrigger className="h-8 w-[160px]"><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="member">Member</SelectItem>
+                                <SelectItem value="sales_manager">Sales Manager</SelectItem>
+                                <SelectItem value="account_manager">Account Manager</SelectItem>
+                                <SelectItem value="store_manager">Store Manager</SelectItem>
                               </SelectContent>
                             </Select>
                             <Button size="icon" variant="ghost" className="text-expense hover:text-expense" onClick={() => setRemoveTarget(m)}>
@@ -618,6 +692,64 @@ export default function SettingsPage() {
                 })}
               </ul>
             )}
+          </div>
+
+          {/* Change my password */}
+          <div className="ft-card p-6">
+            <h3 className="mb-1 text-sm font-semibold text-foreground">
+              <KeyRound className="mr-1.5 inline h-4 w-4" />
+              Change my password
+            </h3>
+            <p className="mb-4 text-xs text-muted-foreground">
+              For your security, your actual password is never stored or shown to anyone.
+              The Super Admin only sees that a change happened and when.
+            </p>
+            <form
+              onSubmit={handleChangePassword}
+              className="grid max-w-md gap-3"
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-current">Current password</Label>
+                <Input
+                  id="pwd-current"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={pwdCurrent}
+                  onChange={(e) => setPwdCurrent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-new">New password</Label>
+                <Input
+                  id="pwd-new"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={pwdNew}
+                  onChange={(e) => setPwdNew(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd-confirm">Confirm new password</Label>
+                <Input
+                  id="pwd-confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={pwdConfirm}
+                  onChange={(e) => setPwdConfirm(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button type="submit" disabled={pwdBusy}>
+                  {pwdBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                  Update password
+                </Button>
+              </div>
+            </form>
           </div>
         </TabsContent>
 

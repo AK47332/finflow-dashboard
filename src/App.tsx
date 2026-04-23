@@ -40,6 +40,7 @@ import ProfitLossPage from "./pages/ProfitLoss.tsx";
 import PortalPage from "./pages/Portal.tsx";
 import CustomersAdminPage from "./pages/admin/Customers.tsx";
 import { ExpiryGate } from "@/components/auth/ExpiryGate";
+import { RoleGuard } from "@/components/auth/RoleGuard";
 import StorefrontRoot from "./pages/StorefrontRoot.tsx";
 import CustomerAccountPage from "./pages/CustomerAccount.tsx";
 import FrontendMoodPage from "./pages/admin/FrontendMood.tsx";
@@ -70,7 +71,8 @@ const App = () => (
               <Route path="/account" element={<CustomerAccountPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route element={<ExpiryGate />}>
-                  <Route element={<AppLayout />}>
+                  <Route element={<RoleGuard />}>
+                    <Route element={<AppLayout />}>
                     <Route path="/dashboard" element={<Index />} />
                     <Route path="/income" element={<IncomePage />} />
                     <Route path="/expense" element={<ExpensePage />} />
@@ -97,6 +99,7 @@ const App = () => (
                     <Route path="/ecom/contact-widget" element={<EcomContactWidgetPage />} />
                     <Route path="/ecom/footer" element={<EcomFooterSettingsPage />} />
                     <Route path="/admin/customers" element={<CustomersAdminPage />} />
+                    </Route>
                   </Route>
                 </Route>
               </Route>

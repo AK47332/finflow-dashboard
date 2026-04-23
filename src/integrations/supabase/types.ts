@@ -1327,6 +1327,30 @@ export type Database = {
         }
         Relationships: []
       }
+      password_changes: {
+        Row: {
+          changed_at: string
+          created_at: string
+          email: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payables: {
         Row: {
           amount: number
@@ -1701,6 +1725,10 @@ export type Database = {
     Functions: {
       current_org_id: { Args: never; Returns: string }
       current_user_email: { Args: never; Returns: string }
+      get_user_role: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_org_role: {
         Args: {
           _org_id: string
@@ -1721,7 +1749,13 @@ export type Database = {
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "owner" | "admin" | "member"
+      app_role:
+        | "owner"
+        | "admin"
+        | "member"
+        | "sales_manager"
+        | "account_manager"
+        | "store_manager"
       capital_type: "contribution" | "withdrawal"
       frontend_mode: "private" | "ecommerce" | "landing"
       invite_status: "pending" | "accepted" | "revoked" | "expired"
@@ -1862,7 +1896,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "admin", "member"],
+      app_role: [
+        "owner",
+        "admin",
+        "member",
+        "sales_manager",
+        "account_manager",
+        "store_manager",
+      ],
       capital_type: ["contribution", "withdrawal"],
       frontend_mode: ["private", "ecommerce", "landing"],
       invite_status: ["pending", "accepted", "revoked", "expired"],
