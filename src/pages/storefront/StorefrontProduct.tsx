@@ -14,6 +14,7 @@ import { CountdownTimer } from "@/components/storefront/CountdownTimer";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import type { StorefrontProduct as SP, EcomCategory } from "@/lib/ecom";
+import { currency } from "@/lib/format";
 
 const SIZE_LIKE = /^(xxs|xs|s|m|l|xl|xxl|xxxl|free|custom|\d{1,2}y?)$/i;
 
@@ -140,7 +141,7 @@ export function StorefrontProduct({ orgId }: { orgId: string }) {
     toast.success(`Added ${qty} × ${product.name}`);
   };
 
-  const fmt = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+  const fmt = (n: number) => currency(n);
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-10">
