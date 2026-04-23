@@ -331,6 +331,7 @@ export default function Dashboard() {
     const inc = filteredIncomes.map((i) => ({
       kind: "income" as const,
       id: `i-${i.id}`,
+      rawId: i.id,
       title: i.title,
       category: i.category,
       method: i.paymentMethod,
@@ -341,6 +342,7 @@ export default function Dashboard() {
     const exp = filteredExpenses.map((e) => ({
       kind: "expense" as const,
       id: `e-${e.id}`,
+      rawId: e.id,
       title: e.title,
       category: e.category,
       method: e.paymentMethod,
