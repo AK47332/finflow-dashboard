@@ -169,10 +169,10 @@ export function StorefrontHome({ orgId, settings }: Props) {
         <section className="container mx-auto px-4 py-16 md:py-20">
           <div className="flex flex-col items-center text-center">
             <h2 className="heading-underline-center font-serif-display text-3xl font-bold md:text-4xl">
-              Shop our edit
+              Browse Our Shop
             </h2>
             <p className="mt-3 max-w-lg text-sm text-muted-foreground">
-              Hand-picked, slow-made, always in season.
+              Trending product list
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-1 rounded-full border border-border/60 bg-card p-1 shadow-soft">
               {([
