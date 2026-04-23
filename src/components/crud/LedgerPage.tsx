@@ -254,7 +254,7 @@ export function LedgerPage({ variant }: Props) {
           <TableHeader>
             <TableRow className={isReceivable ? "bg-income-soft/60 hover:bg-income-soft/60" : "bg-expense-soft/60 hover:bg-expense-soft/60"}>
               <TableHead className="text-foreground">{partyLabel}</TableHead>
-              <TableHead className="text-foreground">Description</TableHead>
+              <TableHead className="text-foreground">Title / Description</TableHead>
               <TableHead className="text-foreground">Due</TableHead>
               <TableHead className="text-foreground">Status</TableHead>
               <TableHead className="text-right text-foreground">Amount</TableHead>
@@ -267,7 +267,24 @@ export function LedgerPage({ variant }: Props) {
             {filtered.map((r, i) => (
               <TableRow key={r.id} className={i % 2 === 1 ? "bg-muted/20" : undefined}>
                 <TableCell className="font-medium text-foreground">{r.party_name}</TableCell>
-                <TableCell className="max-w-xs truncate text-sm text-muted-foreground">{r.description ?? "—"}</TableCell>
+                <TableCell className="max-w-xs text-sm">
+                  {r.title && <div className="truncate font-medium text-foreground">{r.title}</div>}
+                  {r.description && (
+                    <div className="truncate text-muted-foreground">{r.description}</div>
+                  )}
+                  {r.document_url && (
+                    <a
+                      href={r.document_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      {r.document_name ?? "Attachment"}
+                    </a>
+                  )}
+                  {!r.title && !r.description && !r.document_url && "—"}
+                </TableCell>
                 <TableCell className="text-sm text-muted-foreground">{r.due_date ?? "—"}</TableCell>
                 <TableCell>
                   <Badge className={`${STATUS_STYLES[r.status]} capitalize`}>{r.status}</Badge>
@@ -296,12 +313,72 @@ export function LedgerPage({ variant }: Props) {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="lname">{partyLabel} name *</Label>
-              <Input id="lname" value={partyName} onChange={(e) => setPartyName(e.target.value)} />
+              <Label htmlFor="ltitle">Title *</Label>
+              <Input
+                id="ltitle"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={isReceivable ? "Invoice INV-1024" : "Vendor bill #842"}
+              />
             </div>
+
+            {isReceivable ? (
+              <div className="space-y-1.5">
+                <Label>{partyLabel} *</Label>
+                <Select
+                  value={clientPick}
+                  onValueChange={(v) => {
+                    setClientPick(v);
+                    if (v !== "__custom__") {
+                      const c = clients.find((cc) => cc.id === v);
+                      if (c) setPartyName(c.name);
+                    } else {
+                      setPartyName("");
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pick a client or enter custom" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__custom__">+ Custom name</SelectItem>
+                    {clients.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {clientPick === "__custom__" && (
+                  <Input
+                    className="mt-2"
+                    placeholder="Custom client name"
+                    value={partyName}
+                    onChange={(e) => setPartyName(e.target.value)}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <Label htmlFor="lname">{partyLabel} name *</Label>
+                <Input
+                  id="lname"
+                  value={partyName}
+                  onChange={(e) => setPartyName(e.target.value)}
+                  placeholder="ACME Supplies"
+                />
+              </div>
+            )}
+
             <div className="space-y-1.5">
-              <Label htmlFor="ldesc">Description</Label>
-              <Textarea id="ldesc" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+              <Label htmlFor="ldesc">Description *</Label>
+              <Textarea
+                id="ldesc"
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What is this for?"
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -329,6 +406,7 @@ export function LedgerPage({ variant }: Props) {
                 <p className="text-xs text-muted-foreground">Auto-set from amounts unless Overdue.</p>
               </div>
             </div>
+            <FileAttachment value={attachment} onChange={setAttachment} />
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit">{editing ? "Save changes" : "Add"}</Button>
