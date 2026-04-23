@@ -105,6 +105,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { isSuperAdmin } = useSuperAdmin();
   const { user } = useAuth();
   const { currentOrg } = useOrg();
+  const { t } = useLocale();
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||
@@ -114,10 +115,10 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
     ? [
         ...groups,
         {
-          label: "Admin",
+          labelKey: "section.admin",
           items: [
-            { title: "Frontend Mood", url: "/frontend-mood", icon: Palette },
-            { title: "Create Admin", url: "/admin/customers", icon: ShieldCheck },
+            { titleKey: "nav.frontendMood", url: "/frontend-mood", icon: Palette },
+            { titleKey: "nav.createAdmin", url: "/admin/customers", icon: ShieldCheck },
           ],
         },
       ]
@@ -133,8 +134,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         const hasActive = g.items.some((item) =>
           item.url === "/" ? location.pathname === "/" : location.pathname.startsWith(item.url),
         );
-        if (hasActive) next[g.label] = true;
-        else if (next[g.label] === undefined) next[g.label] = false;
+        if (hasActive) next[g.labelKey] = true;
+        else if (next[g.labelKey] === undefined) next[g.labelKey] = false;
       });
       return next;
     });
