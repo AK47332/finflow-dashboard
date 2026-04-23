@@ -29,6 +29,8 @@ export function CrudShell({
   children,
   addClassName,
 }: Props) {
+  const showEmptyState = !loading && empty;
+
   return (
     <div className="animate-fade-in space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -50,15 +52,18 @@ export function CrudShell({
         <div className="ft-card flex items-center justify-center p-12">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      ) : empty ? (
-        <div className="ft-card flex flex-col items-center justify-center gap-3 p-12 text-center">
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
-          <Button variant="outline" onClick={onAdd}>
-            <Plus className="h-4 w-4" /> {addLabel}
-          </Button>
-        </div>
       ) : (
-        children
+        <>
+          {showEmptyState && (
+            <div className="ft-card flex flex-col items-center justify-center gap-3 p-12 text-center">
+              <p className="text-sm text-muted-foreground">{emptyText}</p>
+              <Button variant="outline" onClick={onAdd}>
+                <Plus className="h-4 w-4" /> {addLabel}
+              </Button>
+            </div>
+          )}
+          <div className={showEmptyState ? "hidden" : undefined}>{children}</div>
+        </>
       )}
     </div>
   );
