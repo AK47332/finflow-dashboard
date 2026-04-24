@@ -3,7 +3,6 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  Sprout,
   ArrowDownLeft,
   ArrowUpRight,
   Package,
@@ -28,6 +27,7 @@ import {
   FileText,
   MessageCircle,
 } from "lucide-react";
+import brandLogo from "@/assets/business-desk-pro-logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
