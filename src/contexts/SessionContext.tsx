@@ -48,7 +48,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const load = async () => {
     if (!user) {
-      setState({ ...defaultValue, loading: false, refresh: undefined as never });
+      setState({
+        isSuperAdmin: false,
+        isOrgMember: false,
+        subscription: defaultValue.subscription,
+        loading: false,
+      });
       return;
     }
     setState((s) => ({ ...s, loading: true }));
