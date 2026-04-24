@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound, Copy, ExternalLink, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -47,6 +47,33 @@ const TIMEZONES = [
   "Australia/Sydney",
 ];
 const TZ_STORAGE_KEY = "ui-timezone";
+
+const RESERVED_SLUGS = new Set([
+  "auth","onboarding","dashboard","income","expense","capital","profit",
+  "clients","products","pos","services","receivables","payables","notes",
+  "reminders","reports","settings","frontend-mood","admin","ecom","account",
+  "shop","cart","checkout","product","page","api","assets","static","public",
+  "storefront","s","store",
+]);
+const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
+
+function normalizeSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-");
+}
+
+function validateSlug(s: string): { ok: boolean; error?: string } {
+  if (!s) return { ok: true };
+  if (s.length < 2) return { ok: false, error: "Must be at least 2 characters." };
+  if (s.length > 40) return { ok: false, error: "Must be 40 characters or fewer." };
+  if (!SLUG_REGEX.test(s)) return { ok: false, error: "Use lowercase letters, numbers and hyphens (no leading/trailing hyphen)." };
+  if (RESERVED_SLUGS.has(s)) return { ok: false, error: `"${s}" is a reserved name and cannot be used.` };
+  return { ok: true };
+}
 
 type Member = {
   id: string;
