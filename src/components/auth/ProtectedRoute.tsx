@@ -1,10 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
-import { useSuperAdmin } from "@/hooks/useSuperAdmin";
+import { useSession } from "@/contexts/SessionContext";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 function FullScreenLoader() {
   return (
@@ -17,40 +15,15 @@ function FullScreenLoader() {
 export function ProtectedRoute() {
   const { user, loading: authLoading } = useAuth();
   const { currentOrgId, loading: orgLoading } = useOrg();
-  const { isSuperAdmin, loading: saLoading } = useSuperAdmin();
+  const { isSuperAdmin, isOrgMember, loading: sessionLoading } = useSession();
   const location = useLocation();
-  const [memberCheck, setMemberCheck] = useState<{ loading: boolean; isMember: boolean }>({
-    loading: true,
-    isMember: false,
-  });
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!user) {
-      setMemberCheck({ loading: false, isMember: false });
-      return;
-    }
-    setMemberCheck({ loading: true, isMember: false });
-    (async () => {
-      const { data } = await supabase
-        .from("organization_members")
-        .select("id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .maybeSingle();
-      if (!cancelled) setMemberCheck({ loading: false, isMember: !!data });
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
-
-  if (authLoading || orgLoading || saLoading || memberCheck.loading) return <FullScreenLoader />;
+  if (authLoading || orgLoading || sessionLoading) return <FullScreenLoader />;
   if (!user) return <Navigate to="/auth" replace state={{ from: location }} />;
 
   // Ecom customers (no org membership and not super admin) must NEVER see the
   // admin app. Redirect them to their customer area on the storefront.
-  if (!isSuperAdmin && !memberCheck.isMember) {
+  if (!isSuperAdmin && !isOrgMember) {
     if (location.pathname === "/onboarding") {
       // They cannot create orgs from this signup flow.
       return <Navigate to="/account" replace />;
