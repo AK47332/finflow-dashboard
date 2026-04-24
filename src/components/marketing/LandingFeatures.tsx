@@ -32,7 +32,7 @@ export function LandingFeatures() {
             One platform. Every money flow.
           </h2>
           <p className="mt-4 text-white/60">
-            From the first invoice to the year-end report — FinTrack Pro replaces five separate tools with one cohesive system.
+            From the first invoice to the year-end report — Business Desk Pro replaces five separate tools with one cohesive system.
           </p>
         </div>
 

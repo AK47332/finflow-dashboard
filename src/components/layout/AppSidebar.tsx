@@ -28,6 +28,7 @@ import {
   FileText,
   MessageCircle,
 } from "lucide-react";
+import brandLogo from "@/assets/business-desk-pro-logo.png";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -156,11 +157,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <aside className="bg-gradient-sidebar text-sidebar-foreground flex h-full w-[240px] flex-col">
       <div className="flex items-center gap-3 px-6 pt-7 pb-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-          <Sprout className="h-5 w-5" />
-        </div>
+        <img src={brandLogo} alt="Business Desk Pro" className="h-10 w-auto" />
         <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight">FinTrack Pro</div>
+          <div className="text-base font-bold tracking-tight">Business Desk Pro</div>
           <div className="text-[11px] font-medium text-white/70">Income · Expense</div>
         </div>
       </div>

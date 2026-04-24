@@ -1,15 +1,16 @@
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Wallet, LogIn, ExternalLink } from "lucide-react";
+import { LogIn, ExternalLink } from "lucide-react";
+import logo from "@/assets/business-desk-pro-logo.png";
 
 const SUBSCRIPTION_URL = "https://businessdeskpro.brownfoxit.com";
 
 export default function PortalPage() {
   useEffect(() => {
-    document.title = "FinTrack Pro — Login or Get a subscription";
+    document.title = "Business Desk Pro — Login or Get a subscription";
     const desc =
-      "Login to your FinTrack Pro account or get a subscription to manage your business finances.";
+      "Login to your Business Desk Pro account or get a subscription to manage your business finances.";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -20,16 +21,14 @@ export default function PortalPage() {
   }, []);
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-primary-soft via-background to-muted/30 p-4">
+    <main className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-black p-4">
       <section className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-soft">
-            <Wallet className="h-7 w-7" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Welcome to FinTrack Pro
+          <img src={logo} alt="Business Desk Pro" className="h-16 w-auto" />
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Welcome to Business Desk Pro
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white/70">
             Manage your business finances with ease.
           </p>
         </div>

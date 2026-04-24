@@ -14,7 +14,7 @@ export default function LandingPage() {
   // SEO: title, meta, canonical, JSON-LD
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = "FinTrack Pro — Modern finance OS for growing teams";
+    document.title = "Business Desk Pro — Modern finance OS for growing teams";
 
     const setMeta = (name: string, content: string, attr: "name" | "property" = "name") => {
       let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
@@ -27,13 +27,13 @@ export default function LandingPage() {
     };
 
     const desc =
-      "FinTrack Pro is the multi-workspace finance platform for income, expenses, receivables, payables, and reports — built for modern teams.";
+      "Business Desk Pro is the multi-workspace finance platform for income, expenses, receivables, payables, and reports — built for modern teams.";
     setMeta("description", desc);
-    setMeta("og:title", "FinTrack Pro — Modern finance OS", "property");
+    setMeta("og:title", "Business Desk Pro — Modern finance OS", "property");
     setMeta("og:description", desc, "property");
     setMeta("og:type", "website", "property");
     setMeta("twitter:card", "summary_large_image");
-    setMeta("twitter:title", "FinTrack Pro");
+    setMeta("twitter:title", "Business Desk Pro");
     setMeta("twitter:description", desc);
 
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -55,7 +55,7 @@ export default function LandingPage() {
     ld.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      name: "FinTrack Pro",
+      name: "Business Desk Pro",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },

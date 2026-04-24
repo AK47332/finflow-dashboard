@@ -18,7 +18,7 @@ export type FooterSettings = {
 };
 
 export const DEFAULT_FOOTER: FooterSettings = {
-  copyright_text: `© ${new Date().getFullYear()} FinTrack Pro. All rights reserved.`,
+  copyright_text: `© ${new Date().getFullYear()} Business Desk Pro. All rights reserved.`,
   contact_text: "Need help?",
   contact_button_label: "Contact us",
   contact_button_url: "mailto:support@example.com",

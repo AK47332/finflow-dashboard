@@ -96,7 +96,7 @@ export default function AuthPage() {
     toast.success("Account created — check your email to confirm.");
   };
 
-  const storeName = settings?.store_name ?? "FinTrack Pro";
+  const storeName = settings?.store_name ?? "Business Desk Pro";
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-primary-soft via-background to-muted/30 p-4">
@@ -106,7 +106,7 @@ export default function AuthPage() {
             <Wallet className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {isCustomer ? storeName : "FinTrack Pro"}
+            {isCustomer ? storeName : "Business Desk Pro"}
           </h1>
           <p className="text-sm text-muted-foreground">
             {isCustomer

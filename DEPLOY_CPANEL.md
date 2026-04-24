@@ -1,4 +1,4 @@
-# Self-hosting FinTrack Pro on cPanel
+# Self-hosting Business Desk Pro on cPanel
 
 This guide covers deploying the **frontend** to your own cPanel hosting while
 keeping the **backend** (database, auth, edge functions, storage) on Lovable
