@@ -156,12 +156,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <aside className="bg-gradient-sidebar text-sidebar-foreground flex h-full w-[240px] flex-col">
-      <div className="flex items-center gap-3 px-6 pt-7 pb-6">
-        <img src={brandLogo} alt="Business Desk Pro" className="h-10 w-auto" />
-        <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight">Business Desk Pro</div>
-          <div className="text-[11px] font-medium text-white/70">Income · Expense</div>
-        </div>
+      <div className="flex items-center justify-center px-6 pt-7 pb-6">
+        <img src={brandLogo} alt="Business Desk Pro" className="h-12 w-auto" />
       </div>
 
       {/* Profile block */}
