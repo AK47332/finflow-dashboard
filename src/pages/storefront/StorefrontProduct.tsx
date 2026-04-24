@@ -20,6 +20,7 @@ import { currency } from "@/lib/format";
 const SIZE_LIKE = /^(xxs|xs|s|m|l|xl|xxl|xxxl|free|custom|\d{1,2}y?)$/i;
 
 export function StorefrontProduct({ orgId }: { orgId: string }) {
+  const storeLink = useStoreLink();
   const { slug } = useParams();
   const [product, setProduct] = useState<SP | null>(null);
   const [related, setRelated] = useState<SP[]>([]);

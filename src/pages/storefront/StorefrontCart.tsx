@@ -6,6 +6,7 @@ import { Minus, Plus, X, ShoppingBag, ArrowRight } from "lucide-react";
 import { currency } from "@/lib/format";
 
 export function StorefrontCart() {
+  const storeLink = useStoreLink();
   const items = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const removeItem = useCartStore((s) => s.removeItem);

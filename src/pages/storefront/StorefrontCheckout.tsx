@@ -13,6 +13,7 @@ import { Loader2, ShieldCheck } from "lucide-react";
 import { currency } from "@/lib/format";
 
 export function StorefrontCheckout({ orgId }: { orgId: string }) {
+  const storeLink = useStoreLink();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
   const clear = useCartStore((s) => s.clear);
