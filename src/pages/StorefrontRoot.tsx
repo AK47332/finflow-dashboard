@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,15 @@ import PortalPage from "./Portal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
+// Reserved first-path segments that must NEVER be treated as a store slug.
+// Keep in sync with the database trigger `check_org_slug_not_reserved`.
+const RESERVED_PATHS = new Set([
+  "auth", "onboarding", "dashboard", "income", "expense", "capital", "profit",
+  "clients", "products", "pos", "services", "receivables", "payables", "notes",
+  "reminders", "reports", "settings", "frontend-mood", "admin", "ecom", "account",
+  "shop", "cart", "checkout", "product", "page",
+]);
+
 /**
  * Public root resolver:
  * - If no primary org or mode = private → render the original Portal (existing behavior).
@@ -21,9 +30,18 @@ import { supabase } from "@/integrations/supabase/client";
  * - If mode = landing → placeholder (built in next phase).
  */
 export default function StorefrontRoot() {
-  const { settings, loading } = usePublicStorefront();
-  const { user, loading: authLoading } = useAuth();
   const location = useLocation();
+  const candidateSlug = useMemo(() => {
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    if (!seg) return null;
+    if (RESERVED_PATHS.has(seg.toLowerCase())) return null;
+    // Sub-routes of a store: /<slug>, /<slug>/shop, /<slug>/cart, etc.
+    if (!/^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/i.test(seg)) return null;
+    return seg.toLowerCase();
+  }, [location.pathname]);
+
+  const { settings, loading, notFound } = usePublicStorefront(candidateSlug);
+  const { user, loading: authLoading } = useAuth();
   const [adminCheck, setAdminCheck] = useState<{ loading: boolean; isAdmin: boolean }>({
     loading: true,
     isAdmin: false,
@@ -66,9 +84,15 @@ export default function StorefrontRoot() {
     );
   }
 
+  // If the user typed /<something> that doesn't match a real store slug,
+  // fall back to the primary storefront so they don't see a blank screen.
+  if (candidateSlug && notFound) {
+    return <Navigate to="/" replace />;
+  }
+
   // If a logged-in admin or super admin lands on the storefront root,
   // send them to their own dashboard. Customers stay on the storefront.
-  if (adminCheck.isAdmin && location.pathname === "/") {
+  if (adminCheck.isAdmin && location.pathname === "/" && !candidateSlug) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -101,6 +125,9 @@ export default function StorefrontRoot() {
   // Ecommerce mode
   const orgId = settings.organization_id;
   const storeName = settings.store_name ?? "Store";
+  // When serving /<slug>/*, mount the storefront under that prefix so
+  // links to /shop, /cart, /checkout, etc. become /<slug>/shop, etc.
+  const basePath = candidateSlug ? `/${candidateSlug}` : "";
   return (
     <StorefrontLayout
       orgId={orgId}
@@ -109,15 +136,30 @@ export default function StorefrontRoot() {
       footerLogoUrl={settings.footer_logo_url}
       themePrimaryColor={settings.theme_primary_color ?? null}
       themeAccentColor={settings.theme_accent_color ?? null}
+      basePath={basePath}
     >
       <Routes>
-        <Route index element={<StorefrontHome orgId={orgId} settings={settings} />} />
-        <Route path="shop" element={<StorefrontShop orgId={orgId} />} />
-        <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} />} />
-        <Route path="cart" element={<StorefrontCart />} />
-        <Route path="checkout" element={<StorefrontCheckout orgId={orgId} />} />
-        <Route path="page/:slug" element={<StorefrontPage orgId={orgId} />} />
-        <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} />} />
+        {candidateSlug ? (
+          <Route path={`/${candidateSlug}`}>
+            <Route index element={<StorefrontHome orgId={orgId} settings={settings} basePath={basePath} />} />
+            <Route path="shop" element={<StorefrontShop orgId={orgId} basePath={basePath} />} />
+            <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} basePath={basePath} />} />
+            <Route path="cart" element={<StorefrontCart basePath={basePath} />} />
+            <Route path="checkout" element={<StorefrontCheckout orgId={orgId} basePath={basePath} />} />
+            <Route path="page/:slug" element={<StorefrontPage orgId={orgId} basePath={basePath} />} />
+            <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} basePath={basePath} />} />
+          </Route>
+        ) : (
+          <>
+            <Route index element={<StorefrontHome orgId={orgId} settings={settings} basePath="" />} />
+            <Route path="shop" element={<StorefrontShop orgId={orgId} basePath="" />} />
+            <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} basePath="" />} />
+            <Route path="cart" element={<StorefrontCart basePath="" />} />
+            <Route path="checkout" element={<StorefrontCheckout orgId={orgId} basePath="" />} />
+            <Route path="page/:slug" element={<StorefrontPage orgId={orgId} basePath="" />} />
+            <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} basePath="" />} />
+          </>
+        )}
       </Routes>
     </StorefrontLayout>
   );
