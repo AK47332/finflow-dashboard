@@ -285,7 +285,14 @@ export default function SettingsPage() {
     if (!currentOrgId || !user) return;
     if (!name.trim()) return toast.error("Name is required");
     setSavingProfile(true);
-    const trimmedSlug = slug.trim().toLowerCase();
+    const trimmedSlug = normalizeSlug(slug);
+    if (trimmedSlug) {
+      const v = validateSlug(trimmedSlug);
+      if (!v.ok) {
+        setSavingProfile(false);
+        return toast.error(v.error ?? "Invalid store URL");
+      }
+    }
     const { error } = await supabase
       .from("organizations")
       .update({
@@ -295,8 +302,24 @@ export default function SettingsPage() {
       })
       .eq("id", currentOrgId);
     setSavingProfile(false);
-    if (error) return toast.error(error.message);
-    toast.success("Workspace updated");
+    if (error) {
+      const msg = /unique|duplicate/i.test(error.message)
+        ? "That store URL is already taken. Please choose a different one."
+        : error.message;
+      return toast.error(msg);
+    }
+    if (trimmedSlug) {
+      const liveUrl = `${window.location.origin}/${trimmedSlug}`;
+      toast.success("Workspace updated", {
+        description: liveUrl,
+        action: {
+          label: "View store",
+          onClick: () => window.open(liveUrl, "_blank", "noopener"),
+        },
+      });
+    } else {
+      toast.success("Workspace updated");
+    }
     await logActivity({
       orgId: currentOrgId,
       userId: user.id,
