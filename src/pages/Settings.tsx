@@ -206,8 +206,15 @@ export default function SettingsPage() {
       profile: profiles.find((p) => p.user_id === m.user_id) ?? null,
     }));
     enriched.sort((a, b) => {
-      const order = { owner: 0, admin: 1, member: 2 } as const;
-      return order[a.role] - order[b.role];
+      const order: Record<string, number> = {
+        owner: 0,
+        admin: 1,
+        account_manager: 2,
+        store_manager: 3,
+        sales_manager: 4,
+        member: 5,
+      };
+      return (order[a.role] ?? 99) - (order[b.role] ?? 99);
     });
     setMembers(enriched);
     setLoadingMembers(false);
