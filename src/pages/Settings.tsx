@@ -89,6 +89,7 @@ export default function SettingsPage() {
   // Org profile
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("USD");
+  const [slug, setSlug] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -172,6 +173,7 @@ export default function SettingsPage() {
     if (!currentOrg) return;
     setName(currentOrg.name);
     setCurrency(currentOrg.currency);
+    setSlug(currentOrg.slug ?? "");
     setLogoUrl(currentOrg.logo_url);
   }, [currentOrg]);
 
@@ -256,9 +258,14 @@ export default function SettingsPage() {
     if (!currentOrgId || !user) return;
     if (!name.trim()) return toast.error("Name is required");
     setSavingProfile(true);
+    const trimmedSlug = slug.trim().toLowerCase();
     const { error } = await supabase
       .from("organizations")
-      .update({ name: name.trim(), currency })
+      .update({
+        name: name.trim(),
+        currency,
+        slug: trimmedSlug ? trimmedSlug : null,
+      })
       .eq("id", currentOrgId);
     setSavingProfile(false);
     if (error) return toast.error(error.message);
