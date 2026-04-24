@@ -13,6 +13,7 @@ import { StorefrontPage } from "./storefront/StorefrontPage";
 import PortalPage from "./Portal";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { StorefrontBasePathProvider } from "@/contexts/StorefrontBasePath";
 
 // Reserved first-path segments that must NEVER be treated as a store slug.
 // Keep in sync with the database trigger `check_org_slug_not_reserved`.
@@ -125,42 +126,41 @@ export default function StorefrontRoot() {
   // Ecommerce mode
   const orgId = settings.organization_id;
   const storeName = settings.store_name ?? "Store";
-  // When serving /<slug>/*, mount the storefront under that prefix so
-  // links to /shop, /cart, /checkout, etc. become /<slug>/shop, etc.
   const basePath = candidateSlug ? `/${candidateSlug}` : "";
   return (
-    <StorefrontLayout
-      orgId={orgId}
-      storeName={storeName}
-      storeLogoUrl={settings.store_logo_url}
-      footerLogoUrl={settings.footer_logo_url}
-      themePrimaryColor={settings.theme_primary_color ?? null}
-      themeAccentColor={settings.theme_accent_color ?? null}
-      basePath={basePath}
-    >
-      <Routes>
-        {candidateSlug ? (
-          <Route path={`/${candidateSlug}`}>
-            <Route index element={<StorefrontHome orgId={orgId} settings={settings} basePath={basePath} />} />
-            <Route path="shop" element={<StorefrontShop orgId={orgId} basePath={basePath} />} />
-            <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} basePath={basePath} />} />
-            <Route path="cart" element={<StorefrontCart basePath={basePath} />} />
-            <Route path="checkout" element={<StorefrontCheckout orgId={orgId} basePath={basePath} />} />
-            <Route path="page/:slug" element={<StorefrontPage orgId={orgId} basePath={basePath} />} />
-            <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} basePath={basePath} />} />
-          </Route>
-        ) : (
-          <>
-            <Route index element={<StorefrontHome orgId={orgId} settings={settings} basePath="" />} />
-            <Route path="shop" element={<StorefrontShop orgId={orgId} basePath="" />} />
-            <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} basePath="" />} />
-            <Route path="cart" element={<StorefrontCart basePath="" />} />
-            <Route path="checkout" element={<StorefrontCheckout orgId={orgId} basePath="" />} />
-            <Route path="page/:slug" element={<StorefrontPage orgId={orgId} basePath="" />} />
-            <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} basePath="" />} />
-          </>
-        )}
-      </Routes>
-    </StorefrontLayout>
+    <StorefrontBasePathProvider basePath={basePath}>
+      <StorefrontLayout
+        orgId={orgId}
+        storeName={storeName}
+        storeLogoUrl={settings.store_logo_url}
+        footerLogoUrl={settings.footer_logo_url}
+        themePrimaryColor={settings.theme_primary_color ?? null}
+        themeAccentColor={settings.theme_accent_color ?? null}
+      >
+        <Routes>
+          {candidateSlug ? (
+            <Route path={`/${candidateSlug}`}>
+              <Route index element={<StorefrontHome orgId={orgId} settings={settings} />} />
+              <Route path="shop" element={<StorefrontShop orgId={orgId} />} />
+              <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} />} />
+              <Route path="cart" element={<StorefrontCart />} />
+              <Route path="checkout" element={<StorefrontCheckout orgId={orgId} />} />
+              <Route path="page/:slug" element={<StorefrontPage orgId={orgId} />} />
+              <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} />} />
+            </Route>
+          ) : (
+            <>
+              <Route index element={<StorefrontHome orgId={orgId} settings={settings} />} />
+              <Route path="shop" element={<StorefrontShop orgId={orgId} />} />
+              <Route path="product/:slug" element={<StorefrontProduct orgId={orgId} />} />
+              <Route path="cart" element={<StorefrontCart />} />
+              <Route path="checkout" element={<StorefrontCheckout orgId={orgId} />} />
+              <Route path="page/:slug" element={<StorefrontPage orgId={orgId} />} />
+              <Route path="*" element={<StorefrontHome orgId={orgId} settings={settings} />} />
+            </>
+          )}
+        </Routes>
+      </StorefrontLayout>
+    </StorefrontBasePathProvider>
   );
 }
