@@ -160,7 +160,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           <Sprout className="h-5 w-5" />
         </div>
         <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight">FinTrack Pro</div>
+          <div className="text-base font-bold tracking-tight">Business Desk Pro</div>
           <div className="text-[11px] font-medium text-white/70">Income · Expense</div>
         </div>
       </div>

@@ -11,7 +11,7 @@ export function LandingNav({ user }: { user: User | null }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 shadow-lg shadow-violet-500/20">
             <Sprout className="h-4 w-4 text-white" />
           </span>
-          <span className="text-[15px]">FinTrack Pro</span>
+          <span className="text-[15px]">Business Desk Pro</span>
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm text-white/60 md:flex">
