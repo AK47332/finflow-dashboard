@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { AnnouncementBar } from "./AnnouncementBar";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 
 type Props = {
   storeName: string;
@@ -18,6 +19,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
   const count = useCartStore((s) => s.count());
   const { user } = useAuth();
   const navigate = useNavigate();
+  const storeLink = useStoreLink();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -32,7 +34,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (q.trim()) {
-      navigate(`/shop?q=${encodeURIComponent(q.trim())}`);
+      navigate(`${storeLink("/shop")}?q=${encodeURIComponent(q.trim())}`);
       setSearchOpen(false);
     }
   };
@@ -66,13 +68,13 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             <nav className="hidden items-center gap-6 md:flex">
-              <Link to="/shop" className="text-[13px] font-semibold uppercase tracking-wider text-foreground/85 hover:text-primary">
+              <Link to={storeLink("/shop")} className="text-[13px] font-semibold uppercase tracking-wider text-foreground/85 hover:text-primary">
                 Shop
               </Link>
               {leftLinks.map((c) => (
                 <Link
                   key={c.slug}
-                  to={`/shop?category=${c.slug}`}
+                  to={`${storeLink("/shop")}?category=${c.slug}`}
                   className="text-[13px] font-medium tracking-wide text-foreground/70 hover:text-primary"
                 >
                   {c.name}
@@ -83,7 +85,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
 
           {/* Centered logo */}
           <Link
-            to="/"
+            to={storeLink("/")}
             className="flex items-center justify-center font-serif-display tracking-tight"
           >
             {storeLogoUrl ? (
@@ -106,7 +108,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
               {rightLinks.map((c) => (
                 <Link
                   key={c.slug}
-                  to={`/shop?category=${c.slug}`}
+                  to={`${storeLink("/shop")}?category=${c.slug}`}
                   className="text-[13px] font-medium tracking-wide text-foreground/70 hover:text-primary"
                 >
                   {c.name}
@@ -128,7 +130,7 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
               <Heart className="h-[18px] w-[18px]" />
             </Link>
             <Link
-              to="/cart"
+              to={storeLink("/cart")}
               aria-label="Cart"
               className="relative flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
             >
@@ -176,13 +178,13 @@ export function StorefrontHeader({ storeName, storeLogoUrl, categories = [], org
         {open && (
           <div className="border-t border-border/60 bg-background md:hidden">
             <nav className="container mx-auto flex flex-col gap-1 px-4 py-3">
-              <Link to="/shop" className="rounded-lg px-2 py-2.5 text-sm font-semibold uppercase tracking-wider hover:bg-muted" onClick={() => setOpen(false)}>
+              <Link to={storeLink("/shop")} className="rounded-lg px-2 py-2.5 text-sm font-semibold uppercase tracking-wider hover:bg-muted" onClick={() => setOpen(false)}>
                 Shop All
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.slug}
-                  to={`/shop?category=${c.slug}`}
+                  to={`${storeLink("/shop")}?category=${c.slug}`}
                   className="rounded-lg px-2 py-2 text-sm hover:bg-muted"
                   onClick={() => setOpen(false)}
                 >
