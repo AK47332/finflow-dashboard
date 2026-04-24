@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Crown } from "lucide-react";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 
 export function PromoCards() {
+  const storeLink = useStoreLink();
   return (
     <div className="grid gap-5 md:grid-cols-2">
       <Link
-        to="/shop?category=lehenga"
+        to={`${storeLink("/shop")}?category=lehenga`}
         className="group relative overflow-hidden rounded-3xl bg-gradient-maroon p-7 text-background shadow-card transition-all hover:shadow-lift md:p-9"
       >
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold/30 blur-3xl" />
@@ -21,7 +23,7 @@ export function PromoCards() {
         </div>
       </Link>
       <Link
-        to="/shop?category=men"
+        to={`${storeLink("/shop")}?category=men`}
         className="group relative overflow-hidden rounded-3xl bg-gradient-forest p-7 text-background shadow-card transition-all hover:shadow-lift md:p-9"
       >
         <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gold/25 blur-3xl" />
