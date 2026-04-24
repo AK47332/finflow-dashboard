@@ -23,7 +23,7 @@ export function PagePlaceholder({
         <div className="max-w-md space-y-1">
           <h2 className="text-lg font-semibold text-foreground">Coming up next</h2>
           <p className="text-sm text-muted-foreground">
-            This module is part of FinTrack Pro. The design system, layout, and dashboard
+            This module is part of Business Desk Pro. The design system, layout, and dashboard
             are ready — let me know to build this section next and I'll wire up full CRUD,
             search, filters, and exports.
           </p>
