@@ -89,6 +89,7 @@ export default function SettingsPage() {
   // Org profile
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("USD");
+  const [slug, setSlug] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -172,6 +173,7 @@ export default function SettingsPage() {
     if (!currentOrg) return;
     setName(currentOrg.name);
     setCurrency(currentOrg.currency);
+    setSlug(currentOrg.slug ?? "");
     setLogoUrl(currentOrg.logo_url);
   }, [currentOrg]);
 
@@ -256,9 +258,14 @@ export default function SettingsPage() {
     if (!currentOrgId || !user) return;
     if (!name.trim()) return toast.error("Name is required");
     setSavingProfile(true);
+    const trimmedSlug = slug.trim().toLowerCase();
     const { error } = await supabase
       .from("organizations")
-      .update({ name: name.trim(), currency })
+      .update({
+        name: name.trim(),
+        currency,
+        slug: trimmedSlug ? trimmedSlug : null,
+      })
       .eq("id", currentOrgId);
     setSavingProfile(false);
     if (error) return toast.error(error.message);
@@ -520,6 +527,23 @@ export default function SettingsPage() {
                     onChange={(e) => setName(e.target.value)}
                     disabled={!isAdmin}
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="orgslug">Store URL</Label>
+                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2">
+                    <span className="text-xs text-muted-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
+                    <Input
+                      id="orgslug"
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                      placeholder="my-shop"
+                      className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                      disabled={!isAdmin}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="orgcurrency">Default currency</Label>

@@ -6,9 +6,11 @@ import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { currency } from "@/lib/format";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   const addItem = useCartStore((s) => s.addItem);
+  const storeLink = useStoreLink();
   const [wished, setWished] = useState(false);
   const slug = product.extras?.slug ?? product.id;
   const image = product.extras?.image_urls?.[0] ?? null;
@@ -44,7 +46,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
   return (
     <Link
-      to={`/product/${slug}`}
+      to={storeLink(`/product/${slug}`)}
       className="group relative flex flex-col overflow-hidden rounded-2xl bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-muted">

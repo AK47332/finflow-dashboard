@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
 import type { EcomPage } from "@/lib/ecom";
 import { useFooterSettings } from "@/hooks/useFooterSettings";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 
 export function StorefrontFooter({
   storeName,
@@ -15,6 +16,7 @@ export function StorefrontFooter({
   pages?: EcomPage[];
 }) {
   const { settings } = useFooterSettings(orgId ?? null);
+  const storeLink = useStoreLink();
   const socials: { icon: typeof Instagram; href: string }[] = [
     { icon: Instagram, href: settings.instagram_url },
     { icon: Facebook, href: settings.facebook_url },
@@ -74,7 +76,7 @@ export function StorefrontFooter({
             )}
             {pages.map((p) => (
               <li key={p.id}>
-                <Link to={`/page/${p.slug}`} className="hover:text-gold">{p.title}</Link>
+                <Link to={storeLink(`/page/${p.slug}`)} className="hover:text-gold">{p.title}</Link>
               </li>
             ))}
           </ul>
@@ -82,8 +84,8 @@ export function StorefrontFooter({
         <div>
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Shop</div>
           <ul className="mt-4 space-y-2.5 text-sm text-background/80">
-            <li><Link to="/shop" className="hover:text-gold">All products</Link></li>
-            <li><Link to="/shop?featured=1" className="hover:text-gold">Featured</Link></li>
+            <li><Link to={storeLink("/shop")} className="hover:text-gold">All products</Link></li>
+            <li><Link to={`${storeLink("/shop")}?featured=1`} className="hover:text-gold">Featured</Link></li>
           </ul>
         </div>
         <div>

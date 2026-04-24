@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, ChevronRight } from "lucide-react";
@@ -18,6 +19,7 @@ type Props = { orgId: string; settings: FrontendSettings };
 type Filter = "all" | "featured" | "trending" | "sale" | "stock";
 
 export function StorefrontHome({ orgId, settings }: Props) {
+  const storeLink = useStoreLink();
   const [products, setProducts] = useState<StorefrontProduct[]>([]);
   const [categories, setCategories] = useState<EcomCategory[]>([]);
   const [banners, setBanners] = useState<EcomBanner[]>([]);
@@ -147,7 +149,7 @@ export function StorefrontHome({ orgId, settings }: Props) {
                   variant="outline"
                   className="h-12 rounded-full border-background/40 bg-background/5 px-8 text-xs font-bold uppercase tracking-[0.18em] text-background backdrop-blur hover:bg-background hover:text-foreground"
                 >
-                  <Link to="/shop">Browse all</Link>
+                  <Link to={storeLink("/shop")}>Browse all</Link>
                 </Button>
               </div>
             </div>
@@ -202,7 +204,7 @@ export function StorefrontHome({ orgId, settings }: Props) {
           </div>
           <div className="mt-8 text-center">
             <Button asChild variant="outline" size="lg" className="rounded-full">
-              <Link to="/shop">View all <ChevronRight className="ml-1 h-4 w-4" /></Link>
+              <Link to={storeLink("/shop")}>View all <ChevronRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           </div>
         </section>
