@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound } from "lucide-react";
+import { Building2, Check, Loader2, Plus, Trash2, UserMinus, UserPlus, Upload, Tag, History, X, Crown, ShieldCheck, User as UserIcon, PanelBottom, KeyRound, Copy, ExternalLink, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -47,6 +47,33 @@ const TIMEZONES = [
   "Australia/Sydney",
 ];
 const TZ_STORAGE_KEY = "ui-timezone";
+
+const RESERVED_SLUGS = new Set([
+  "auth","onboarding","dashboard","income","expense","capital","profit",
+  "clients","products","pos","services","receivables","payables","notes",
+  "reminders","reports","settings","frontend-mood","admin","ecom","account",
+  "shop","cart","checkout","product","page","api","assets","static","public",
+  "storefront","s","store",
+]);
+const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
+
+function normalizeSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-");
+}
+
+function validateSlug(s: string): { ok: boolean; error?: string } {
+  if (!s) return { ok: true };
+  if (s.length < 2) return { ok: false, error: "Must be at least 2 characters." };
+  if (s.length > 40) return { ok: false, error: "Must be 40 characters or fewer." };
+  if (!SLUG_REGEX.test(s)) return { ok: false, error: "Use lowercase letters, numbers and hyphens (no leading/trailing hyphen)." };
+  if (RESERVED_SLUGS.has(s)) return { ok: false, error: `"${s}" is a reserved name and cannot be used.` };
+  return { ok: true };
+}
 
 type Member = {
   id: string;
@@ -258,7 +285,14 @@ export default function SettingsPage() {
     if (!currentOrgId || !user) return;
     if (!name.trim()) return toast.error("Name is required");
     setSavingProfile(true);
-    const trimmedSlug = slug.trim().toLowerCase();
+    const trimmedSlug = normalizeSlug(slug);
+    if (trimmedSlug) {
+      const v = validateSlug(trimmedSlug);
+      if (!v.ok) {
+        setSavingProfile(false);
+        return toast.error(v.error ?? "Invalid store URL");
+      }
+    }
     const { error } = await supabase
       .from("organizations")
       .update({
@@ -268,8 +302,24 @@ export default function SettingsPage() {
       })
       .eq("id", currentOrgId);
     setSavingProfile(false);
-    if (error) return toast.error(error.message);
-    toast.success("Workspace updated");
+    if (error) {
+      const msg = /unique|duplicate/i.test(error.message)
+        ? "That store URL is already taken. Please choose a different one."
+        : error.message;
+      return toast.error(msg);
+    }
+    if (trimmedSlug) {
+      const liveUrl = `${window.location.origin}/${trimmedSlug}`;
+      toast.success("Workspace updated", {
+        description: liveUrl,
+        action: {
+          label: "View store",
+          onClick: () => window.open(liveUrl, "_blank", "noopener"),
+        },
+      });
+    } else {
+      toast.success("Workspace updated");
+    }
     await logActivity({
       orgId: currentOrgId,
       userId: user.id,
@@ -536,20 +586,74 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="orgslug">Store URL</Label>
-                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2">
-                    <span className="text-xs text-muted-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
-                    <Input
-                      id="orgslug"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="my-shop"
-                      className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
-                      disabled={!isAdmin}
-                    />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
-                  </p>
+                  {(() => {
+                    const origin = typeof window !== "undefined" ? window.location.origin : "";
+                    const normalized = normalizeSlug(slug);
+                    const validation = validateSlug(normalized);
+                    const liveUrl = normalized && validation.ok ? `${origin}/${normalized}` : "";
+                    const showError = slug.length > 0 && !validation.ok;
+                    return (
+                      <>
+                        <div className={`flex items-center gap-1 rounded-md border bg-muted/30 px-2 ${showError ? "border-destructive" : "border-border"}`}>
+                          <span className="text-xs text-muted-foreground">{origin}/</span>
+                          <Input
+                            id="orgslug"
+                            value={slug}
+                            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                            onBlur={() => setSlug((s) => normalizeSlug(s))}
+                            placeholder="my-shop"
+                            className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                            disabled={!isAdmin}
+                            maxLength={40}
+                          />
+                          {liveUrl && (
+                            <>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 shrink-0"
+                                title="Copy store URL"
+                                onClick={async () => {
+                                  try {
+                                    await navigator.clipboard.writeText(liveUrl);
+                                    toast.success("Store URL copied");
+                                  } catch {
+                                    toast.error("Could not copy URL");
+                                  }
+                                }}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 shrink-0"
+                                title="Open store in new tab"
+                                onClick={() => window.open(liveUrl, "_blank", "noopener")}
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                        {showError ? (
+                          <p className="flex items-center gap-1 text-[11px] text-destructive">
+                            <AlertCircle className="h-3 w-3" /> {validation.error}
+                          </p>
+                        ) : liveUrl ? (
+                          <p className="text-[11px] text-primary">
+                            ✓ Available format. Your store will be live at <span className="font-medium">{liveUrl}</span>
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground">
+                            Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="orgcurrency">Default currency</Label>
