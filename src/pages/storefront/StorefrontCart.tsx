@@ -1,3 +1,4 @@
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ export function StorefrontCart() {
         <h1 className="mt-4 text-2xl font-bold">Your cart is empty</h1>
         <p className="mt-2 text-sm text-muted-foreground">Browse products and add your favorites.</p>
         <Button asChild className="mt-6">
-          <Link to="/shop">Start shopping</Link>
+          <Link to={storeLink("/shop")}>Start shopping</Link>
         </Button>
       </div>
     );
@@ -90,7 +91,7 @@ export function StorefrontCart() {
             Checkout <ArrowRight className="h-4 w-4" />
           </Button>
           <Button asChild variant="ghost" className="mt-2 w-full">
-            <Link to="/shop">Continue shopping</Link>
+            <Link to={storeLink("/shop")}>Continue shopping</Link>
           </Button>
         </aside>
       </div>

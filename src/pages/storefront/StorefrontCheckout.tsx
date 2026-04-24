@@ -1,3 +1,4 @@
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/cartStore";
@@ -36,7 +37,7 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
       <div className="container mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground">Your cart is empty.</p>
         <Button asChild className="mt-4">
-          <Link to="/shop">Browse products</Link>
+          <Link to={storeLink("/shop")}>Browse products</Link>
         </Button>
       </div>
     );
@@ -53,7 +54,7 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
               <Link to="/auth?customer=1&redirect=/checkout">Sign in / Sign up</Link>
             </Button>
             <Button asChild variant="ghost">
-              <Link to="/cart">Back to cart</Link>
+              <Link to={storeLink("/cart")}>Back to cart</Link>
             </Button>
           </div>
         </div>

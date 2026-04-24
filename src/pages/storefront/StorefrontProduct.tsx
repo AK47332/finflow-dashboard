@@ -1,3 +1,4 @@
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,7 +120,7 @@ export function StorefrontProduct({ orgId }: { orgId: string }) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground">Product not found.</p>
-        <Button asChild variant="outline" className="mt-4"><Link to="/shop">Back to shop</Link></Button>
+        <Button asChild variant="outline" className="mt-4"><Link to={storeLink("/shop")}>Back to shop</Link></Button>
       </div>
     );
   }
@@ -149,7 +150,7 @@ export function StorefrontProduct({ orgId }: { orgId: string }) {
       <nav className="mb-6 flex items-center gap-1.5 text-xs text-muted-foreground">
         <Link to="/" className="hover:text-foreground">Home</Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/shop" className="hover:text-foreground">Shop</Link>
+        <Link to={storeLink("/shop")} className="hover:text-foreground">Shop</Link>
         {category && (<>
           <ChevronRight className="h-3 w-3" />
           <Link to={`/shop?category=${category.slug}`} className="hover:text-foreground">{category.name}</Link>
