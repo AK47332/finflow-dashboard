@@ -529,6 +529,23 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
+                  <Label htmlFor="orgslug">Store URL</Label>
+                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2">
+                    <span className="text-xs text-muted-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
+                    <Input
+                      id="orgslug"
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                      placeholder="my-shop"
+                      className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                      disabled={!isAdmin}
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
                   <Label htmlFor="orgcurrency">Default currency</Label>
                   <Select value={currency} onValueChange={setCurrency} disabled={!isAdmin}>
                     <SelectTrigger id="orgcurrency"><SelectValue /></SelectTrigger>
