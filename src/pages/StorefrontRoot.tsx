@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { StorefrontCheckout } from "./storefront/StorefrontCheckout";
 import { StorefrontPage } from "./storefront/StorefrontPage";
 import PortalPage from "./Portal";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/contexts/SessionContext";
 import { StorefrontBasePathProvider } from "@/contexts/StorefrontBasePath";
 
 // Reserved first-path segments that must NEVER be treated as a store slug.
@@ -42,42 +42,15 @@ export default function StorefrontRoot() {
   }, [location.pathname]);
 
   const { settings, loading, notFound } = usePublicStorefront(candidateSlug);
-  const { user, loading: authLoading } = useAuth();
-  const [adminCheck, setAdminCheck] = useState<{ loading: boolean; isAdmin: boolean }>({
-    loading: true,
-    isAdmin: false,
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    if (authLoading) return;
-    if (!user) {
-      setAdminCheck({ loading: false, isAdmin: false });
-      return;
-    }
-    setAdminCheck({ loading: true, isAdmin: false });
-    (async () => {
-      const [sa, mem] = await Promise.all([
-        supabase.from("super_admins").select("id").eq("user_id", user.id).maybeSingle(),
-        supabase
-          .from("organization_members")
-          .select("id")
-          .eq("user_id", user.id)
-          .limit(1)
-          .maybeSingle(),
-      ]);
-      if (!cancelled) setAdminCheck({ loading: false, isAdmin: !!sa.data || !!mem.data });
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user, authLoading]);
+  const { loading: authLoading } = useAuth();
+  const { isSuperAdmin, isOrgMember, loading: sessionLoading } = useSession();
+  const isAdmin = isSuperAdmin || isOrgMember;
 
   useEffect(() => {
     if (settings?.store_name) document.title = settings.store_name;
   }, [settings]);
 
-  if (loading || authLoading || adminCheck.loading) {
+  if (loading || authLoading || sessionLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -93,7 +66,7 @@ export default function StorefrontRoot() {
 
   // If a logged-in admin or super admin lands on the storefront root,
   // send them to their own dashboard. Customers stay on the storefront.
-  if (adminCheck.isAdmin && location.pathname === "/" && !candidateSlug) {
+  if (isAdmin && location.pathname === "/" && !candidateSlug) {
     return <Navigate to="/dashboard" replace />;
   }
 

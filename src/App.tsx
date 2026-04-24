@@ -23,6 +23,7 @@ import SettingsPage from "./pages/Settings.tsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
+import { SessionProvider } from "@/contexts/SessionContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import {
   TrendingUp,
@@ -63,9 +64,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <OrgProvider>
+          <SessionProvider>
+            <OrgProvider>
             <Routes>
-              <Route path="/*" element={<StorefrontRoot />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/account" element={<CustomerAccountPage />} />
@@ -103,8 +104,12 @@ const App = () => (
                   </Route>
                 </Route>
               </Route>
+              {/* Catch-all storefront route MUST be last so dashboard paths
+                  resolve to the protected pages first. */}
+              <Route path="*" element={<StorefrontRoot />} />
             </Routes>
-          </OrgProvider>
+            </OrgProvider>
+          </SessionProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
