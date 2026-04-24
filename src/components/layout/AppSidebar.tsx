@@ -277,8 +277,16 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           <circle cx="50" cy="50" r="28" fill="none" stroke="white" strokeWidth="1.5" />
           <circle cx="50" cy="50" r="16" fill="none" stroke="white" strokeWidth="1.5" />
         </svg>
-        <div className="relative font-semibold text-white">Pro tip</div>
-        <p className="relative mt-1 text-white/70">Press ⌘K to quickly add an income or expense.</p>
+        <div className="relative font-semibold text-white">This software developed by Brown Fox IT</div>
+        <p className="relative mt-1 text-white/70">Powered by pabitra.net</p>
+        <a
+          href="https://brownfoxit.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative mt-3 inline-flex items-center justify-center rounded-lg bg-white/15 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-white/25"
+        >
+          Contact
+        </a>
       </div>
     </aside>
   );
