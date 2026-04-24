@@ -3,6 +3,7 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
+  Sprout,
   ArrowDownLeft,
   ArrowUpRight,
   Package,
