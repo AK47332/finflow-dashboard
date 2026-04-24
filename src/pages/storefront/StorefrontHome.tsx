@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useStoreLink } from "@/contexts/StorefrontBasePath";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, ChevronRight } from "lucide-react";
@@ -18,6 +19,7 @@ type Props = { orgId: string; settings: FrontendSettings };
 type Filter = "all" | "featured" | "trending" | "sale" | "stock";
 
 export function StorefrontHome({ orgId, settings }: Props) {
+  const storeLink = useStoreLink();
   const [products, setProducts] = useState<StorefrontProduct[]>([]);
   const [categories, setCategories] = useState<EcomCategory[]>([]);
   const [banners, setBanners] = useState<EcomBanner[]>([]);
