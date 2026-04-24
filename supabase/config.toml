@@ -1,1 +1,4 @@
 project_id = "wbnaognhtokxoowyseqg"
+
+[functions.ecom-guest-checkout]
+verify_jwt = false

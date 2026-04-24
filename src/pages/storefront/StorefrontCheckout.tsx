@@ -44,29 +44,47 @@ export function StorefrontCheckout({ orgId }: { orgId: string }) {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="mx-auto max-w-md rounded-3xl border border-border/60 bg-card p-8 text-center">
-          <h1 className="text-2xl font-bold">Sign in to continue</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Please sign in or create an account to place your order.</p>
-          <div className="mt-6 flex flex-col gap-2">
-            <Button asChild>
-              <Link to="/auth?customer=1&redirect=/checkout">Sign in / Sign up</Link>
-            </Button>
-            <Button asChild variant="ghost">
-              <Link to={storeLink("/cart")}>Back to cart</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const placeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
+      // ===== Guest checkout (no logged-in user) =====
+      // We delegate to a service-role edge function so RLS doesn't block
+      // creating the customer/order. The function also auto-creates an
+      // auth account for this email so the order is tied to a real customer.
+      if (!user) {
+        const { data, error } = await supabase.functions.invoke(
+          "ecom-guest-checkout",
+          {
+            body: {
+              organization_id: orgId,
+              full_name: form.full_name,
+              email: form.email,
+              phone: form.phone,
+              line1: form.line1,
+              notes: form.notes,
+              items: items.map((it) => ({
+                product_id: it.product_id,
+                product_name: it.name,
+                product_sku: it.sku,
+                unit_price: it.unit_price,
+                quantity: it.quantity,
+              })),
+            },
+          },
+        );
+        if (error) throw error;
+        const payload = data as { order_number?: string; error?: unknown } | null;
+        if (payload?.error) throw new Error(String(payload.error));
+        clear();
+        toast.success(
+          `Order placed! Reference: ${payload?.order_number ?? "saved"}`,
+        );
+        navigate(storeLink("/"));
+        return;
+      }
+
+      // ===== Logged-in customer path (unchanged) =====
       // Ensure ecom_customer record
       let customerId: string;
       const { data: existing } = await supabase
