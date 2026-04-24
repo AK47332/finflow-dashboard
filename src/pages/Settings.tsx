@@ -586,20 +586,74 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="orgslug">Store URL</Label>
-                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2">
-                    <span className="text-xs text-muted-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
-                    <Input
-                      id="orgslug"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="my-shop"
-                      className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
-                      disabled={!isAdmin}
-                    />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
-                  </p>
+                  {(() => {
+                    const origin = typeof window !== "undefined" ? window.location.origin : "";
+                    const normalized = normalizeSlug(slug);
+                    const validation = validateSlug(normalized);
+                    const liveUrl = normalized && validation.ok ? `${origin}/${normalized}` : "";
+                    const showError = slug.length > 0 && !validation.ok;
+                    return (
+                      <>
+                        <div className={`flex items-center gap-1 rounded-md border bg-muted/30 px-2 ${showError ? "border-destructive" : "border-border"}`}>
+                          <span className="text-xs text-muted-foreground">{origin}/</span>
+                          <Input
+                            id="orgslug"
+                            value={slug}
+                            onChange={(e) => setSlug(e.target.value.toLowerCase())}
+                            onBlur={() => setSlug((s) => normalizeSlug(s))}
+                            placeholder="my-shop"
+                            className="border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
+                            disabled={!isAdmin}
+                            maxLength={40}
+                          />
+                          {liveUrl && (
+                            <>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 shrink-0"
+                                title="Copy store URL"
+                                onClick={async () => {
+                                  try {
+                                    await navigator.clipboard.writeText(liveUrl);
+                                    toast.success("Store URL copied");
+                                  } catch {
+                                    toast.error("Could not copy URL");
+                                  }
+                                }}
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 shrink-0"
+                                title="Open store in new tab"
+                                onClick={() => window.open(liveUrl, "_blank", "noopener")}
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                        {showError ? (
+                          <p className="flex items-center gap-1 text-[11px] text-destructive">
+                            <AlertCircle className="h-3 w-3" /> {validation.error}
+                          </p>
+                        ) : liveUrl ? (
+                          <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+                            ✓ Available format. Your store will be live at <span className="font-medium">{liveUrl}</span>
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground">
+                            Lowercase letters, numbers and hyphens (2-40 chars). Reserved names like "auth", "dashboard", "settings", "admin" are not allowed.
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="orgcurrency">Default currency</Label>
