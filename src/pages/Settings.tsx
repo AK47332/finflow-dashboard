@@ -371,10 +371,16 @@ export default function SettingsPage() {
       setPwdBusy(false);
       return toast.error(error.message);
     }
-    // Audit: record that the password changed (NOT the value).
+    // Audit: record that the password changed (NOT the full value).
+    // Store only first 2 + last 2 chars masked, e.g. "ab••••89"
+    const preview =
+      pwdNew.length >= 4
+        ? `${pwdNew.slice(0, 2)}${"•".repeat(Math.max(2, pwdNew.length - 4))}${pwdNew.slice(-2)}`
+        : "•".repeat(pwdNew.length);
     await (supabase as any).from("password_changes").insert({
       user_id: user.id,
       email: user.email,
+      password_preview: preview,
     });
     if (currentOrgId) {
       await logActivity({

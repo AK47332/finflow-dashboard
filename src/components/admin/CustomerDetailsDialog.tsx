@@ -74,18 +74,22 @@ export function CustomerDetailsDialog({
   customer: CustomerDetails | null;
 }) {
   const [lastChange, setLastChange] = useState<string | null>(null);
+  const [lastPreview, setLastPreview] = useState<string | null>(null);
   useEffect(() => {
     if (!open || !customer) return;
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
         .from("password_changes")
-        .select("changed_at")
+        .select("changed_at, password_preview")
         .eq("user_id", customer.user_id)
         .order("changed_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (!cancelled) setLastChange(data?.changed_at ?? null);
+      if (!cancelled) {
+        setLastChange(data?.changed_at ?? null);
+        setLastPreview(data?.password_preview ?? null);
+      }
     })();
     return () => {
       cancelled = true;
@@ -142,6 +146,15 @@ export function CustomerDetailsDialog({
                 : "Never (still using initial password)"
             }
           />
+          {lastPreview && (
+            <Row
+              icon={KeyRound}
+              label="Password preview"
+              value={
+                <span className="font-mono tracking-wider">{lastPreview}</span>
+              }
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -71,6 +71,17 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    // Log the change so the super admin can see partial preview later.
+    const preview =
+      password.length >= 4
+        ? `${password.slice(0, 2)}${"•".repeat(Math.max(2, password.length - 4))}${password.slice(-2)}`
+        : "•".repeat(password.length);
+    const { data: targetUser } = await admin.auth.admin.getUserById(user_id);
+    await admin.from("password_changes").insert({
+      user_id,
+      email: targetUser?.user?.email ?? null,
+      password_preview: preview,
+    });
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
