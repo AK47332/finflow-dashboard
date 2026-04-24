@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Sprout } from "lucide-react";
+import logo from "@/assets/business-desk-pro-logo.png";
 
 export function LandingNav({ user }: { user: User | null }) {
   return (
     <header className="sticky top-0 z-40 border-b border-white/5 bg-[hsl(240_10%_4%/0.7)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 shadow-lg shadow-violet-500/20">
-            <Sprout className="h-4 w-4 text-white" />
-          </span>
+          <img src={logo} alt="Business Desk Pro" className="h-8 w-auto" />
           <span className="text-[15px]">Business Desk Pro</span>
         </Link>
 

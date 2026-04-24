@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
-import { Sprout } from "lucide-react";
+import logo from "@/assets/business-desk-pro-logo.png";
 
 export function LandingFooter() {
   return (
     <footer className="border-t border-white/5 px-6 py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
         <Link to="/" className="flex items-center gap-2.5 font-semibold tracking-tight">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-violet-700">
-            <Sprout className="h-3.5 w-3.5 text-white" />
-          </span>
+          <img src={logo} alt="Business Desk Pro" className="h-7 w-auto" />
           <span className="text-sm">Business Desk Pro</span>
         </Link>
 
