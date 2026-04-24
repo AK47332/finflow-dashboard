@@ -643,7 +643,7 @@ export default function SettingsPage() {
                             <AlertCircle className="h-3 w-3" /> {validation.error}
                           </p>
                         ) : liveUrl ? (
-                          <p className="text-[11px] text-emerald-600 dark:text-emerald-400">
+                          <p className="text-[11px] text-primary">
                             ✓ Available format. Your store will be live at <span className="font-medium">{liveUrl}</span>
                           </p>
                         ) : (
